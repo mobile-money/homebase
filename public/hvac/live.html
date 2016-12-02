@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Live</title>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
+
+		<link rel="stylesheet" href="../shared/css/style.css">
+	</head>
+	<body class="live-view" style="display:none;">
+		<!--Start Info Modal-->
+		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<h3 style="color:#000;">System State</h3>
+						<div id="infoModalBody">
+							<div class="btn-group" role="group" aria-label="...">
+								<button type="button" class="btn btn-default" id="systemOffButton" onClick="updateSystem(0);">Off</button>
+								<button type="button" class="btn btn-default" id="systemAutoButton" onClick="updateSystem(2);">Auto</button>
+								<button type="button" class="btn btn-default" id="systemOnButton" onClick="updateSystem(1);">On</button>
+							</div>
+						</div>
+						<h3 style="color:#000;">Hold Temperature</h3>
+						<div class="input-group" id="holdGroup">
+							<input type="text" class="form-control" id="holdTemp" readonly="readonly" value="72" />
+							<div class="input-group-btn">
+								<button class="btn btn-success" onClick="increaseHoldTemp();">
+									<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+								</button>
+								<button class="btn btn-danger" onClick="decreaseHoldTemp();">
+									<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+								</button>
+								<button class="btn btn-default" onClick="setHoldTemp();">Set</button>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-sm btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Info Modal-->
+
+		<nav class="navbar navbar-default" id="navBar" style="display:none;">
+		  <div class="container-fluid">
+		    <!-- Brand and toggle get grouped for better mobile display -->
+		    <div class="navbar-header">
+		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+		        <span class="sr-only">Toggle navigation</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </button>
+		      <a class="navbar-brand" href="#">Home Auto</a>
+		    </div>
+
+		    <!-- Collect the nav links, forms, and other content for toggling -->
+		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		      <ul class="nav navbar-nav">
+		        <li><a href="/hvac/admin">Admin</a></li>
+		      	<li><a href="/hvac/data">Data</a></li>
+		        <li><a href="/hvac/charts">Charts</a></li>
+		      	<li class="active"><a href="/hvac/live">Live <span class="sr-only">(current)</span></a></li>
+		      </ul>
+		    </div><!-- /.navbar-collapse -->
+		  </div><!-- /.container-fluid -->
+		</nav>
+
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-12" id="navToggleDiv">
+					<button class="btn btn-default btn-block" id="navToggle" style="background:transparent;border:none;color:transparent;"></button>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-9">
+					<div class="dropdown">
+					 	<button class="dropdown-toggle live-dropdown" type="button" id="locSelect" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">---</button>
+						<ul class="dropdown-menu" aria-labelledby="locSelect" id="locList"></ul>
+						<input type="hidden" id="selectedLocation" />
+					</div>
+				</div>
+				<div class="col-xs-3 pull-right" style="text-align:right;">
+					<h6 id="currentTime">--</h6>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<button id="optionsButton" style="background:#000;border:none;display:none;">
+						<i class="glyphicon glyphicon-cog"></i>
+					</button>
+				</div>
+			</div>
+			<div class="row" style="margin-top:40px;">
+				<div class="col-xs-12" id="readingDiv">
+					<div class="row">
+						<div class="col-xs-3">
+							<div class="col-xs-12 well" id="systemInfo"></div>
+						</div>
+						<div class="col-xs-6 col-xs-offset-1 centered" id="tempDiv">
+							<h1 id="tempReading" class="temp-reading">--°</h1>
+						</div>
+						<div class="col-xs-2 centered pull-right" id="humdDiv">
+							<div class="col-xs-12">
+								<h5 id="humdReading" class="humidity-reading">--%</h5>
+							</div>
+							<div class="col-xs-12" id="actionDiv"></div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-6 col-xs-offset-4 centered" id="timeDiv">
+							<h6 id="timeReading">--</h6>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="../shared/js/jquery.color-2.1.2.min.js"></script>
+		<script type="text/javascript" src="../shared/js/socket.io-1.4.5.js"></script>
+		<!-- Latest compiled and minified JavaScript -->
+		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../shared/js/underscore-1.8.3.js"></script>
+		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
+		<script type="text/javascript" src="/hvac/js/live.js"></script>
+	</body>
+</html>

@@ -1,0 +1,65 @@
+body.live-view {
+	background-color: #000;
+	color: #CC7F02;
+}
+
+.test-border {
+	border: 1px black solid;
+}
+
+.modal-field {
+	margin-bottom: 10px;
+}
+
+.error {
+	background: #f2dede;
+}
+
+.centered {
+	text-align: center;
+	vertical-align: middle;
+}
+
+.temp-reading {
+	font-size: 14em;
+}
+
+.humidity-reading {
+	font-size: 3em;
+}
+
+.live-dropdown {
+    background: #000;
+    color: #f2a426;
+    border: #000;
+}
+
+#locSelect {
+	font-size: 1.3em;
+}
+
+#systemInfo {
+	background:#CC7F02;
+	color:#000;
+	border-color: #875d1b;
+}
+
+.highlightInfo {
+	color: #fff;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.highlightTime {
+	color: #fff;
+	font-weight: bold;
+}
+
+.infoTitle {
+	font-size: 0.7em;
+	color: #666;
+}
+
+.infoSubtext {
+	font-size: 0.75em;
+}
