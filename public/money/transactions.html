@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Transactions</title>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
+
+		<link rel="stylesheet" href="../shared/css/bootstrap-datepicker3.standalone.min.css">
+		<link rel="stylesheet" href="../shared/css/style.css">
+	</head>
+	<body style="display:none;">
+		<div id="test"></div>
+		<!--Start Info Modal-->
+		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div id="infoModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-info" data-dismiss="modal" aria-label="OK" title="OK">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Info Modal-->
+		<!--Start Edit Transaction Modal-->
+		<div class="modal fade" id="editTransactionModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Edit Transaction</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="editTransactionId" />
+ 						<div class="input-group">
+							<label>Payee</label>
+							<input id="editPayee" class="form-control editTrans" type="text" placeholder="Payee" />
+						</div>
+						<div class="input-group">
+							<label>Description</label>
+							<input id="editDescription" class="form-control editTrans" type="text" placeholder="Description" />
+						</div>
+						<div class="input-group">
+							<label>Check #</label>
+							<input type="number" class="form-control editTrans" min="0" max="1000000" step="1" id="editCheck" />
+						</div>
+						<div class="input-group">
+							<label>Category</label>
+							<select class="form-control editTrans" id="editCategory"></select>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" title="Edit Transaction" id="editTransactionButton"><i class="glyphicon glyphicon-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Transaction">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Edit Transaction Modal-->
+		<!--Start Edit Future Transaction Modal-->
+		<div class="modal fade" id="editFutureTransactionModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Edit Transaction</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="editFutureTransactionId" />
+ 						<div class="input-group">
+							<label>Transaction Date</label>
+							<input id="editFTDate" class="form-control editDateField editFTrans datepicker" type="text" />
+						</div>
+ 						<div class="input-group">
+							<label>Payee</label>
+							<input id="editFPayee" class="form-control editFTrans" type="text" placeholder="Payee" />
+						</div>
+						<div class="input-group">
+							<label>Description</label>
+							<input id="editFDescription" class="form-control editFTrans" type="text" placeholder="Description" />
+						</div>
+						<div class="input-group">
+							<label>Check #</label>
+							<input type="number" class="form-control editFTrans" min="0" max="1000000" step="1" id="editFCheck" />
+						</div>
+ 						<div class="input-group">
+							<label>Deposit</label>
+							<input type="number" class="form-control currency editFTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="editFDeposit" />
+						</div>
+						<div class="input-group">
+							<label>Withdrawl</label>
+							<input type="number" class="form-control currency editFTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="editFWithdrawl" />
+						</div>
+						<div class="input-group">
+							<label>Category</label>
+							<select class="form-control editFTrans" id="editFCategory"></select>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" title="Edit Transaction" id="editFTransactionButton"><i class="glyphicon glyphicon-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Transaction">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Edit Future Transaction Modal-->
+		<!--Start Commit Future Transaction Modal-->
+		<div class="modal fade" id="commitFutureTransactionModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Commit Transaction</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="commitFutureTransactionId" />
+						<div id="commitModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-success" title="Commit Transaction" id="commitFTransactionButton"><i class="glyphicon glyphicon-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Transaction">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Commit Future Transaction Modal-->
+		<!--Start Delete Transaction Modal-->
+		<div class="modal fade" id="deleteTransactionModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Delete Transaction</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="deleteTransactionId" />
+						<div id="deleteModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-danger" title="Delete Transaction" id="deleteTransactionButton"><i class="glyphicon glyphicon-trash"></i></button><button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Transaction">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Delete Transaction Modal-->
+		<!--Start Xfer Modal-->
+		<div class="modal fade" id="xferModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Transfer Transaction</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="xferAccountId" />
+						<div id="xferModalBody">
+							<select id="xferAccounts" class="form-control"><option id="noAccountSelected" /></select><br />
+							<button class="btn btn-primary btn-sm active" id="noXferBtn">None</button>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-success" title="Xfer Transaction" id="xferButton"><i class="glyphicon glyphicon-share-alt"></i></button>
+<!-- 						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Xfer Transaction" id="cancelXfer">Cancel</button>
+ -->					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Delete Transaction Modal-->
+
+		<nav class="navbar navbar-default">
+		  <div class="container-fluid">
+		    <!-- Brand and toggle get grouped for better mobile display -->
+		    <div class="navbar-header">
+		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+		        <span class="sr-only">Toggle navigation</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </button>
+		      <a class="navbar-brand" href="/homebase">Home Base</a>
+		    </div>
+
+		    <!-- Collect the nav links, forms, and other content for toggling -->
+		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		      <ul class="nav navbar-nav">
+		        <li><a href="/money/accounts">Accounts</a></li>
+		      	<li class="active"><a href="/money/transactions">Transactions <span class="sr-only">(current)</span></a></li>
+		        <li><a href="/money/budgets">Budgets</a></li>
+		        <li><a href="/money/bills">Bills</a></li>
+		        <li><a href="/money/flows">Flows</a></li>
+		      </ul>
+<!-- 			    <div class="pull-right">
+			    	<div id="username"></div>
+			    	<button class="btn-xs btn-danger" id="logout">Log Out</button>
+			    </div>
+ -->		    </div><!-- /.navbar-collapse -->
+
+		  </div><!-- /.container-fluid -->
+		</nav>
+
+
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-3 col-sm-5">
+					<select id="accountSelect" class="form-control">
+					</select>
+				</div>
+<!-- 				<div class="col-md-3 col-sm-5">
+					<select id="periodSelect" class="form-control">
+					</select>
+				</div>
+ -->			</div>
+			<br />
+			<div class="row">
+				<div class="col-md-12" id="positionSection"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<table id="transactionTable" class="table table-striped table-bordered table-condensed">
+						<thead>
+							<tr>
+								<th class="zulu">Posted Date</th>
+								<th>Transaction Date</th>
+<!-- 								<th>Posted Date</th>
+ -->								
+								<th id="payeeHeader">Payee</th>
+								<th>Description</th>
+								<th class="zulu">Check #</th>
+								<th id="plusHeader">Deposit</th>
+								<th id="minusHeader">Withdrawl</th>
+								<th class="zulu">Category</th>
+								<th id="balanceHeader">Balance</th>
+								<th class="zulu"></th>
+							</tr>
+							<tr>
+								<td class="zulu"></td><td><input type="text" class="datepicker form-control newTrans" size="10" id="newTDate" /></td>
+								<td><input type="text" class="form-control newTrans" maxlength="100" id="newPayee" autocomplete="off" /></td>
+								<td><input type="text" class="form-control newTrans" maxlength="100" id="newDescription" autocomplete="off" /></td>
+								<td class="zulu"><input type="number" class="form-control newTrans" min="0" max="1000000" step="1" id="newCheck" /></td>
+								<td><input type="number" class="form-control currency newTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="newDeposit" /></td>
+								<td><input type="number" class="form-control currency newTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="newWithdrawl" /></td>
+								<td class="zulu"><select class="form-control newTrans zulu" id="newCategory"></select></td>
+								<td class="zulu"><button class="btn btn-default btn-sm" id="startXferBtn">Xfer</button></td>
+								<td id="addButtonCell"><button class="btn btn-success btn-sm" title="Add Transaction" data-toggle="modal" data-target="#addTransactionModal" id="addTransaction"><i class="glyphicon glyphicon-plus"></i></button></td>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="../shared/js/jquery.color-2.1.2.min.js"></script>
+		<script type="text/javascript" src="../shared/js/socket.io-1.4.3.js"></script>
+		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
+		<!-- Latest compiled and minified JavaScript -->
+		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../shared/js/bootstrap-datepicker.min.js"></script>
+		<script type="text/javascript" src="../shared/js/bootstrap3-typeahead.min.js"></script>
+		<script type="text/javascript" src="/money/js/transactions.js"></script>
+	</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Accounts</title>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
+
+		<link rel="stylesheet" href="../shared/css/style.css">
+	</head>
+	<body style="display:none;">
+		<!--Start Info Modal-->
+		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div id="infoModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-info" data-dismiss="modal" aria-label="OK" title="OK">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Info Modal-->
+		<!--Start Add Account Modal-->
+		<div class="modal fade" id="addAccountModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Add an Account</h4>
+					</div>
+					<div class="modal-body">
+						<div class="input-group">
+							<label>Account Name</label>
+							<input id="newName" class="form-control" type="text" placeholder="New Account Name" maxlength="48" />
+						</div>
+						<div class="input-group">
+							<label>Account Type</label>
+							<select id="newType" class="form-control">
+								<option value="Checking">Checking</option>
+								<option value="Credit Card">Credit Card</option>
+								<option value="Investment">Investment</option>
+								<option value="Loan">Loan</option>
+								<option value="Mortgage">Mortgage</option>
+								<option value="Savings">Savings</option>
+							</select>
+						</div>
+						<div class="input-group">
+							<label>Default Account</label>
+							<br />
+							<div class="btn-group" data-toggle="buttons">
+								<label id="defaultOffLabel" class="btn btn-default active">
+									<input type="radio" name="newDefault" id="defaultOff" checked /> No 
+								</label>
+								<label id="defaultOnLabel" class="btn btn-default">
+									<input type="radio" name="newDefault" id="defaultOn" /> Yes 
+								</label>
+							</div>
+						</div>
+						<div class="input-group">
+							<label id="newBalanceLabel">Opening Balance</label>
+							<input id="newBalance" type="number" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" class="form-control currency" placeholder="Opening Balance" />
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-success" title="Add Account" id="addAccountButton"><i class="glyphicon glyphicon-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Account">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Add Account Modal-->
+		<!--Start Edit Account Modal-->
+		<div class="modal fade" id="editAccountModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Edit Account</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="editAccountId" />
+						<div class="input-group">
+							<label>Account Name</label>
+							<input id="editName" class="form-control" type="text" placeholder="Account Name" />
+						</div>
+						<div class="input-group">
+							<label>Account Type</label>
+							<select id="editType" class="form-control">
+								<option id="editChecking" value="Checking">Checking</option>
+								<option id="editCreditCard" value="Credit Card">Credit Card</option>
+								<option id="editInvestment" value="Investment">Investment</option>
+								<option id="editLoan" value="Loan">Loan</option>
+								<option value="Mortgage">Mortgage</option>
+								<option id="editSavings" value="Savings">Savings</option>
+							</select>
+						</div>
+						<div class="input-group">
+							<label>Default Account</label>
+							<br />
+							<div class="btn-group" data-toggle="buttons">
+								<label id="editDefaultOffLabel" class="btn btn-default">
+									<input type="radio" name="editDefault" id="editDefaultOff" /> No 
+								</label>
+								<label id="editDefaultOnLabel" class="btn btn-default">
+									<input type="radio" name="editDefault" id="editDefaultOn" /> Yes 
+								</label>
+							</div>
+						</div>
+<!-- 						<div class="input-group">
+							<div class="btn-group" data-toggle="buttons">
+								<label id="editActiveOnLabel" class="btn btn-default">
+									<input type="radio" name="editActive" id="editActiveOn" /> Yes 
+								</label>
+								<label id="editActiveOffLabel" class="btn btn-default">
+									<input type="radio" name="editActive" id="editActiveOff" /> No 
+								</label>
+							</div>
+							<br />
+							<label>Account Active</label>
+						</div>
+ -->					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" title="Edit Account" id="editAccountButton"><i class="glyphicon glyphicon-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Account">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Edit Account Modal-->
+		<!--Start Delete Account Modal-->
+		<div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Delete Account</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="deleteAccountId" />
+						<div id="deleteModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-danger" title="Delete Account" id="deleteAccountButton"><i class="glyphicon glyphicon-trash"></i></button><button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Account">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Delete Account Modal-->
+
+
+		<nav class="navbar navbar-default">
+		  <div class="container-fluid">
+		    <!-- Brand and toggle get grouped for better mobile display -->
+		    <div class="navbar-header">
+		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+		        <span class="sr-only">Toggle navigation</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </button>
+		      <a class="navbar-brand" href="/homebase">Home Base</a>
+		    </div>
+
+		    <!-- Collect the nav links, forms, and other content for toggling -->
+		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		      <ul class="nav navbar-nav">
+		        <li class="active"><a href="/money/accounts">Accounts <span class="sr-only">(current)</span></a></li>
+		      	<li><a href="/money/transactions">Transactions</a></li>
+		        <li><a href="/money/budgets">Budgets</a></li>
+		        <li><a href="/money/bills">Bills</a></li>
+		        <li><a href="/money/flows">Flows</a></li>
+		      </ul>
+			    <!--<div class="pull-right">
+			    	<div id="username"></div>
+			    	<button class="btn-xs btn-danger" id="logout">Log Out</button>
+			    </div>-->
+		    </div><!-- /.navbar-collapse -->
+		  </div><!-- /.container-fluid -->
+		</nav>
+
+
+
+
+		<div class="container-fluid">
+			<div class="col-md-12">
+				<table id="accountTable" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Balance</th>
+							<th>Type</th>
+							<th><button class="btn btn-success" title="Add Account" data-toggle="modal" data-target="#addAccountModal"><i class="glyphicon glyphicon-plus"></i></button></th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="../shared/js/jquery.color-2.1.2.min.js"></script>
+		<script type="text/javascript" src="../shared/js/socket.io-1.4.5.js"></script>
+		<!-- Latest compiled and minified JavaScript -->
+		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
+		<script type="text/javascript" src="/money/js/accounts.js"></script>
+	</body>
+</html>

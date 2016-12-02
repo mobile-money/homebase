@@ -1,9 +1,15 @@
 env = {
-	db: {
+	db_hvac: {
 		HOST: "localhost"
-		,DB: "homebase"
-		,USER: "hb_user"
-		,PASS: "O^hRl3yMQQPV2wNk"
+		,DB: "homeauto"
+		,USER: "ha_user"
+		,PASS: "b4qQ&Jt9YMyP!0Lk"
+	}
+	,db_money: {
+		HOST: "localhost"
+		,DB: "banking"
+		,USER: "bank_user"
+		,PASS: "ndFem5Unh7CQcrQ3"
 	}
 };
 

@@ -3,17 +3,16 @@ var sequelize;
 
 var env = require("./env.js");
 
-sequelize = new Sequelize(env.db.DB, env.db.USER, env.db.PASS, {
+sequelize = new Sequelize(env.db_hvac.DB, env.db_hvac.USER, env.db_hvac.PASS, {
 	dialect: "mysql"
-	,host: env.db.HOST
+	,host: env.db_hvac.HOST
 	,omitNull: false
 	// ,logging: false
 });
 
 var db = {};
 
-// // START IMPORTS
-// // START HVAC
+// // START IMPORTS // //
 db.EnvData = sequelize.import(__dirname + "/../models/hvac/EnvData.js");
 db.Sensor = sequelize.import(__dirname + "/../models/hvac/Sensor.js");
 db.Location = sequelize.import(__dirname + "/../models/hvac/Location.js");
@@ -22,14 +21,12 @@ db.Model = sequelize.import(__dirname + "/../models/hvac/Model.js");
 db.System = sequelize.import(__dirname + "/../models/hvac/System.js");
 db.Schedule = sequelize.import(__dirname + "/../models/hvac/Schedule.js");
 db.System_Run = sequelize.import(__dirname + "/../models/hvac/System_Run.js");
-// // END HVAC
-// // END IMPORTS
+// // END IMPORTS // //
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-// // START ASSOCIATIONS
-// // START HVAC
+// // START ASSOCIATIONS // //
 db.Location.hasMany(db.Sensor);
 db.Location.hasMany(db.EnvData);
 db.Location.hasOne(db.System);
@@ -52,7 +49,6 @@ db.System.hasMany(db.System_Run);
 db.Schedule.belongsTo(db.System);
 
 db.System_Run.belongsTo(db.System);
-// // END HVAC
-// // END ASSOCIATIONS
+// // END ASSOCIATIONS // //
 
 module.exports = db;

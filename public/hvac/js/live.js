@@ -134,9 +134,9 @@ function getLastReading(id) {
 			$("#systemInfo").html(infoText);
 
 			if (obj.systemAction === "heat") {
-				$("#actionDiv").html('<img src="img/fire.png" alt="Heat" style="width:100%">');
+				$("#actionDiv").html('<img src="../shared/img/fire.png" alt="Heat" style="width:100%">');
 			} else if (obj.systemAction === "cool") {
-				$("#actionDiv").html('<img src="img/wind.png" alt="Cool" style="width:100%">');
+				$("#actionDiv").html('<img src="../shared/img/wind.png" alt="Cool" style="width:100%">');
 			} else {
 				$("#actionDiv").html("");
 			}
