@@ -5,20 +5,41 @@
 		<title>Home Base</title>
 
 		<!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="/shared/css/bootstrap.min.css">
+		<link rel="stylesheet" href="shared/css/bootstrap.min.css">
 
 		<!-- Optional theme -->
-		<link rel="stylesheet" href="/shared/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="shared/css/bootstrap-theme.min.css">
 
-		<link rel="stylesheet" href="/shared/css/style.css">
+		<link rel="stylesheet" href="shared/css/style.css">
+		<link rel="shortcut icon" href="shared/img/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="shared/img/favicon.ico" type="image/x-icon">
 	</head>
 	<body>
 
 
 		<div class="container-fluid">
-			<a href="/hvac/live">HVAC</a>
-			<br />
-			<a href="/money/accounts">Money</a>
+			<div class="row">
+				<div class="col-xs-12">
+					<h1>
+						<img src="shared/img/brand.png" style="width:100px;" />
+						Home Base
+					</h1>
+				</div>
+			</div>
+			<div class="row centered">
+				<div class="col-xs-6 col-sm-4 col-sm-offset-2 col-md-3 col-md-offset-3">
+					<a href="/hvac/live" class="btn btn-lg btn-default" style="width:100%;">
+						<span class="glyphicon glyphicon-fire text-danger"></span>
+						<br /><span class="text-danger">HVAC</span>
+					</a>
+				</div>
+				<div class="col-xs-6 col-sm-4 col-md-3">
+					<a href="/money/accounts" class="btn btn-lg btn-default" style="width:100%;">
+						<span class="glyphicon glyphicon-usd text-success"></span>
+						<br /><span class="text-success">Money</span> 	
+					</a>
+				</div>
+			</div>
 		</div>
 		<!-- <script type="text/javascript" src="/shared/js/jquery-2.2.0.min.js"></script>
 		<script type="text/javascript" src="/shared/js/jquery.color-2.1.2.min.js"></script>
