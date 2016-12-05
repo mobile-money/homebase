@@ -1,6 +1,7 @@
 var socket = io();
 var system = {};
 var currentTime = moment();
+var locations = [];
 
 $(document).ready(function() {
 	$("body").show();
@@ -27,6 +28,8 @@ $(document).ready(function() {
 	socket.on("newReading", function(obj) {
 		if (obj.data.LocationId === Number($("#selectedLocation").val())) {
 			updateReading(obj);			
+		} else if (Number($("#selectedLocation").val()) === -1) {
+			updateDashboard(obj);
 		}
 	});
 
@@ -56,6 +59,7 @@ function getLocations() {
 		,url: "/api/v1/hvac/location"
 	}).success(function(results){
 		results.forEach(function(location, ind) {
+			locations.push(location);
 			var name = location.floor+" "+location.room;
 			if (location.note !== null) {
 				name += " ("+location.note+")";
@@ -66,6 +70,7 @@ function getLocations() {
 			var option = '<li><a onClick="getLastReading('+location.id+');">'+name+"</a></li>";
 			$("#locList").append(option);
 		});
+		$("#locList").append('<li><a onClick="getDashboard();">Dashboard</a></li>');
 		$("#selectedLocation").val(results[0].id);
 		getLastReading(results[0].id);
 	}).error(function(jqXHR, textStatus, errorThrown) {
@@ -78,6 +83,9 @@ function getLocations() {
 
 function getLastReading(id) {
 	$("#selectedLocation").val(id);
+	$("#readingsRow").show();
+	$("#optionsRow").show();
+	$("#dashboardRow").hide();
 	$.ajax({
 		type: "GET"
 		,url: "/api/v1/hvac/envData/lastReading/"+id
@@ -176,6 +184,47 @@ function getLastReading(id) {
 	});
 }
 
+function getDashboard() {
+	$("#locSelect").html("Dashboard");
+	$("#selectedLocation").val(-1);
+	$("#readingsRow").hide();
+	$("#optionsRow").hide();
+	$("#dashboardRow").show();
+
+	locations.forEach(function(location) {
+		var row = '<tr id="loc_'+location.id+'">'+
+			'<td name="locName">'+location.floor+" "+location.room+"</td>";
+			if (location.System !== null) {
+				row += '<td name="locSysName">'+location.System.name+"</td>";
+			} else {
+				row += '<td name="locSysName"></td>';
+			}
+		row += '<td name="locCurTemp"></td><td name="locTarTemp"></td><td name="locSysStat"></td></tr>';
+		$("#dashboardTable").find("tbody").append(row);
+		$.ajax({
+			type: "GET"
+			,url: "/api/v1/hvac/envData/lastReading/"+location.id
+		}).success(function(obj){
+			$("#loc_"+obj.location.id).find('td[name="locCurTemp"]').html((Number(obj.data.temperature) * (9/5) + 32).toFixed(0) + "°");
+			if (obj.schedule !== null) {
+				$("#loc_"+obj.location.id).find('td[name="locTarTemp"]').html((Number(obj.schedule.targetTemp) * (9/5) + 32).toFixed(0) + "°");
+			}
+			if (obj.systemAction !== null) {
+				if (obj.systemAction === "heat") {
+					$("#loc_"+obj.location.id).find('td[name="locSysStat"]').html('<img src="../shared/img/fire.png" alt="Heat" style="height:'+($("#loc_"+obj.location.id).height()-17)+'px;">');
+				} else if (obj.systemAction === "cool") {
+					$("#loc_"+obj.location.id).find('td[name="locSysStat"]').html('<img src="../shared/img/wind.png" alt="Cool" style="height:'+($("#loc_"+obj.location.id).height()-17)+'px;">');
+				}
+			}
+		}).error(function(jqXHR, textStatus, errorThrown) {
+			if (jqXHR.status === 500) {
+				$("#infoModalBody").html("There was a problem.  Please try again.");
+				$("#infoModal").modal("show");
+			}
+		});
+	});
+}
+
 function updateReading(obj) {
 	$("#tempReading").html((Number(obj.data.temperature) * (9/5) + 32).toFixed(0) + "°");
 	$("#humdReading").html(Number(obj.data.humidity).toFixed(0) + "%");
@@ -189,6 +238,23 @@ function updateReading(obj) {
 			text += '&nbsp;<img src="img/wind.png" alt="Cool" style="height:20px;">';
 		}
 		$("#currentSched").html(text);
+	}
+}
+
+function updateDashboard(obj) {
+	console.log(obj);
+	$("#loc_"+obj.data.LocationId).find('td[name="locCurTemp"]').html((Number(obj.data.temperature) * (9/5) + 32).toFixed(0) + "°");
+	if (obj.schedule !== null) {
+		$("#loc_"+obj.data.LocationId).find('td[name="locTarTemp"]').html((Number(obj.schedule.targetTemp) * (9/5) + 32).toFixed(0) + "°");
+	}
+	if (obj.systemAction !== null) {
+		if (obj.systemAction === "heat") {
+			$("#loc_"+obj.data.LocationId).find('td[name="locSysStat"]').html('<img src="../shared/img/fire.png" alt="Heat" style="height:'+($("#loc_"+obj.data.LocationId).height()-28)+'px;">');
+		} else if (obj.systemAction === "cool") {
+			$("#loc_"+obj.data.LocationId).find('td[name="locSysStat"]').html('<img src="../shared/img/wind.png" alt="Cool" style="height:'+($("#loc_"+obj.data.LocationId).height()-28)+'px;">');
+		}
+	} else {
+		$("#loc_"+obj.data.LocationId).find('td[name="locSysStat"]').html("");
 	}
 }
 

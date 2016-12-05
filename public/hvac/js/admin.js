@@ -829,6 +829,9 @@ function getSchedules() {
 			var row = '<tr id="schedule_'+schedule.id+'">'+
 				"<td>"+schedule.name+"</td>"+
 				"<td>"+schedule.System.name+"</td>"+
+				"<td>"+_.map(JSON.parse(schedule.days),function(num) { return moment().day(num).format("ddd")}).join(", ")+"</td>"+
+				"<td>"+moment(schedule.startTime,"HH:mm").format("h:mmA")+" - "+moment(schedule.endTime,"HH:mm").format("h:mmA")+"</td>"+
+				"<td>"+(Number(schedule.targetTemp) * (9/5) + 32).toFixed(0)+"°</td>"+
 				'<td style="text-align: right;">'+
 					'<button class="btn btn-xs btn-primary edit_schedule" onClick="editSchedule(' + schedule.id + ');">'+
 						'<i class="glyphicon glyphicon-pencil"></i>'+
@@ -859,12 +862,20 @@ function getSensors() {
 		var table = '<table class="table table-striped">';
 		results.forEach(function(sensor) {
 			var row = '<tr id="sensor_' + sensor.id + '">'+
+				"<td>"+sensor.Model.manufacturer+" "+sensor.Model.name+"</td>"+
 				"<td>"+sensor.Location.floor+" "+sensor.Location.room;
 				if (sensor.Location.note !== null) {
 					row += " ("+sensor.Location.note+")";
 				}
 				row += "</td>"+
-				'<td style="text-align: right;">'+
+				"<td>"+sensor.Host.name+"</td>"+
+				"<td>"+sensor.dataPin+"</td>";
+				if (sensor.enabled) {
+					row += "<td>Enabled</td>";
+				} else {
+					row += "<td>Disabled</td>";
+				}
+				row += '<td style="text-align: right;">'+
 					'<button class="btn btn-xs btn-primary edit_sensor" onClick="editSensor(' + sensor.id + ');">'+
 						'<i class="glyphicon glyphicon-pencil"></i>'+
 					'</button>'+

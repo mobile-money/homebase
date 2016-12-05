@@ -63,3 +63,15 @@ body.live-view {
 .infoSubtext {
 	font-size: 0.75em;
 }
+
+#dashboardTable tbody td {
+	font-size: 5vh;
+	vertical-align: middle;
+	/*border-top: 1px #3d3d3d solid;*/
+	border-top: 0;
+	padding-top: 20px;
+}
+#dashboardTable tfoot td {
+	font-size: 2vh;
+	border-top: 1px #804F01 solid;
+}
