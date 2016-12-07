@@ -103,7 +103,7 @@ function getAccounts(id, type) {
 			var balance = 0;
 			var row = '<tr id="'+account.id+'"';
 			row += '>'+
-				'<td name="name"><a href="/transactions?acct='+account.id+'"><span id="text">'+account.name+'</span>';
+				'<td name="name"><a href="/money/transactions?acct='+account.id+'"><span id="text">'+account.name+'</span>';
 				if (account.default === true) {
 					row += '&nbsp;<i class="glyphicon glyphicon-star text-primary"></i>';
 				}

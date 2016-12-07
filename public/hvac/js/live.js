@@ -231,13 +231,13 @@ function updateReading(obj) {
 	$("#timeReading").html(moment().format("h:mmA MMM D, YYYY"));
 	$("#timeReading").removeClass("highlightTime");
 	if (obj.schedule !== null) {
-		var text = obj.schedule.name;
 		if (obj.systemAction === "heat") {
-			text += '&nbsp;<img src="img/fire.png" alt="Heat" style="height:20px;">';
+			$("#actionDiv").html('&nbsp;<img src="img/fire.png" alt="Heat" style="height:20px;">');
 		} else if (obj.systemAction === "cool") {
-			text += '&nbsp;<img src="img/wind.png" alt="Cool" style="height:20px;">';
+			$("#actionDiv").html('&nbsp;<img src="img/wind.png" alt="Cool" style="height:20px;">');
+		} else {
+			$("#actionDiv").html("");
 		}
-		$("#currentSched").html(text);
 	}
 }
 
