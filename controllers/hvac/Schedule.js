@@ -58,6 +58,9 @@ module.exports = function(db) {
                 db.Schedule.findAll({
                     where: {
                         SystemId: data.system
+                        ,id: {
+                            $ne: scheduleId
+                        }
                     }
                 }).then(function(existingSchedules) {
                     var conflict = false;
