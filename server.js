@@ -22,6 +22,7 @@ var Model = require("./controllers/hvac/Model.js")(db_hvac);
 var System = require("./controllers/hvac/System.js")(db_hvac);
 var Schedule = require("./controllers/hvac/Schedule.js")(db_hvac);
 var System_Run = require("./controllers/hvac/System_Run.js")(db_hvac);
+var Option = require("./controllers/hvac/Option.js")(db_hvac);
 // MONEY
 var User = require("./controllers/money/User.js")(db_money);
 var Account = require("./controllers/money/Account.js")(db_money);
@@ -49,6 +50,7 @@ require("./routes/hvac/Model.js")(app, Model, _, io);
 require("./routes/hvac/System.js")(app, System, _, io);
 require("./routes/hvac/Schedule.js")(app, Schedule, _, io);
 require("./routes/hvac/System_Run.js")(app, System_Run, _, io);
+require("./routes/hvac/Option.js")(app, Option, _, io);
 // MONEY
 require("./routes/money/User.js")(app, User, _);
 require("./routes/money/Account.js")(app, Account, _, io);

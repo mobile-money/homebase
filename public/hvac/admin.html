@@ -122,6 +122,32 @@
 					<h4 class="pull-left">Systems</h4><button class="btn btn-success btn-xs pull-right" title="Add System" id="addSystem"><i class="glyphicon glyphicon-plus"></i></button>
 					<div class="col-xs-12" id="systemDiv"></div>
 				</div>
+				<div class="col-xs-12 well">
+					<h4 class="pull-left">Options</h4>
+					<div class="col-xs-12" id="OptionDiv">
+						<div class="input-group">
+							<span class="input-group-addon">Temperature Scale</span>
+							<div class="btn-group">
+								<button class="btn btn-default" id="optionFTempScale" onClick='updateTempScale("f");'>°F</button>
+								<button class="btn btn-default" id="optionCTempScale" onClick='updateTempScale("c");'>°C</button>
+							</div>
+						</div>
+						<div class="input-group">
+							<span class="input-group-addon">Default Location</span>
+							<select class="form-control" id="optionDefaultLoc" onChange="updateDefaultLoc();"></select>
+						</div>
+						<div class="input-group">
+							<span class="input-group-addon" title="Number of degrees above the target temperature before a system stops">Upper Buffer</span>
+							<input type="text" class="form-control" id="optionUpperBuffer" maxLength="2" onChange="updateUpperBuffer();" />
+							<span class="input-group-addon">°</span>
+						</div>
+						<div class="input-group">
+							<span class="input-group-addon" title="Number of degrees below the target temperature before a system starts">Lower Buffer</span>
+							<input type="text" class="form-control" id="optionLowerBuffer" maxLength="2" onChange="updateLowerBuffer();" />
+							<span class="input-group-addon">°</span>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>

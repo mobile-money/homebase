@@ -21,6 +21,7 @@ db.Model = sequelize.import(__dirname + "/../models/hvac/Model.js");
 db.System = sequelize.import(__dirname + "/../models/hvac/System.js");
 db.Schedule = sequelize.import(__dirname + "/../models/hvac/Schedule.js");
 db.System_Run = sequelize.import(__dirname + "/../models/hvac/System_Run.js");
+db.Option = sequelize.import(__dirname + "/../models/hvac/Option.js");
 // // END IMPORTS // //
 
 db.sequelize = sequelize;

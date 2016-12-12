@@ -61,6 +61,118 @@ function resetModal(type) {
 	$("#"+type+"ModalBody").empty();
 	$("#"+type+"ModalFooter").empty();
 }
+function getOptions() {
+	$.ajax({
+		type: "GET"
+		,url: "/api/v1/hvac/option"
+	}).success(function(results){
+		if (results !== null) {
+			// Temp Scale
+			if (results.hasOwnProperty("tempScale")) {
+				if (results.tempScale === "f") {
+					$("#optionFTempScale").removeClass("btn-default").addClass("btn-primary");
+				} else if (results.tempScale === "c") {
+					$("#optionCTempScale").removeClass("btn-default").addClass("btn-primary");
+				}
+			}
+			// Default Location
+			$("#optionDefaultLoc").empty();
+			var opt = '<option value=null></option>';
+			$("#optionDefaultLoc").append(opt);
+			locations.forEach(function(location) {
+				var opt = '<option value="'+location.id+'"';
+				if (results.defaultLocation === location.id) {
+					opt += " selected";
+				}
+				opt += '>'+location.floor+" "+location.room+"</option>";
+				$("#optionDefaultLoc").append(opt);
+			});
+			// Upper Buffer
+			$("#optionUpperBuffer").val(results.upperBuffer);
+			// Lower Buffer
+			$("#optionLowerBuffer").val(results.lowerBuffer);
+		}
+	}).error(function(jqXHR, textStatus, errorThrown) {
+		if (jqXHR.status === 500) {
+			$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);
+			$("#infoModal").modal("show");
+		}
+	});
+}
+function updateTempScale(val) {
+	$.ajax({
+		type: "PUT"
+		,url: "/api/v1/hvac/option"
+		,data: {
+			tempScale: val
+		}
+	}).success(function(response) {
+		if (val === "f") {
+			$("#optionFTempScale").removeClass("btn-default").addClass("btn-primary");
+			$("#optionCTempScale").removeClass("btn-primary").addClass("btn-default");
+		} else if (val === "c") {
+			$("#optionCTempScale").removeClass("btn-default").addClass("btn-primary");
+			$("#optionFTempScale").removeClass("btn-primary").addClass("btn-default");
+		}
+	}).error(function(jqXHR, textStatus, errorThrown) {
+		if (jqXHR.status === 500) {
+			$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);
+			$("#infoModal").modal("show");
+		}
+	});
+}
+function updateDefaultLoc() {
+	var val = $("#optionDefaultLoc").val();
+	$.ajax({
+		type: "PUT"
+		,url: "/api/v1/hvac/option"
+		,data: {
+			defaultLocation: val
+		}
+	}).success(function(response) {
+	}).error(function(jqXHR, textStatus, errorThrown) {
+		if (jqXHR.status === 500) {
+			$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);
+			$("#infoModal").modal("show");
+		}
+	});
+}
+function updateUpperBuffer() {
+	var val = $("#optionUpperBuffer").val();
+	if (val.match(/^\d{1,2}$/)) {
+		$.ajax({
+			type: "PUT"
+			,url: "/api/v1/hvac/option"
+			,data: {
+				upperBuffer: val
+			}
+		}).success(function(response) {
+		}).error(function(jqXHR, textStatus, errorThrown) {
+			if (jqXHR.status === 500) {
+				$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);
+				$("#infoModal").modal("show");
+			}
+		});
+	}
+}
+function updateLowerBuffer() {
+	var val = $("#optionLowerBuffer").val();
+	if (val.match(/^\d{1,2}$/)) {
+		$.ajax({
+			type: "PUT"
+			,url: "/api/v1/hvac/option"
+			,data: {
+				lowerBuffer: val
+			}
+		}).success(function(response) {
+		}).error(function(jqXHR, textStatus, errorThrown) {
+			if (jqXHR.status === 500) {
+				$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);
+				$("#infoModal").modal("show");
+			}
+		});
+	}
+}
 function addHost() {
 	$("#addModalTitle").html("<h3>Add Host</h3>");
 
@@ -778,6 +890,7 @@ function getLocations() {
 		});
 		table += "</table>";
 		$("#locationDiv").html(table);
+		getOptions();
 	}).error(function(jqXHR, textStatus, errorThrown) {
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);

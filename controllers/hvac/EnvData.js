@@ -75,32 +75,44 @@ function determineSystemAction(db, locId, currentTemp, targetTemp) {
 						,off: null
 					}
 				}).then(function(currentRuns) {
-					var buffer = 0;
-					// heat
-					// currently on, +2 over target
-					// not currently on, -2 under target
-					// cool
-					// currently on, -2 under target
-					// not currently on, +2 over target
-					if (currentRuns === null) {
-						// not currently on
-						buffer = buffer * -1;
-					} else {
-						// currently on
-						// buffer = buffer;
-					}
-					if (system.state !== 0) {
-						if (system.heat) {
-							if (system.state === 1 || (targetTemp + buffer) > currentTemp) {
-								systemAction = "heat";
-							}
+					db.Option.findOne().then(function(option) {
+						var buffer = 0;
+						var upperBuffer = 0;
+						var lowerBuffer = 0;
+						if (option !== null) {
+							upperBuffer = option.upperBuffer;
+							lowerBuffer = option.lowerBuffer;
+						}
+						// heat
+						// currently on, +2 over target
+						// not currently on, -2 under target
+						// cool
+						// currently on, -2 under target
+						// not currently on, +2 over target
+						if (currentRuns === null) {
+							// not currently on
+							buffer = lowerBuffer * -1;
 						} else {
-							if (system.state === 1 || (targetTemp + (buffer * -1)) < currentTemp) {
-								systemAction = "cool";
+							// currently on
+							buffer = upperBuffer;
+						}
+						// system.state
+						// 0 = off
+						// 1 = on
+						// 2 = auto
+						if (system.state !== 0) {
+							if (system.heat) {
+								if (system.state === 1 || (targetTemp + buffer) > currentTemp) {
+									systemAction = "heat";
+								}
+							} else {
+								if (system.state === 1 || (targetTemp + (buffer * -1)) < currentTemp) {
+									systemAction = "cool";
+								}
 							}
 						}
-					}
-					resolve(systemAction);
+						resolve(systemAction);
+					});
 				});
 			} else {
 				reject("system not found");
