@@ -25,6 +25,22 @@ $(document).ready(function() {
 	});
 
 // FUNCTIONS
+function CtoF(cVal,dec) {
+	var fVal = (Number(cVal) * (9/5) + 32);
+	if (dec !== null) {
+		return fVal.toFixed(dec);
+	} else {
+		return fVal;
+	}
+}
+function FtoC(fVal,dec) {
+	var cVal = (Number(fVal) - 32) * (5/9);
+	if (dec !== null) {
+		return cVal.toFixed(dec);
+	} else {
+		return cVal;
+	}
+}
 function showNav() {
 	$("#navToggleDiv").remove();
 	$("#navBar").show();
@@ -53,7 +69,7 @@ function getEnvData() {
 					row += " ("+item.Location.note+")";
 				}
 				row += "</td>"+
-				"<td>"+(Number(item.temperature) * (9/5) + 32).toFixed(1)+"</td>"+
+				"<td>"+CtoF(item.temperature,1)+"</td>"+
 				"<td>"+item.humidity+"</td>"+
 			"</tr>";
 			$("#dataTable").find("tbody").append(row);

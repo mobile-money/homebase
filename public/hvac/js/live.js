@@ -34,6 +34,22 @@ $(document).ready(function() {
 	});
 
 // FUNCTIONS
+function CtoF(cVal,dec) {
+	var fVal = (Number(cVal) * (9/5) + 32);
+	if (dec !== null) {
+		return fVal.toFixed(dec);
+	} else {
+		return fVal;
+	}
+}
+function FtoC(fVal,dec) {
+	var cVal = (Number(fVal) - 32) * (5/9);
+	if (dec !== null) {
+		return cVal.toFixed(dec);
+	} else {
+		return cVal;
+	}
+}
 function showNav() {
 	$("#navToggleDiv").remove();
 	$("#navBar").show();
@@ -131,7 +147,7 @@ function getLastReading(id) {
 						infoText += obj.schedule.name					
 					}
 					infoText += '&nbsp;<span class="infoTitle">Schedule</span>'+
-					'<br /><span class="infoSubtext">&nbsp;&nbsp;&nbsp;&nbsp;'+(Number(obj.schedule.targetTemp) * (9/5) + 32).toFixed(0)+'°F';
+					'<br /><span class="infoSubtext">&nbsp;&nbsp;&nbsp;&nbsp;'+CtoF(obj.schedule.targetTemp,0)+'°F';
 					if (obj.schedule.name !== "HOLD") {
 						infoText += '<br />&nbsp;&nbsp;&nbsp;&nbsp;'+moment(obj.schedule.startTime,"HH:mm").format("h:mm A")+
 						'&nbsp;-&nbsp;'+
@@ -168,7 +184,7 @@ function getLastReading(id) {
 		}
 
 		if (obj.data !== null) {
-			$("#tempReading").html((Number(obj.data.temperature) * (9/5) + 32).toFixed(0) + "°");
+			$("#tempReading").html(CtoF(obj.data.temperature,0) + "°");
 			$("#humdReading").html(obj.data.humidity.toFixed(0) + "%");
 			$("#timeReading").html(moment(obj.data.createdAt).format("h:mmA MMM D, YYYY"));
 		} else {
@@ -205,9 +221,9 @@ function getDashboard() {
 			type: "GET"
 			,url: "/api/v1/hvac/envData/lastReading/"+location.id
 		}).success(function(obj){
-			$("#loc_"+obj.location.id).find('td[name="locCurTemp"]').html((Number(obj.data.temperature) * (9/5) + 32).toFixed(0) + "°");
+			$("#loc_"+obj.location.id).find('td[name="locCurTemp"]').html(CtoF(obj.data.temperature,0) + "°");
 			if (obj.schedule !== null) {
-				$("#loc_"+obj.location.id).find('td[name="locTarTemp"]').html((Number(obj.schedule.targetTemp) * (9/5) + 32).toFixed(0) + "°");
+				$("#loc_"+obj.location.id).find('td[name="locTarTemp"]').html(CtoF(obj.schedule.targetTemp,0) + "°");
 			}
 			if (obj.systemAction !== null) {
 				if (obj.systemAction === "heat") {
@@ -226,7 +242,7 @@ function getDashboard() {
 }
 
 function updateReading(obj) {
-	$("#tempReading").html((Number(obj.data.temperature) * (9/5) + 32).toFixed(0) + "°");
+	$("#tempReading").html(CtoF(obj.data.temperature,0) + "°");
 	$("#humdReading").html(Number(obj.data.humidity).toFixed(0) + "%");
 	$("#timeReading").html(moment().format("h:mmA MMM D, YYYY"));
 	$("#timeReading").removeClass("highlightTime");
@@ -243,9 +259,9 @@ function updateReading(obj) {
 
 function updateDashboard(obj) {
 	console.log(obj);
-	$("#loc_"+obj.data.LocationId).find('td[name="locCurTemp"]').html((Number(obj.data.temperature) * (9/5) + 32).toFixed(0) + "°");
+	$("#loc_"+obj.data.LocationId).find('td[name="locCurTemp"]').html(CtoF(obj.data.temperature,0) + "°");
 	if (obj.schedule !== null) {
-		$("#loc_"+obj.data.LocationId).find('td[name="locTarTemp"]').html((Number(obj.schedule.targetTemp) * (9/5) + 32).toFixed(0) + "°");
+		$("#loc_"+obj.data.LocationId).find('td[name="locTarTemp"]').html(CtoF(obj.schedule.targetTemp,0) + "°");
 	}
 	if (obj.systemAction !== null) {
 		if (obj.systemAction === "heat") {
@@ -299,7 +315,7 @@ function setHoldTemp() {
 		,days: JSON.stringify([-1])
 		,startTime: moment.utc().format("HH:mm")
 		,endTime: moment.utc().format("HH:mm")
-		,targetTemp: (holdTemp - 32) * (5/9)
+		,targetTemp: FtoC(holdTemp,null)
 	};
 	$.ajax({
 		type: "POST"

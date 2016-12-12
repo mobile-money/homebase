@@ -52,6 +52,22 @@ $(document).ready(function() {
 	});
 
 // FUNCTIONS
+function CtoF(cVal,dec) {
+	var fVal = (Number(cVal) * (9/5) + 32);
+	if (dec !== null) {
+		return fVal.toFixed(dec);
+	} else {
+		return fVal;
+	}
+}
+function FtoC(fVal,dec) {
+	var cVal = (Number(fVal) - 32) * (5/9);
+	if (dec !== null) {
+		return cVal.toFixed(dec);
+	} else {
+		return cVal;
+	}
+}
 function showNav() {
 	$("#navToggleDiv").remove();
 	$("#navBar").show();
@@ -944,7 +960,7 @@ function getSchedules() {
 				"<td>"+schedule.System.name+"</td>"+
 				"<td>"+_.map(JSON.parse(schedule.days),function(num) { return moment().day(num).format("ddd")}).join(", ")+"</td>"+
 				"<td>"+moment(schedule.startTime,"HH:mm").format("h:mmA")+" - "+moment(schedule.endTime,"HH:mm").format("h:mmA")+"</td>"+
-				"<td>"+(Number(schedule.targetTemp) * (9/5) + 32).toFixed(0)+"°</td>"+
+				"<td>"+CtoF(schedule.targetTemp,0)+"°</td>"+
 				'<td style="text-align: right;">'+
 					'<button class="btn btn-xs btn-primary edit_schedule" onClick="editSchedule(' + schedule.id + ');">'+
 						'<i class="glyphicon glyphicon-pencil"></i>'+
@@ -1114,7 +1130,7 @@ function submitAddSchedule() {
 		,system: $("#addScheduleSystem").val()
 		,startTime: moment($("#addScheduleStartTime").val(),"h:mm A").format("HH:mm")
 		,endTime: moment($("#addScheduleEndTime").val(),"h:mm A").format("HH:mm")
-		,targetTemp: (Number($("#addScheduleTargetTemperature").val()) - 32) * (5/9)
+		,targetTemp: FtoC($("#addScheduleTargetTemperature").val(),null)
 	};
 	datum.days = JSON.stringify($(".addScheduleDays:checked").map(function() {
 		return Number($(this).val());
@@ -1328,7 +1344,7 @@ function submitEditSchedule(id) {
 		,system: $("#editScheduleSystem").val()
 		,startTime: moment($("#editScheduleStartTime").val(),"h:mm A").format("HH:mm")
 		,endTime: moment($("#editScheduleEndTime").val(),"h:mm A").format("HH:mm")
-		,targetTemp: (Number($("#editScheduleTargetTemperature").val()) - 32) * (5/9)
+		,targetTemp: FtoC($("#editScheduleTargetTemperature").val(),null)
 	};
 	datum.days = JSON.stringify($(".editScheduleDays:checked").map(function() {
 		return Number($(this).val());
