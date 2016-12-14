@@ -17,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
 			,allowNull: false
 		}
 		,targetTemp: {
-			type: DataTypes.INTEGER(2)
+			type: DataTypes.FLOAT(6,4)
 			,allowNull: false
 		}
 	});

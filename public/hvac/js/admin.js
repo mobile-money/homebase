@@ -1130,7 +1130,7 @@ function submitAddSchedule() {
 		,system: $("#addScheduleSystem").val()
 		,startTime: moment($("#addScheduleStartTime").val(),"h:mm A").format("HH:mm")
 		,endTime: moment($("#addScheduleEndTime").val(),"h:mm A").format("HH:mm")
-		,targetTemp: FtoC($("#addScheduleTargetTemperature").val(),null)
+		,targetTemp: FtoC($("#addScheduleTargetTemperature").val(),4)
 	};
 	datum.days = JSON.stringify($(".addScheduleDays:checked").map(function() {
 		return Number($(this).val());
@@ -1344,7 +1344,7 @@ function submitEditSchedule(id) {
 		,system: $("#editScheduleSystem").val()
 		,startTime: moment($("#editScheduleStartTime").val(),"h:mm A").format("HH:mm")
 		,endTime: moment($("#editScheduleEndTime").val(),"h:mm A").format("HH:mm")
-		,targetTemp: FtoC($("#editScheduleTargetTemperature").val(),null)
+		,targetTemp: FtoC($("#editScheduleTargetTemperature").val(),4)
 	};
 	datum.days = JSON.stringify($(".editScheduleDays:checked").map(function() {
 		return Number($(this).val());
