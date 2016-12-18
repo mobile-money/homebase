@@ -1,5 +1,12 @@
 var moment = require("moment");
 var _ = require("underscore");
+var nodemailer = require("nodemailer");
+var transporter = nodemailer.createTransport('smtps://alitz55%40gmail.com:oomiwgvzistbhrdj@smtp.gmail.com');
+var mailOptions = {
+    from: '"Web Server" <webserver@homebase.loc>', // sender address
+    to: 'alitz55@gmail.com', // list of receivers
+    subject: 'Homebase Communication Error', // Subject line
+};
 
 function findSystem(db, locId) {
 	return new Promise(function(resolve, reject) {
@@ -262,6 +269,63 @@ module.exports = function(db) {
 				}).catch(function(error) {
 					reject(error);
 				});
+			});
+		}
+		,healthCheck: function() {
+			return new Promise(function(resolve, reject) {
+				db.Location.findAll({
+					include: [ db.Sensor ]
+				}).then(function(locations) {
+					var filteredLocations = [];
+					locations.forEach(function(loc) {
+						if (loc.Sensors.length > 0) {
+							loc.Sensors.forEach(function(sensor) {
+								if (sensor.enabled) {
+									filteredLocations.push(loc);
+									return;
+								}
+							});
+						}
+					});
+					var locIds = _.pluck(filteredLocations, 'id');
+					var targetTime = moment().subtract(5, "minutes").format("YYYY-MM-DD HH:mm:ss");
+					db.EnvData.findAll({
+						where: {
+							LocationId: {
+								$in: locIds
+							}
+							,updatedAt: {
+								$gte: targetTime
+							}
+						}
+					}).then(function(updates) {
+						var updateIds = _.uniq(_.pluck(updates, 'LocationId'));
+						var retObj = {};
+						locIds.forEach(function(locId) {
+							var tempObj = {};
+							var refLoc = _.findWhere(filteredLocations, {id: locId});
+							tempObj.room = refLoc.room;
+							tempObj.floor = refLoc.floor;
+							if (_.contains(updateIds, locId)) {
+								tempObj.updated = true;
+							} else {
+								tempObj.updated = false;
+								mailOptions.text = 'There has not been an update in the last 5 minutes from: '+tempObj.floor+' '+tempObj.room;
+								mailOptions.html = 'There has not been an update in the last 5 minutes from:<br />'+tempObj.floor+' '+tempObj.room
+								transporter.sendMail(mailOptions, function(error, info){
+								    if(error){
+								        return console.log(error);
+								    }
+								    console.log('Message sent: ' + info.response);
+								});
+							}
+							retObj[locId] = tempObj;
+						});
+						resolve(retObj);
+					});
+				}).catch(function(error) {
+					reject(error);
+				})
 			});
 		}
 	};
