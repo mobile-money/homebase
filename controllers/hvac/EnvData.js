@@ -288,7 +288,7 @@ module.exports = function(db) {
 						}
 					});
 					var locIds = _.pluck(filteredLocations, 'id');
-					var targetTime = moment().subtract(6, "minutes").format("YYYY-MM-DD HH:mm:ss");
+					var targetTime = moment().subtract(10, "minutes").format("YYYY-MM-DD HH:mm:ss");
 					db.EnvData.findAll({
 						where: {
 							LocationId: {
@@ -310,8 +310,8 @@ module.exports = function(db) {
 								tempObj.updated = true;
 							} else {
 								tempObj.updated = false;
-								mailOptions.text = 'There has not been an update in the last 6 minutes from: '+tempObj.floor+' '+tempObj.room;
-								mailOptions.html = 'There has not been an update in the last 6 minutes from:<br />'+tempObj.floor+' '+tempObj.room
+								mailOptions.text = 'There has not been an update in the last 10 minutes from: '+tempObj.floor+' '+tempObj.room;
+								mailOptions.html = 'There has not been an update in the last 10 minutes from:<br />'+tempObj.floor+' '+tempObj.room
 								transporter.sendMail(mailOptions, function(error, info){
 								    if(error){
 								        return console.log(error);
