@@ -3,14 +3,25 @@ var sequelize;
 
 var env = require("./env.js");
 
-sequelize = new Sequelize(env.db_money.DB, env.db_money.USER, env.db_money.PASS, {
-	dialect: "mysql"
-	,host: env.db_money.HOST
-	,omitNull: false
-	// ,logging: false
-});
+// sequelize = new Sequelize(env.db_money.DB, env.db_money.USER, env.db_money.PASS, {
+// 	dialect: "mysql"
+// 	,host: env.db_money.HOST
+// 	,omitNull: false
+// 	// ,logging: false
+// });
 if (env.site === "prod") {
-	sequelize.logging = false;
+	sequelize = new Sequelize(env.db_money.DB, env.db_money.USER, env.db_money.PASS, {
+		dialect: "mysql"
+		,host: env.db_money.HOST
+		,omitNull: false
+		,logging: false
+	});
+} else {
+	sequelize = new Sequelize(env.db_money.DB, env.db_money.USER, env.db_money.PASS, {
+		dialect: "mysql"
+		,host: env.db_money.HOST
+		,omitNull: false
+	});
 }
 
 var db = {};
