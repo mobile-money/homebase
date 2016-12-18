@@ -1,5 +1,6 @@
 env = {
-	db_hvac: {
+	site: "dev"
+	,db_hvac: {
 		HOST: "localhost"
 		,DB: "homeauto"
 		,USER: "ha_user"

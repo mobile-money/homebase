@@ -9,6 +9,9 @@ sequelize = new Sequelize(env.db_money.DB, env.db_money.USER, env.db_money.PASS,
 	,omitNull: false
 	// ,logging: false
 });
+if (env.site === "prod") {
+	sequelize.logging = false;
+}
 
 var db = {};
 

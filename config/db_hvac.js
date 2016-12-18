@@ -9,6 +9,9 @@ sequelize = new Sequelize(env.db_hvac.DB, env.db_hvac.USER, env.db_hvac.PASS, {
 	,omitNull: false
 	// ,logging: false
 });
+if (env.site === "prod") {
+	sequelize.logging = false;
+}
 
 var db = {};
 
