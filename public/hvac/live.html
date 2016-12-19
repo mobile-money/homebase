@@ -126,7 +126,7 @@
 				</div>
 			</div>
 			<div class="row" id="dashboardRow" style="margin-top:40px;display:none;">
-				<table class="table table-hover centered" id="dashboardTable">
+				<table class="table centered" id="dashboardTable">
 					<tbody></tbody>
 					<tfoot>
 						<td>Location</td>
@@ -137,7 +137,191 @@
 					</tfoot>
 				</table>
 			</div>
-		</div>
+			<div class="row" id="forecastRow" style="margin-top:40px;display:none;">
+				<div class="col-xs-2 col-xs-offset-1" id="forcastDay1">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName"></div>
+					</div>
+					<div class="row" style="height:50px;">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp"></div>
+						<div class="col-xs-4 forecast icon" name="icon"></div>
+						<div class="col-xs-3 forecast temp" name="highTemp"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName"></div>
+					</div>
+				</div>
+				<div class="col-xs-2" id="forcastDay2" style="background:#212121;">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp"></div>
+						<div class="col-xs-4 forecast icon" name="icon"></div>
+						<div class="col-xs-3 forecast temp" name="highTemp"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName"></div>
+					</div>
+				</div>
+				<div class="col-xs-2" id="forcastDay3">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp"></div>
+						<div class="col-xs-4 forecast icon" name="icon"></div>
+						<div class="col-xs-3 forecast temp" name="highTemp"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName"></div>
+					</div>
+				</div>
+				<div class="col-xs-2" id="forcastDay4" style="background:#212121;">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp"></div>
+						<div class="col-xs-4 forecast icon" name="icon"></div>
+						<div class="col-xs-3 forecast temp" name="highTemp"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName"></div>
+					</div>
+				</div>
+				<div class="col-xs-2" id="forcastDay5">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp"></div>
+						<div class="col-xs-4 forecast icon" name="icon"></div>
+						<div class="col-xs-3 forecast temp" name="highTemp"></div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName"></div>
+					</div>
+				</div>
+			</div>
+<!-- 			<div class="row" id="forecastRow" style="margin-top:40px;">
+				<div class="col-xs-2 col-xs-offset-1" id="forcastDay1">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName">
+							Today
+						</div>
+					</div>
+					<div class="row" style="height:50px;">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp">
+							0
+						</div>
+						<div class="col-xs-4 forecast icon" name="icon">
+							<img src="http://openweathermap.org/img/w/01d.png" />
+						</div>
+						<div class="col-xs-3 forecast temp" name="highTemp">
+							30
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName">
+							Dec 16
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-2" id="forcastDay2" style="background:#212121;">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName">
+							Monday
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp">
+							1
+						</div>
+						<div class="col-xs-4 forecast icon" name="icon">
+							<img src="http://openweathermap.org/img/w/02d.png" />
+						</div>
+						<div class="col-xs-3 forecast temp" name="highTemp">
+							31
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName">
+							Dec 17
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-2" id="forcastDay3">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName">
+							Tuesday
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp">
+							2
+						</div>
+						<div class="col-xs-4 forecast icon" name="icon">
+							<img src="http://openweathermap.org/img/w/03d.png" />
+						</div>
+						<div class="col-xs-3 forecast temp" name="highTemp">
+							32
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName">
+							Dec 18
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-2" id="forcastDay4" style="background:#212121;">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName">
+							Wednesday
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp">
+							3
+						</div>
+						<div class="col-xs-4 forecast icon" name="icon">
+							<img src="http://openweathermap.org/img/w/11d.png" />
+						</div>
+						<div class="col-xs-3 forecast temp" name="highTemp">
+							33
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName">
+							Dec 19
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-2" id="forcastDay5">
+					<div class="row">
+						<div class="col-xs-12 forecast day" name="dayName">
+							Thursday
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-3 col-xs-offset-1 forecast temp" name="lowTemp">
+							4
+						</div>
+						<div class="col-xs-4 forecast icon" name="icon">
+							<img src="http://openweathermap.org/img/w/13d.png" />
+						</div>
+						<div class="col-xs-3 forecast temp" name="highTemp">
+							34
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 forecast date" name="dateName">
+							Dec 20
+						</div>
+					</div>
+				</div>
+			</div>
+ -->		</div>
 		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
 		<script type="text/javascript" src="../shared/js/jquery.color-2.1.2.min.js"></script>
 		<script type="text/javascript" src="../shared/js/socket.io-1.4.5.js"></script>

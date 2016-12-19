@@ -75,3 +75,19 @@ body.live-view {
 	font-size: 2vh;
 	border-top: 1px #804F01 solid;
 }
+
+.forecast {
+	text-align: center;
+}
+.day {
+}
+.temp {
+	font-size: 1.8em;
+	height: 100%;
+}
+.date {
+}
+.icon {
+	padding: 0px;
+	height: 100%;
+}

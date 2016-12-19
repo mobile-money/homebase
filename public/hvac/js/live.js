@@ -50,6 +50,38 @@ function FtoC(fVal,dec) {
 		return cVal;
 	}
 }
+function KtoF(kVal,dec) {
+	var fVal = ((9/5) * (Number(kVal) - 273)) + 32;
+	if (dec !== null) {
+		return fVal.toFixed(dec);
+	} else {
+		return fVal;
+	}
+}
+function FtoK(fVal,dec) {
+	var kVal = ((5/9) * (Number(fVal) -32)) + 273;
+	if (dec !== null) {
+		return kVal.toFixed(dec);
+	} else {
+		return kVal;
+	}
+}
+function KtoC(kVal,dec) {
+	var cVal = Number(kVal) - 273;
+	if (dec !== null) {
+		return cVal.toFixed(dec);
+	} else {
+		return cVal;
+	}
+}
+function CtoK(cVal,dec) {
+	var kVal = Number(cVal) + 273;
+	if (dec !== null) {
+		return kVal.toFixed(dec);
+	} else {
+		return kVal;
+	}
+}
 function showNav() {
 	$("#navToggleDiv").remove();
 	$("#navBar").show();
