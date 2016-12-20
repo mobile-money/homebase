@@ -77,15 +77,22 @@ body.live-view {
 }
 
 #forecastRow {
-	margin-top: 40px;
+	margin-top: 20px;
 }
 .forecast {
 	text-align: center;
 }
+.forecastData {
+	height: 30px;
+}
 .day {
+	font-size: 0.9em;
+}
+.forecastIcon {
+	height: 120%;
 }
 .temp {
-	font-size: 1.8em;
+	font-size: 1.4em;
 	height: 100%;
 }
 .date {
