@@ -130,6 +130,37 @@ function determineSystemAction(db, locId, currentTemp, targetTemp) {
 	});
 }
 
+function postLocationUpdate(db, id) {
+	console.log("bing: "+id);
+	return new Promise(function(resolve, reject) {
+		db.Location_Update.findOne({
+			where: {
+				locationId: id
+			}
+		}).then(function(lUpdate) {
+			console.log(lUpdate);
+			if (lUpdate !== null) {
+				lUpdate.update({
+					lastUpdate: moment.utc()
+				}).then(function(row) {
+					resolve();
+				});
+			} else {
+				db.Location_Update.create({
+					locationId: id
+					,lastUpdate: moment.utc()
+				}).then(function(row) {
+					console.log(row);
+					resolve();
+				});
+			}
+		}).catch(function(error) {
+			console.log(error);
+			reject(error);
+		});
+	});
+}
+
 module.exports = function(db) {
 	return {
 		insert: function(data) {
@@ -141,20 +172,22 @@ module.exports = function(db) {
 							,temperature: data.temperature
 							,humidity: data.humidity
 						}).then(function(result){
-							findSystem(db, sensor.LocationId).then(function(system) {
-								if (system !== null) {
-									findCurrentSchedule(db, sensor.LocationId).then(function(schedule) {
-										if (schedule !== null) {
-											determineSystemAction(db, sensor.LocationId, result.temperature, schedule.targetTemp).then(function(systemAction) {
-												resolve({data: result, system: system, schedule: schedule, systemAction: systemAction});
-											});
-										} else {
-											resolve({data: result, system: system, schedule: null, systemAction: null});
-										}
-									});
-								} else {
-									resolve({data: result, system: null, schedule: null, systemAction: null});
-								}
+							postLocationUpdate(db, sensor.LocationId).then(function() {
+								findSystem(db, sensor.LocationId).then(function(system) {
+									if (system !== null) {
+										findCurrentSchedule(db, sensor.LocationId).then(function(schedule) {
+											if (schedule !== null) {
+												determineSystemAction(db, sensor.LocationId, result.temperature, schedule.targetTemp).then(function(systemAction) {
+													resolve({data: result, system: system, schedule: schedule, systemAction: systemAction});
+												});
+											} else {
+												resolve({data: result, system: system, schedule: null, systemAction: null});
+											}
+										});
+									} else {
+										resolve({data: result, system: null, schedule: null, systemAction: null});
+									}
+								});
 							});
 						});
 					} else {
@@ -271,7 +304,7 @@ module.exports = function(db) {
 				});
 			});
 		}
-		,healthCheck: function() {
+		,healthCheck: function(minuteSpan) {
 			return new Promise(function(resolve, reject) {
 				db.Location.findAll({
 					include: [ db.Sensor ]
@@ -288,18 +321,18 @@ module.exports = function(db) {
 						}
 					});
 					var locIds = _.pluck(filteredLocations, 'id');
-					var targetTime = moment().subtract(10, "minutes").format("YYYY-MM-DD HH:mm:ss");
-					db.EnvData.findAll({
+					var targetTime = moment().subtract(minuteSpan, "minutes").format("YYYY-MM-DD HH:mm:ss");
+					db.Location_Update.findAll({
 						where: {
-							LocationId: {
+							locationId: {
 								$in: locIds
 							}
-							,updatedAt: {
+							,lastUpdate: {
 								$gte: targetTime
 							}
 						}
 					}).then(function(updates) {
-						var updateIds = _.uniq(_.pluck(updates, 'LocationId'));
+						var updateIds = _.uniq(_.pluck(updates, 'locationId'));
 						var retObj = {};
 						locIds.forEach(function(locId) {
 							var tempObj = {};
@@ -310,8 +343,8 @@ module.exports = function(db) {
 								tempObj.updated = true;
 							} else {
 								tempObj.updated = false;
-								mailOptions.text = 'There has not been an update in the last 10 minutes from: '+tempObj.floor+' '+tempObj.room;
-								mailOptions.html = 'There has not been an update in the last 10 minutes from:<br />'+tempObj.floor+' '+tempObj.room
+								mailOptions.text = 'There has not been an update in the last '+minuteSpan+' minutes from: '+tempObj.floor+' '+tempObj.room;
+								mailOptions.html = 'There has not been an update in the last '+minuteSpan+' minutes from:<br />'+tempObj.floor+' '+tempObj.room
 								transporter.sendMail(mailOptions, function(error, info){
 								    if(error){
 								        return console.log(error);

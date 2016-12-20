@@ -92,6 +92,7 @@ body.live-view {
 	height: 120%;
 }
 .temp {
+	padding: 0px;
 	font-size: 1.4em;
 	height: 100%;
 }

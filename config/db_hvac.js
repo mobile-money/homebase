@@ -37,6 +37,7 @@ db.Schedule = sequelize.import(__dirname + "/../models/hvac/Schedule.js");
 db.System_Run = sequelize.import(__dirname + "/../models/hvac/System_Run.js");
 db.Option = sequelize.import(__dirname + "/../models/hvac/Option.js");
 db.Forecast = sequelize.import(__dirname + "/../models/hvac/Forecast.js");
+db.Location_Update = sequelize.import(__dirname + "/../models/hvac/Location_Update.js");
 // // END IMPORTS // //
 
 db.sequelize = sequelize;
