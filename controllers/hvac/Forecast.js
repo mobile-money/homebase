@@ -55,7 +55,15 @@ module.exports = function(db) {
 		}
 		,get: function() {
 			return new Promise(function(resolve, reject) {
-
+				db.Forecast.findOne().then(function(result) {
+					if (result !== null) {
+						resolve(result);
+					} else {
+						reject("no forecast found");
+					}
+				}).catch(function(error) {
+					reject(error);
+				})
 			});
 		}
 	};

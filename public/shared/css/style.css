@@ -76,6 +76,9 @@ body.live-view {
 	border-top: 1px #804F01 solid;
 }
 
+#forecastRow {
+	margin-top: 40px;
+}
 .forecast {
 	text-align: center;
 }
@@ -90,4 +93,7 @@ body.live-view {
 .icon {
 	padding: 0px;
 	height: 100%;
+}
+.weatherDesc {
+	font-size: 0.8em;
 }

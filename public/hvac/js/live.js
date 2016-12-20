@@ -8,6 +8,7 @@ $(document).ready(function() {
 
 	setCurrentTime();
 	getLocations();
+	getForecast();
 
 });
 
@@ -31,6 +32,10 @@ $(document).ready(function() {
 		} else if (Number($("#selectedLocation").val()) === -1) {
 			updateDashboard(obj);
 		}
+	});
+
+	socket.on("newForecast", function() {
+		getForecast();
 	});
 
 // FUNCTIONS
@@ -101,31 +106,65 @@ function setCurrentTime() {
 	setTimeout(setCurrentTime, 60000);
 }
 
-function getLocations() {
+function getDashboard() {
+	$("#locSelect").html("Dashboard");
+	$("#selectedLocation").val(-1);
+	$("#readingsRow").hide();
+	$("#optionsRow").hide();
+	$("#dashboardRow").show();
+
+	locations.forEach(function(location) {
+		var row = '<tr id="loc_'+location.id+'">'+
+			'<td name="locName">'+location.floor+" "+location.room+"</td>";
+			if (location.System !== null) {
+				row += '<td name="locSysName">'+location.System.name+"</td>";
+			} else {
+				row += '<td name="locSysName"></td>';
+			}
+		row += '<td name="locCurTemp"></td><td name="locTarTemp"></td><td name="locSysStat"></td></tr>';
+		$("#dashboardTable").find("tbody").append(row);
+		$.ajax({
+			type: "GET"
+			,url: "/api/v1/hvac/envData/lastReading/"+location.id
+		}).success(function(obj){
+			$("#loc_"+obj.location.id).find('td[name="locCurTemp"]').html(CtoF(obj.data.temperature,0) + "°");
+			if (obj.schedule !== null) {
+				$("#loc_"+obj.location.id).find('td[name="locTarTemp"]').html(CtoF(obj.schedule.targetTemp,0) + "°");
+			}
+			if (obj.systemAction !== null) {
+				if (obj.systemAction === "heat") {
+					$("#loc_"+obj.location.id).find('td[name="locSysStat"]').html('<img src="../shared/img/fire.png" alt="Heat" style="height:'+($("#loc_"+obj.location.id).height()-17)+'px;">');
+				} else if (obj.systemAction === "cool") {
+					$("#loc_"+obj.location.id).find('td[name="locSysStat"]').html('<img src="../shared/img/wind.png" alt="Cool" style="height:'+($("#loc_"+obj.location.id).height()-17)+'px;">');
+				}
+			}
+		}).error(function(jqXHR, textStatus, errorThrown) {
+			if (jqXHR.status === 500) {
+				$("#infoModalBody").html("There was a problem.  Please try again.");
+				$("#infoModal").modal("show");
+			}
+		});
+	});
+}
+
+function getForecast() {
 	$.ajax({
 		type: "GET"
-		,url: "/api/v1/hvac/location"
-	}).success(function(results){
-		results.forEach(function(location, ind) {
-			locations.push(location);
-			var name = location.floor+" "+location.room;
-			if (location.note !== null) {
-				name += " ("+location.note+")";
+		,url: "/api/v1/hvac/forecast"
+	}).success(function(forecast) {
+		console.log(forecast);
+		for (var i=0; i<5; i++) {
+			if (i !== 0) {
+				$("#forecastDay"+i+" div[name=dayName]").html(moment(forecast["day"+i+"_date"]).format("dddd"));				
 			}
-			if (ind === 0) {
-				$("#locSelect").html(name);
-			}
-			var option = '<li><a onClick="getLastReading('+location.id+');">'+name+"</a></li>";
-			$("#locList").append(option);
-		});
-		$("#locList").append('<li><a onClick="getDashboard();">Dashboard</a></li>');
-		$("#selectedLocation").val(results[0].id);
-		getLastReading(results[0].id);
-	}).error(function(jqXHR, textStatus, errorThrown) {
-		if (jqXHR.status === 500) {
-			$("#infoModalBody").html("There was a problem.  Please try again.");
-			$("#infoModal").modal("show");
+			$("#forecastDay"+i+" div[name=lowTemp]").html(KtoF(forecast["day"+i+"_min"],0));
+			$("#forecastDay"+i+" img[name=icon]").attr("src", "http://openweathermap.org/img/w/"+forecast["day"+i+"_iconCode"]+".png");
+			$("#forecastDay"+i+" div[name=highTemp]").html(KtoF(forecast["day"+i+"_max"],0));
+			$("#forecastDay"+i+" div[name=description]").html(forecast["day"+i+"_description"]);
+			// $("#forecastDay"+i+" div[name=dateName]").html(moment(forecast["day"+i+"_date"]).format("MMM DD"));
 		}
+	}).error(function(jqXHR, textStatus, errorThrown) {
+		$("#forecastRow").hide();
 	});
 }
 
@@ -232,44 +271,31 @@ function getLastReading(id) {
 	});
 }
 
-function getDashboard() {
-	$("#locSelect").html("Dashboard");
-	$("#selectedLocation").val(-1);
-	$("#readingsRow").hide();
-	$("#optionsRow").hide();
-	$("#dashboardRow").show();
-
-	locations.forEach(function(location) {
-		var row = '<tr id="loc_'+location.id+'">'+
-			'<td name="locName">'+location.floor+" "+location.room+"</td>";
-			if (location.System !== null) {
-				row += '<td name="locSysName">'+location.System.name+"</td>";
-			} else {
-				row += '<td name="locSysName"></td>';
+function getLocations() {
+	$.ajax({
+		type: "GET"
+		,url: "/api/v1/hvac/location"
+	}).success(function(results){
+		results.forEach(function(location, ind) {
+			locations.push(location);
+			var name = location.floor+" "+location.room;
+			if (location.note !== null) {
+				name += " ("+location.note+")";
 			}
-		row += '<td name="locCurTemp"></td><td name="locTarTemp"></td><td name="locSysStat"></td></tr>';
-		$("#dashboardTable").find("tbody").append(row);
-		$.ajax({
-			type: "GET"
-			,url: "/api/v1/hvac/envData/lastReading/"+location.id
-		}).success(function(obj){
-			$("#loc_"+obj.location.id).find('td[name="locCurTemp"]').html(CtoF(obj.data.temperature,0) + "°");
-			if (obj.schedule !== null) {
-				$("#loc_"+obj.location.id).find('td[name="locTarTemp"]').html(CtoF(obj.schedule.targetTemp,0) + "°");
+			if (ind === 0) {
+				$("#locSelect").html(name);
 			}
-			if (obj.systemAction !== null) {
-				if (obj.systemAction === "heat") {
-					$("#loc_"+obj.location.id).find('td[name="locSysStat"]').html('<img src="../shared/img/fire.png" alt="Heat" style="height:'+($("#loc_"+obj.location.id).height()-17)+'px;">');
-				} else if (obj.systemAction === "cool") {
-					$("#loc_"+obj.location.id).find('td[name="locSysStat"]').html('<img src="../shared/img/wind.png" alt="Cool" style="height:'+($("#loc_"+obj.location.id).height()-17)+'px;">');
-				}
-			}
-		}).error(function(jqXHR, textStatus, errorThrown) {
-			if (jqXHR.status === 500) {
-				$("#infoModalBody").html("There was a problem.  Please try again.");
-				$("#infoModal").modal("show");
-			}
+			var option = '<li><a onClick="getLastReading('+location.id+');">'+name+"</a></li>";
+			$("#locList").append(option);
 		});
+		$("#locList").append('<li><a onClick="getDashboard();">Dashboard</a></li>');
+		$("#selectedLocation").val(results[0].id);
+		getLastReading(results[0].id);
+	}).error(function(jqXHR, textStatus, errorThrown) {
+		if (jqXHR.status === 500) {
+			$("#infoModalBody").html("There was a problem.  Please try again.");
+			$("#infoModal").modal("show");
+		}
 	});
 }
 
