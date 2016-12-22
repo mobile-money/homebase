@@ -10,6 +10,9 @@ $(document).ready(function() {
 	$(".datepicker").datepicker();
 	$("#startDate").addClass("option").change(function() { reload(); });
 	$("#endDate").addClass("option").change(function() { reload(); });
+
+	checkSystemOptions();
+
 	getLocations();
 	getSystems();
 });
@@ -28,22 +31,6 @@ $(document).ready(function() {
 	});
 
 // FUNCTIONS
-function CtoF(cVal,dec) {
-	var fVal = (Number(cVal) * (9/5) + 32);
-	if (dec !== null) {
-		return fVal.toFixed(dec);
-	} else {
-		return fVal;
-	}
-}
-function FtoC(fVal,dec) {
-	var cVal = (Number(fVal) - 32) * (5/9);
-	if (dec !== null) {
-		return cVal.toFixed(dec);
-	} else {
-		return cVal;
-	}
-}
 function showNav() {
 	$("#navToggleDiv").remove();
 	$("#navBar").show();

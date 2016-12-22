@@ -14,6 +14,8 @@ $(document).ready(function() {
 		$(".modal-header").empty();
 		$(".modal-body").empty();
 	});
+
+	checkSystemOptions();
 		
 	getSensors();
 	getHosts();
@@ -52,22 +54,6 @@ $(document).ready(function() {
 	});
 
 // FUNCTIONS
-function CtoF(cVal,dec) {
-	var fVal = (Number(cVal) * (9/5) + 32);
-	if (dec !== null) {
-		return fVal.toFixed(dec);
-	} else {
-		return fVal;
-	}
-}
-function FtoC(fVal,dec) {
-	var cVal = (Number(fVal) - 32) * (5/9);
-	if (dec !== null) {
-		return cVal.toFixed(dec);
-	} else {
-		return cVal;
-	}
-}
 function showNav() {
 	$("#navToggleDiv").remove();
 	$("#navBar").show();
@@ -78,42 +64,42 @@ function resetModal(type) {
 	$("#"+type+"ModalFooter").empty();
 }
 function getOptions() {
-	$.ajax({
-		type: "GET"
-		,url: "/api/v1/hvac/option"
-	}).success(function(results){
-		if (results !== null) {
-			// Temp Scale
-			if (results.hasOwnProperty("tempScale")) {
-				if (results.tempScale === "f") {
-					$("#optionFTempScale").removeClass("btn-default").addClass("btn-primary");
-				} else if (results.tempScale === "c") {
-					$("#optionCTempScale").removeClass("btn-default").addClass("btn-primary");
-				}
-			}
-			// Default Location
-			$("#optionDefaultLoc").empty();
-			var opt = '<option value=null></option>';
-			$("#optionDefaultLoc").append(opt);
-			locations.forEach(function(location) {
-				var opt = '<option value="'+location.id+'"';
-				if (results.defaultLocation === location.id) {
-					opt += " selected";
-				}
-				opt += '>'+location.floor+" "+location.room+"</option>";
-				$("#optionDefaultLoc").append(opt);
-			});
-			// Upper Buffer
-			$("#optionUpperBuffer").val(results.upperBuffer);
-			// Lower Buffer
-			$("#optionLowerBuffer").val(results.lowerBuffer);
+	// Temp Scale
+	var tempScale = getCookie("temperatureScale");
+	if (tempScale === "f") {
+		$("#optionFTempScale").removeClass("btn-default").addClass("btn-primary");
+		$("#optionCTempScale").removeClass("btn-primary").addClass("btn-default");
+		$("#optionKTempScale").removeClass("btn-primary").addClass("btn-default");
+	} else if (tempScale === "c") {
+		$("#optionFTempScale").removeClass("btn-primary").addClass("btn-default");
+		$("#optionCTempScale").removeClass("btn-default").addClass("btn-primary");
+		$("#optionKTempScale").removeClass("btn-primary").addClass("btn-default");
+	} else if (tempScale === "k") {
+		$("#optionFTempScale").removeClass("btn-primary").addClass("btn-default");
+		$("#optionCTempScale").removeClass("btn-primary").addClass("btn-default");
+		$("#optionKTempScale").removeClass("btn-default").addClass("btn-primary");
+	} else {
+		$("#optionFTempScale").removeClass("btn-primary").addClass("btn-default");
+		$("#optionCTempScale").removeClass("btn-primary").addClass("btn-default");
+		$("#optionKTempScale").removeClass("btn-primary").addClass("btn-default");
+	}
+	// Default Location
+	var defLoc = getCookie("defaultLocation");
+	$("#optionDefaultLoc").empty();
+	var opt = '<option value=null></option>';
+	$("#optionDefaultLoc").append(opt);
+	locations.forEach(function(location) {
+		var opt = '<option value="'+location.id+'"';
+		if (Number(defLoc) === location.id) {
+			opt += " selected";
 		}
-	}).error(function(jqXHR, textStatus, errorThrown) {
-		if (jqXHR.status === 500) {
-			$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);
-			$("#infoModal").modal("show");
-		}
+		opt += '>'+location.floor+" "+location.room+"</option>";
+		$("#optionDefaultLoc").append(opt);
 	});
+	// Upper Buffer
+	$("#optionUpperBuffer").val(getCookie("upperBuffer"));
+	// Lower Buffer
+	$("#optionLowerBuffer").val(getCookie("lowerBuffer"));
 }
 function updateTempScale(val) {
 	$.ajax({
@@ -123,11 +109,18 @@ function updateTempScale(val) {
 			tempScale: val
 		}
 	}).success(function(response) {
+		setCookie("temperatureScale",val,7);
 		if (val === "f") {
 			$("#optionFTempScale").removeClass("btn-default").addClass("btn-primary");
 			$("#optionCTempScale").removeClass("btn-primary").addClass("btn-default");
+			$("#optionKTempScale").removeClass("btn-primary").addClass("btn-default");
 		} else if (val === "c") {
 			$("#optionCTempScale").removeClass("btn-default").addClass("btn-primary");
+			$("#optionFTempScale").removeClass("btn-primary").addClass("btn-default");
+			$("#optionKTempScale").removeClass("btn-primary").addClass("btn-default");
+		} else if (val === "k") {
+			$("#optionKTempScale").removeClass("btn-default").addClass("btn-primary");
+			$("#optionCTempScale").removeClass("btn-primary").addClass("btn-default");
 			$("#optionFTempScale").removeClass("btn-primary").addClass("btn-default");
 		}
 	}).error(function(jqXHR, textStatus, errorThrown) {
@@ -146,6 +139,7 @@ function updateDefaultLoc() {
 			defaultLocation: val
 		}
 	}).success(function(response) {
+		setCookie("defaultLocation",val,7);
 	}).error(function(jqXHR, textStatus, errorThrown) {
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);
@@ -163,6 +157,7 @@ function updateUpperBuffer() {
 				upperBuffer: val
 			}
 		}).success(function(response) {
+			setCookie("upperBuffer",val,7);
 		}).error(function(jqXHR, textStatus, errorThrown) {
 			if (jqXHR.status === 500) {
 				$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);
@@ -181,6 +176,7 @@ function updateLowerBuffer() {
 				lowerBuffer: val
 			}
 		}).success(function(response) {
+			setCookie("lowerBuffer",val,7);
 		}).error(function(jqXHR, textStatus, errorThrown) {
 			if (jqXHR.status === 500) {
 				$("#infoModalBody").html("There was a problem.  Please try again.<br /><br />"+jqXHR.responseText);
@@ -960,7 +956,7 @@ function getSchedules() {
 				"<td>"+schedule.System.name+"</td>"+
 				"<td>"+_.map(JSON.parse(schedule.days),function(num) { return moment().day(num).format("ddd")}).join(", ")+"</td>"+
 				"<td>"+moment(schedule.startTime,"HH:mm").format("h:mmA")+" - "+moment(schedule.endTime,"HH:mm").format("h:mmA")+"</td>"+
-				"<td>"+CtoF(schedule.targetTemp,0)+"°</td>"+
+				"<td>"+convertTemp('c',schedule.targetTemp,0)+"°</td>"+
 				'<td style="text-align: right;">'+
 					'<button class="btn btn-xs btn-primary edit_schedule" onClick="editSchedule(' + schedule.id + ');">'+
 						'<i class="glyphicon glyphicon-pencil"></i>'+

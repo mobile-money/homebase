@@ -1,4 +1,6 @@
 config/env.js
+public/test.html
+public/test.js
 
 # Logs
 logs
