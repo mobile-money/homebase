@@ -161,6 +161,24 @@ function postLocationUpdate(db, id) {
 	});
 }
 
+function CtoF(cVal,dec) {
+	var fVal = (Number(cVal) * (9/5) + 32);
+	if (dec !== null) {
+		return Number(fVal.toFixed(dec));
+	} else {
+		return fVal;
+	}
+}
+
+function CtoK(cVal,dec) {
+	var kVal = Number(cVal) + 273;
+	if (dec !== null) {
+		return Number(kVal.toFixed(dec));
+	} else {
+		return kVal;
+	}
+}
+
 module.exports = function(db) {
 	return {
 		insert: function(data) {
@@ -230,36 +248,44 @@ module.exports = function(db) {
 					if (results.length === 0) {
 						resolve({data: null});
 					} else {
-						var chartData = [];
-						var times = _.pluck(results, "createdAt");
-						locs.forEach(function(loc) {
-							var locList = _.where(results, { LocationId: loc });
+						db.Option.findOne().then(function(option) {
+							var chartData = [];
+							var times = _.pluck(results, "createdAt");
+							locs.forEach(function(loc) {
+								var locList = _.where(results, { LocationId: loc });
 
-							var nameStr = locList[0].Location.floor + ' ' + locList[0].Location.room;
-							if (locList[0].Location.note !== null) {
-								nameStr += " (" + locList[0].Location.note + ")";
-							}
-							var locTempObj = { name: nameStr + " - Temperature", data: [] };
-							var locHumdObj = { name: nameStr + " - Humidity", data: [] };
-							locList.forEach(function(row) {
+								var nameStr = locList[0].Location.floor + ' ' + locList[0].Location.room;
+								if (locList[0].Location.note !== null) {
+									nameStr += " (" + locList[0].Location.note + ")";
+								}
+								var locTempObj = { name: nameStr + " - Temperature", data: [] };
+								var locHumdObj = { name: nameStr + " - Humidity", data: [] };
+								locList.forEach(function(row) {
+									var temp = row.temperature
+									if (option.tempScale === "f") {
+										temp = CtoF(temp,null);
+									} else if (option.tempScale === "k") {
+										temp = CtoK(temp,null);
+									}
+									if (data.temperature) {
+										var tarr = [moment(row.createdAt,"YYYY-MM-DD HH:mm:ss").valueOf(), Number(temp.toFixed(1))];
+										locTempObj.data.push(tarr);
+									}
+									if (data.humidity) {
+										var harr = [moment(row.createdAt,"YYYY-MM-DD HH:mm:ss").valueOf(), row.humidity];
+										locHumdObj.data.push(harr);
+									}
+								});
+
 								if (data.temperature) {
-									var tarr = [moment(row.createdAt,"YYYY-MM-DD HH:mm:ss").valueOf(), Number((row.temperature * (9/5) + 32).toFixed(1))];
-									locTempObj.data.push(tarr);
+									chartData.push(locTempObj);
 								}
 								if (data.humidity) {
-									var harr = [moment(row.createdAt,"YYYY-MM-DD HH:mm:ss").valueOf(), row.humidity];
-									locHumdObj.data.push(harr);
+									chartData.push(locHumdObj);
 								}
 							});
-
-							if (data.temperature) {
-								chartData.push(locTempObj);
-							}
-							if (data.humidity) {
-								chartData.push(locHumdObj);
-							}
+							resolve({data: chartData, xAxis: times});
 						});
-						resolve({data: chartData, xAxis: times});
 					}
 				}).catch(function(error) {
 					reject(error);
