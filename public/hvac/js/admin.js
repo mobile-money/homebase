@@ -66,6 +66,7 @@ function resetModal(type) {
 function getOptions() {
 	// Temp Scale
 	var tempScale = getCookie("temperatureScale");
+	$("#setScale").val(tempScale);
 	if (tempScale === "f") {
 		$("#optionFTempScale").removeClass("btn-default").addClass("btn-primary");
 		$("#optionCTempScale").removeClass("btn-primary").addClass("btn-default");
@@ -110,6 +111,8 @@ function updateTempScale(val) {
 		}
 	}).success(function(response) {
 		setCookie("temperatureScale",val,7);
+		convertScheduleTemps($("#setScale").val());
+		$("#setScale").val(val);
 		if (val === "f") {
 			$("#optionFTempScale").removeClass("btn-default").addClass("btn-primary");
 			$("#optionCTempScale").removeClass("btn-primary").addClass("btn-default");
@@ -129,6 +132,13 @@ function updateTempScale(val) {
 			$("#infoModal").modal("show");
 		}
 	});
+}
+function convertScheduleTemps(oldScale) {
+	var elems = $("span[name=scheduleTemps]");
+	for (var i=0; i<elems.length; i++) {
+		var newScale = convertTemp(oldScale,elems[i].innerHTML,0);
+		elems[i].innerHTML = newScale;
+	}
 }
 function updateDefaultLoc() {
 	var val = $("#optionDefaultLoc").val();
@@ -956,7 +966,7 @@ function getSchedules() {
 				"<td>"+schedule.System.name+"</td>"+
 				"<td>"+_.map(JSON.parse(schedule.days),function(num) { return moment().day(num).format("ddd")}).join(", ")+"</td>"+
 				"<td>"+moment(schedule.startTime,"HH:mm").format("h:mmA")+" - "+moment(schedule.endTime,"HH:mm").format("h:mmA")+"</td>"+
-				"<td>"+convertTemp('c',schedule.targetTemp,0)+"°</td>"+
+				'<td><span name="scheduleTemps">'+convertTemp('c',schedule.targetTemp,0)+"</span>°</td>"+
 				'<td style="text-align: right;">'+
 					'<button class="btn btn-xs btn-primary edit_schedule" onClick="editSchedule(' + schedule.id + ');">'+
 						'<i class="glyphicon glyphicon-pencil"></i>'+
