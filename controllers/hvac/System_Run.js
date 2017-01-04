@@ -149,16 +149,23 @@ module.exports = function(db) {
 									$gte: moment.utc(data.startTime,'x')
 								}
 								,off: {
-									$lte: moment.utc(data.endTime,'x')
+									$or: {
+										$eq: null
+										,$lte: moment.utc(data.endTime,'x')
+									}
 								}
 							}
 						}).then(function(runs) {
 							if (runs.length > 0) {
 								var bands = [];
 								runs.forEach(function(run) {
+									var offTime = moment.utc().format("x");
+									if (run.off !== null) {
+										offTime = moment.utc(run.off, "YYYY-MM-DD HH:mm:ss").format("x");
+									}
 									bands.push({
 										from: moment.utc(run.on, "YYYY-MM-DD HH:mm:ss").format("x")
-										,to: moment.utc(run.off, "YYYY-MM-DD HH:mm:ss").format("x")
+										,to: offTime
 										,color: '#efb8b8'
 									});
 								});

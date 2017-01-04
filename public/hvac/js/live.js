@@ -70,6 +70,7 @@ function getDashboard() {
 	$("#selectedLocation").val(-1);
 	$("#readingsRow").hide();
 	$("#optionsRow").hide();
+	$("#dashboardTable").find("tbody").empty();
 	$("#dashboardRow").show();
 
 	locations.forEach(function(location) {
