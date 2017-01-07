@@ -3,7 +3,13 @@ var request = require("request");
 
 function getCurrentPrice(tick,db) {
 	return new Promise(function(resolve, reject) {
-		request("http://finance.yahoo.com/webservice/v1/symbols/"+tick+"/quote?format=json", function(error, response, body) {
+		request({
+			uri: "http://finance.yahoo.com/webservice/v1/symbols/"+tick+"/quote?format=json"
+			,method: "GET"
+			,headers: {
+				"User-Agent": "Mozilla/5.0 (Linux; Android 6.0.1; MotoG3 Build/MPI24.107-55) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.81 Mobile Safari/537.36"
+			}
+		}, function(error, response, body) {
 			if (!error && response.statusCode == 200) {
 				var resp = JSON.parse(body);
 				if (resp.list.meta.count === 1) {
