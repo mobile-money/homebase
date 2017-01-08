@@ -31,7 +31,7 @@ module.exports = function(db) {
 										if (resp.list.meta.count === 1) {
 											db.Position.update({
 												currentPrice: resp.list.resources[0].resource.fields.price
-												name: resp.list.resources[0].resource.fields.name
+												,name: resp.list.resources[0].resource.fields.name
 											}
 											,{
 												where: { ticker: tick }
