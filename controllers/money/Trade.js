@@ -23,8 +23,8 @@ function getCurrentPrice(tick,db) {
 						,order: [["transactionDate", "DESC"]]
 						,limit: 1
 					}).then(function(result) {
-						console.log("BLAHBLAH");
-						console.log(result);
+						// console.log("BLAHBLAH");
+						// console.log(result);
 						resolve(result);
 					});
 					reject(1);
