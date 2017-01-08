@@ -548,14 +548,19 @@ var QueryString = function () {
 			$("#transactionTable tbody").empty();
 			// var balance = Number(response.cTrans[0].Summary.balance);
 			var balance = 0;
+			var initialBalance = 0;
 			for (var i = 0; i < response.cTrans.length; i++) {
 				if (!response.cTrans[i].future) {
-					if (response.cTrans[i].hasOwnProperty("Summary")) {
-						balance = Number(response.cTrans[i].Summary.balance);
-						break;
+					if (response.cTrans[i].postDate !== null) {
+						if (response.cTrans[i].hasOwnProperty("Summary")) {
+							balance = Number(response.cTrans[i].Summary.balance);
+							initialBalance = Number(response.cTrans[i].Summary.balance);
+							break;
+						}
 					}
 				}
 			}
+			console.log(initialBalance);
 			balance += Number(response.adjust);
 
 			// Current Transactions
