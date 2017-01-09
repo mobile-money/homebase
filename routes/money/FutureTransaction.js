@@ -100,33 +100,57 @@ module.exports = function(app, FutureTransaction, _, io) {
 	});
 
 	// Commit future transaction
-	app.get("/api/v1/money/futureTransaction/commit/:id", function(req, res) {
+	app.put("/api/v1/money/futureTransaction/commit/:id", function(req, res) {
 		console.log("commit future transaction requested");
-		FutureTransaction.commit(req.params.id)
-		.then(
-			function(newTransaction) {
-				console.log("future transaction committed");
-				io.emit("transactionAdded", newTransaction.id);
-				res.json(newTransaction);
-			}
-			,function(error) {
-				if (error.code === 1) {
-					console.log("future transaction not found");
-					res.status(404).send();
-				} else if (error.code === 2) {
-					console.log("future transaction not deleted");
-					res.status(400).send();
-				} else {
-					console.log("future transaction commit error: "+JSON.stringify(error));
-					res.status(500).send();
-				}
-			}
-		)
-		.catch(
-			function(error) {
+		var body = _.pick(req.body, 'pDate');
+		body.id = req.params.id;
+		FutureTransaction.commit(body).then(function(newTransaction) {
+			console.log("future transaction committed");
+			io.emit("transactionAdded", newTransaction.id);
+			res.json(newTransaction);
+		},function(error) {
+			if (error.code === 1) {
+				console.log("future transaction not found");
+				res.status(404).send();
+			} else if (error.code === 2) {
+				console.log("future transaction not deleted");
+				res.status(400).send();
+			} else {
 				console.log("future transaction commit error: "+JSON.stringify(error));
 				res.status(500).send();
 			}
-		);
+		}).catch(function(error) {
+			console.log("future transaction commit error: "+JSON.stringify(error));
+			res.status(500).send();
+		});
 	});
+	// app.get("/api/v1/money/futureTransaction/commit/:id", function(req, res) {
+	// 	console.log("commit future transaction requested");
+	// 	FutureTransaction.commit(req.params.id)
+	// 	.then(
+	// 		function(newTransaction) {
+	// 			console.log("future transaction committed");
+	// 			io.emit("transactionAdded", newTransaction.id);
+	// 			res.json(newTransaction);
+	// 		}
+	// 		,function(error) {
+	// 			if (error.code === 1) {
+	// 				console.log("future transaction not found");
+	// 				res.status(404).send();
+	// 			} else if (error.code === 2) {
+	// 				console.log("future transaction not deleted");
+	// 				res.status(400).send();
+	// 			} else {
+	// 				console.log("future transaction commit error: "+JSON.stringify(error));
+	// 				res.status(500).send();
+	// 			}
+	// 		}
+	// 	)
+	// 	.catch(
+	// 		function(error) {
+	// 			console.log("future transaction commit error: "+JSON.stringify(error));
+	// 			res.status(500).send();
+	// 		}
+	// 	);
+	// });
 }

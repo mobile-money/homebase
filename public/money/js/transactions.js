@@ -54,7 +54,7 @@ var QueryString = function () {
 				(e.which >= 65 && e.which <= 90) ||
 				(e.which >= 186 && e.which <= 192) || 
 				(e.which >= 219 && e.which <= 222)) {
-				$.get("/api/v1/transactions/lookup/payee/"+e.target.value, function(response) {
+				$.get("/api/v1/money/transactions/lookup/payee/"+e.target.value, function(response) {
 					$("#newPayee").typeahead({source: response, minLength: 3});
 				}, 'json');
 			}
@@ -79,7 +79,7 @@ var QueryString = function () {
 				(e.which >= 65 && e.which <= 90) ||
 				(e.which >= 186 && e.which <= 192) || 
 				(e.which >= 219 && e.which <= 222)) {
-				$.get("/api/v1/transactions/lookup/description/"+e.target.value, function(response) {
+				$.get("/api/v1/money/transactions/lookup/description/"+e.target.value, function(response) {
 					$("#newDescription").typeahead({source: response, minLength: 3});
 				}, 'json');
 			}
@@ -560,90 +560,84 @@ var QueryString = function () {
 					}
 				}
 			}
-			console.log(initialBalance);
+			// console.log(initialBalance);
 			balance += Number(response.adjust);
 
 			// Current Transactions
 			response.cTrans.forEach(function(result) {
 				var dp = false;
 				var row;
+				var tDateMoment = moment.utc(result.transactionDate);
 				if (result.hasOwnProperty("future")) {
-					row = '<tr id="f_'+result.id+'" class="success"><td></td>';
+					dp = true;
+					row = '<tr id="f_'+result.id+'"';
+					if (tDateMoment.isAfter(moment(),'days')) {
+						row += ' class="success"';
+					}
+					row += '><td><input type="text" size="10"class="datepicker form-control" data-tid="'+result.id+'" id="post_'+result.id+'" /></td>';
 				} else {
-					row = '<tr id="'+result.id+'"><td>';
-						if (result.postDate !== null) {
-							row += moment.utc(result.postDate).format("MM/DD/YYYY");
-						} else {
-							dp = true;
-							row += '<input type="text" size="10"class="datepicker form-control" data-tid="'+result.id+'" id="post_'+result.id+'" />';
-							// '&nbsp;<input id="clr_'+result.id+'" type="checkbox" onclick="quickPost('+result.id+');" />';
-						}
-						// '<input id="clr_'+result.id+'" type="checkbox" onclick="clearTransaction('+result.id+');"';
-						// if (result.cleared === true) {
-						// 	row += 'checked disabled';
-						// }
-						// row += '></input>'+
+					row = '<tr id="'+result.id+'">'+
+						'<td>'+moment.utc(result.postDate).format("MM/DD/YYYY")+'</td>';
+				}
+				row += '<td name="transactionDate">'+
+					tDateMoment.format("MM/DD/YYYY")+
+				'</td>'+
+				'<td name="payee">';
+				if (result.BillId !== null) {
+					row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded" title="Repeating Transaction" style="padding:3px;background-color:#dedede;border:1px solid #c7c7c7;margin-right:2px;"></i>';
+				}
+				row += result.payee+'</td>';
+				if (result.description !== null) {
+					row += '<td name="description">';
+					if (result.xfer !== null) {
+						row += "[Transfer] ";
+					}
+					row += result.description+'</td>';
+				} else {
+					row += '<td name="description">';
+					if (result.xfer !== null) {
+						row += "[Transfer]";
+					}
 					row += '</td>';
 				}
-					row += '<td name="transactionDate">'+
-						moment.utc(result.transactionDate).format("MM/DD/YYYY")+
-					'</td>'+
-					'<td name="payee">';
-					if (result.BillId !== null) {
-						row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded" title="Repeating Transaction" style="padding:3px;background-color:#dedede;border:1px solid #c7c7c7;margin-right:2px;"></i>';
-					}
-					row += result.payee+'</td>';
-					if (result.description !== null) {
-						row += '<td name="description">';
-						if (result.xfer !== null) {
-							row += "[Transfer] ";
-						}
-						row += result.description+'</td>';
-					} else {
-						row += '<td name="description">';
-						if (result.xfer !== null) {
-							row += "[Transfer]";
-						}
-						row += '</td>';
-					}
-					if (result.checkNumber !== null) {
-						row += '<td name="check">'+result.checkNumber+'</td>';
-					} else {
-						row += '<td name="check"></td>';
-					}
+				if (result.checkNumber !== null) {
+					row += '<td name="check">'+result.checkNumber+'</td>';
+				} else {
+					row += '<td name="check"></td>';
+				}
 
-					if (result.amount !== null) {
-						if (result.amount > 0) {
-							row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
-						} else {
-							row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
-						}
-					}
-					if (result.Category !== null) {
-						row += '<td name="category">'+result.Category.name+'</td>';
+				if (result.amount !== null) {
+					if (result.amount > 0) {
+						row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
 					} else {
-						row += '<td name="category"></td>';
+						row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
 					}
-					row += '<td name="balance">'+balance.toFixed(2)+'</td>';
-					if (result.hasOwnProperty("future")) {
-						row += '<td>'+
-							'<button class="btn btn-primary btn-xs" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
-								'<i class="glyphicon glyphicon-pencil"></i>'+
-							'</button>'+
-							'<button class="btn btn-success btn-xs" title="Commit Transaction" onclick="commitFTransaction(\''+result.id+'\');">'+
-								'<i class="glyphicon glyphicon-plus"></i>'+
-							'</button>'+
-							'<button class="btn btn-danger btn-xs" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
-								'<i class="glyphicon glyphicon-remove"></i>'+
-							'</button>'+
-						'</td>';
-					} else {
-						row += '<td>' +
-							'<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\'' + result.id + '\');">' +
-							'<i class="glyphicon glyphicon-pencil"></i>' +
-							'</button>' +
-						'</td>';
-					}
+				}
+				if (result.Category !== null) {
+					row += '<td name="category">'+result.Category.name+'</td>';
+				} else {
+					row += '<td name="category"></td>';
+				}
+				row += '<td name="balance">'+balance.toFixed(2)+'</td>';
+				if (result.hasOwnProperty("future")) {
+					row += '<td>'+
+						'<button class="btn btn-primary btn-xs" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
+							'<i class="glyphicon glyphicon-pencil"></i>'+
+						'</button>'+
+						// '<button class="btn btn-success btn-xs" title="Commit Transaction" onclick="commitFTransaction(\''+result.id+'\');">'+
+						// 	'<i class="glyphicon glyphicon-plus"></i>'+
+						// '</button>'+
+						'<button class="btn btn-danger btn-xs" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
+							'<i class="glyphicon glyphicon-remove"></i>'+
+						'</button>'+
+					'</td>';
+				} else {
+					row += '<td>' +
+						'<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\'' + result.id + '\');">' +
+						'<i class="glyphicon glyphicon-pencil"></i>' +
+						'</button>' +
+					'</td>';
+				}
 				row += '</tr>';
 				$("#transactionTable tbody").append(row);
 				if (dp) {
@@ -652,7 +646,8 @@ var QueryString = function () {
 						,autoclose: true
 						,todayHighlight: true
 					}).on("changeDate", function(e) {
-						postTransaction(Number(e.target.dataset.tid), e.target.value);
+						// postTransaction(Number(e.target.dataset.tid), e.target.value);
+						sendCommit(Number(e.target.dataset.tid), e.target.value)
 						// console.log({id: Number(e.target.dataset.tid), value: e.target.value});
 					});
 				}
@@ -1024,27 +1019,12 @@ var QueryString = function () {
 					nt.amount = nt.withdrawl * -1;
 					delete nt.withdrawl;
 				}
-				if (moment(new Date(nt.tDate)) > moment()) {
+				// if (moment(new Date(nt.tDate)) > moment()) {
 					$.ajax({
 						type: "POST"
 						,url: "/api/v1/money/futureTransactions"
 						,data: nt
 					}).success(function(response) {
-						resetAddTransaction();
-						return false;
-						// console.log(response);
-					}).error(function(jqXHR, textStatus, errorThrown) {
-						$("#infoModalBody").html("There was a problem adding the transaction.  Please try again.");
-						$("#infoModal").modal("show");
-						return false;
-					});
-				} else {
-					$.ajax({
-						type: "POST"
-						,url: "/api/v1/money/transactions"
-						,data: nt
-					})
-					.success(function(response) {
 						// Sumbit xfer transaction, if applicable
 						if ($("#xferAccountId").val() !== "") {
 							var xt = {
@@ -1062,7 +1042,7 @@ var QueryString = function () {
 							}
 							$.ajax({
 								type: "POST"
-								,url: "/api/v1/money/transactions"
+								,url: "/api/v1/money/futureTransactions"
 								,data: xt
 							})
 							.success(function(xferResponse) {
@@ -1079,13 +1059,59 @@ var QueryString = function () {
 							resetAddTransaction();
 							return false;
 						}
-					})
-					.error(function(jqXHR, textStatus, errorThrown) {
+					}).error(function(jqXHR, textStatus, errorThrown) {
 						$("#infoModalBody").html("There was a problem adding the transaction.  Please try again.");
 						$("#infoModal").modal("show");
 						return false;
 					});
-				}
+				// } else {
+				// 	$.ajax({
+				// 		type: "POST"
+				// 		,url: "/api/v1/money/transactions"
+				// 		,data: nt
+				// 	})
+				// 	.success(function(response) {
+				// 		// Sumbit xfer transaction, if applicable
+				// 		if ($("#xferAccountId").val() !== "") {
+				// 			var xt = {
+				// 				account: $("#xferAccountId").val()
+				// 				,tDate: nt.tDate
+				// 				,payee: accountNames[nt.account].name
+				// 				,amount: (nt.amount * -1)
+				// 				,xfer: $("#accountSelect").val()
+				// 			};
+				// 			if (nt.hasOwnProperty("check")) {
+				// 				xt.check = nt.check;
+				// 			}
+				// 			if (nt.hasOwnProperty("description")) {
+				// 				xt.description = nt.description;
+				// 			}
+				// 			$.ajax({
+				// 				type: "POST"
+				// 				,url: "/api/v1/money/transactions"
+				// 				,data: xt
+				// 			})
+				// 			.success(function(xferResponse) {
+				// 				resetAddTransaction();
+				// 				return false;
+				// 			})
+				// 			.error(function(jqXHR, textStatus, errorThrown) {
+				// 				$("#infoModalBody").html("There was a problem adding the transfer transaction.  Please add it manually.");
+				// 				$("#infoModal").modal("show");
+				// 				resetAddTransaction();
+				// 				return false;
+				// 			});
+				// 		} else {
+				// 			resetAddTransaction();
+				// 			return false;
+				// 		}
+				// 	})
+				// 	.error(function(jqXHR, textStatus, errorThrown) {
+				// 		$("#infoModalBody").html("There was a problem adding the transaction.  Please try again.");
+				// 		$("#infoModal").modal("show");
+				// 		return false;
+				// 	});
+				// }
 			}
 		} else {
 			var nt = {
@@ -1271,12 +1297,17 @@ var QueryString = function () {
 		$("#commitFutureTransactionModal").modal("show");
 	}
 
-	function sendCommit() {
-		var id = $("#commitFutureTransactionId").val();
-		$("#commitFutureTransactionModal").modal("hide");
+	function sendCommit(rid, pdate) {
+		// console.log(rid);
+		// console.log(pdate);
+		// var id = $("#commitFutureTransactionId").val();
+		// $("#commitFutureTransactionModal").modal("hide");
 		$.ajax({
-			type: "GET"
-			,url: "/api/v1/money/futureTransaction/commit/"+id
+			type: "PUT"
+			,url: "/api/v1/money/futureTransaction/commit/"+rid
+			,data: {
+				pDate: pdate
+			}
 		}).success(function(response) {
 			// console.log(response);
 		}).error(function(jqXHR, textStatus, errorThrown) {

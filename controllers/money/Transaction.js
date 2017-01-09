@@ -236,6 +236,10 @@ module.exports = function(db) {
 																					if (data.hasOwnProperty("bill")) {
 																						newTrans.BillId = Number(data.bill);
 																					}
+																					if (data.hasOwnProperty("pDate")) {
+																						newTrans.postDate = moment.utc(data.pDate,"MM/DD/YYYY");
+																					}
+																					// console.log(newTrans);
 																					db.Transaction.create(newTrans, {transaction: t})
 																					.then(
 																						function(newTransaction) {
@@ -309,6 +313,10 @@ module.exports = function(db) {
 																			if (data.hasOwnProperty("bill")) {
 																				newTrans.BillId = Number(data.bill);
 																			}
+																			if (data.hasOwnProperty("pDate")) {
+																				newTrans.postDate = moment.utc(data.pDate,"MM/DD/YYYY");
+																			}
+																			// console.log(newTrans);
 																			db.Transaction.create(newTrans, {transaction: t})
 																			.then(
 																				function(newTransaction) {
@@ -371,6 +379,10 @@ module.exports = function(db) {
 														if (data.hasOwnProperty("bill")) {
 															newTrans.BillId = Number(data.bill);
 														}
+														if (data.hasOwnProperty("pDate")) {
+															newTrans.postDate = moment.utc(data.pDate,"MM/DD/YYYY");
+														}
+														// console.log(newTrans);
 														db.Transaction.create(newTrans, {transaction: t})
 														.then(
 															function(newTransaction) {

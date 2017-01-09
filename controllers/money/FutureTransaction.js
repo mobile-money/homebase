@@ -88,15 +88,16 @@ module.exports = function(db, Transaction) {
 				});
 			});
 		}
-		,commit: function(id) {
+		,commit: function(data) {
 			return new Promise(function(resolve, reject) {
-				db.FutureTransaction.findById(id).then(function(fTrans) {
+				db.FutureTransaction.findById(data.id).then(function(fTrans) {
 					// console.log(fTrans);
 					if (fTrans === null) {
 						reject({code: 1});
 					} else {
 						newTran = {
 							account: fTrans.AccountId
+							,pDate: data.pDate
 							,tDate: moment(fTrans.transactionDate).format("MM/DD/YYYY")
 							,payee: fTrans.payee
 							,description: fTrans.description
@@ -111,9 +112,10 @@ module.exports = function(db, Transaction) {
 						if (fTrans.BillId !== null) {
 							newTran.bill = fTrans.BillId;
 						}
+						// console.log(newTran);
 						Transaction.add(newTran).then(function(nTrans) {
 							db.FutureTransaction.destroy({
-								where: {id: id}
+								where: {id: data.id}
 							}).then(function(rows) {
 								if (rows === 1) {
 									resolve(nTrans);
