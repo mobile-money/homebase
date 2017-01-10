@@ -1042,7 +1042,6 @@ var QueryString = function () {
 						,data: nt
 					}).success(function(response) {
 						// Sumbit xfer transaction, if applicable
-						$(".typeahead").typeahead("destroy");
 						if ($("#xferAccountId").val() !== "") {
 							var xt = {
 								account: $("#xferAccountId").val()
