@@ -236,15 +236,36 @@
 								<th class="zulu"></th>
 							</tr>
 							<tr>
-								<td class="zulu"></td><td><input type="text" class="datepicker form-control newTrans" size="10" id="newTDate" /></td>
-								<td><input type="text" class="form-control newTrans" maxlength="100" id="newPayee" autocomplete="off" /></td>
-								<td><input type="text" class="form-control newTrans" maxlength="100" id="newDescription" autocomplete="off" /></td>
-								<td class="zulu"><input type="number" class="form-control newTrans" min="0" max="1000000" step="1" id="newCheck" /></td>
-								<td><input type="number" class="form-control currency newTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="newDeposit" /></td>
-								<td><input type="number" class="form-control currency newTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="newWithdrawl" /></td>
-								<td class="zulu"><select class="form-control newTrans zulu" id="newCategory"></select></td>
-								<td class="zulu"><button class="btn btn-default btn-sm" id="startXferBtn">Xfer</button></td>
-								<td id="addButtonCell"><button class="btn btn-success btn-sm" title="Add Transaction" data-toggle="modal" data-target="#addTransactionModal" id="addTransaction"><i class="glyphicon glyphicon-plus"></i></button></td>
+								<td class="zulu"></td>
+								<td>
+									<input type="text" class="datepicker form-control newTrans" size="10" id="newTDate" />
+								</td>
+								<td>
+									<input type="text" class="form-control newTrans typeahead" maxlength="100" id="newPayee" data-provide="typeahead" autocomplete="off" />
+								</td>
+								<td>
+									<input type="text" class="form-control newTrans typeahead" maxlength="100" id="newDescription" data-provide="typeahead" autocomplete="off" />
+								</td>
+								<td class="zulu">
+									<input type="number" class="form-control newTrans" min="0" max="1000000" step="1" id="newCheck" />
+								</td>
+								<td>
+									<input type="number" class="form-control currency newTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="newDeposit" />
+								</td>
+								<td>
+									<input type="number" class="form-control currency newTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="newWithdrawl" />
+								</td>
+								<td class="zulu">
+									<select class="form-control newTrans zulu" id="newCategory"></select>
+								</td>
+								<td class="zulu">
+									<button class="btn btn-default btn-sm" id="startXferBtn">Xfer</button>
+								</td>
+								<td id="addButtonCell">
+									<button class="btn btn-success btn-sm" title="Add Transaction" data-toggle="modal" data-target="#addTransactionModal" id="addTransaction">
+										<i class="glyphicon glyphicon-plus"></i>
+									</button>
+								</td>
 							</tr>
 						</thead>
 						<tbody></tbody>

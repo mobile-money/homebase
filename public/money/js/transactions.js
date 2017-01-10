@@ -45,46 +45,62 @@ var QueryString = function () {
 }();
 
 // FIELD EVENTS
-	$("#newPayee").keyup(function(e) {
-		if (e.target.value.length >= 2) {
-			if ((e.which === 8) || 
-				(e.which === 32) || 
-				(e.which === 46) || 
-				(e.which >= 48 && e.which <= 57) ||
-				(e.which >= 65 && e.which <= 90) ||
-				(e.which >= 186 && e.which <= 192) || 
-				(e.which >= 219 && e.which <= 222)) {
-				$.get("/api/v1/money/transactions/lookup/payee/"+e.target.value, function(response) {
-					$("#newPayee").typeahead({source: response, minLength: 3});
-				}, 'json');
-			}
-		}
-		/*
-		8
-		32
-		46
-		48-57
-		65-90
-		186-192
-		219-222
-		*/
-	});
+	$("#newPayee").typeahead({source: function(query, process) {
+		// return $.get("/api/v1/money/transactions/lookup/payee/"+encodeURI(query));
+		$.ajax({
+			url: "/api/v1/money/transactions/lookup/payee/"+encodeURI(query)
+			,success: process
+		})
+	}, minLength: 3});
 
-	$("#newDescription").keyup(function(e) {
-		if (e.target.value.length >= 2) {
-			if ((e.which === 8) || 
-				(e.which === 32) || 
-				(e.which === 46) || 
-				(e.which >= 48 && e.which <= 57) ||
-				(e.which >= 65 && e.which <= 90) ||
-				(e.which >= 186 && e.which <= 192) || 
-				(e.which >= 219 && e.which <= 222)) {
-				$.get("/api/v1/money/transactions/lookup/description/"+e.target.value, function(response) {
-					$("#newDescription").typeahead({source: response, minLength: 3});
-				}, 'json');
-			}
-		}
-	});
+	$("#newDescription").typeahead({source: function(query, process) {
+		// return $.get("/api/v1/money/transactions/lookup/payee/"+encodeURI(query));
+		$.ajax({
+			url: "/api/v1/money/transactions/lookup/description/"+encodeURI(query)
+			,success: process
+		})
+	}, minLength: 3});
+
+	// $("#newPayee").keyup(function(e) {
+	// 	if (e.target.value.length >= 2) {
+	// 		if ((e.which === 8) || 
+	// 			(e.which === 32) || 
+	// 			(e.which === 46) || 
+	// 			(e.which >= 48 && e.which <= 57) ||
+	// 			(e.which >= 65 && e.which <= 90) ||
+	// 			(e.which >= 186 && e.which <= 192) || 
+	// 			(e.which >= 219 && e.which <= 222)) {
+	// 			$.get("/api/v1/money/transactions/lookup/payee/"+e.target.value, function(response) {
+	// 				$("#newPayee").typeahead({source: response, minLength: 3});
+	// 			}, 'json');
+	// 		}
+	// 	}
+	// 	/*
+	// 	8
+	// 	32
+	// 	46
+	// 	48-57
+	// 	65-90
+	// 	186-192
+	// 	219-222
+	// 	*/
+	// });
+
+	// $("#newDescription").keyup(function(e) {
+	// 	if (e.target.value.length >= 2) {
+	// 		if ((e.which === 8) || 
+	// 			(e.which === 32) || 
+	// 			(e.which === 46) || 
+	// 			(e.which >= 48 && e.which <= 57) ||
+	// 			(e.which >= 65 && e.which <= 90) ||
+	// 			(e.which >= 186 && e.which <= 192) || 
+	// 			(e.which >= 219 && e.which <= 222)) {
+	// 			$.get("/api/v1/money/transactions/lookup/description/"+e.target.value, function(response) {
+	// 				$("#newDescription").typeahead({source: response, minLength: 3});
+	// 			}, 'json');
+	// 		}
+	// 	}
+	// });
 
 	$("#editTransactionModal").on("shown.bs.modal", function() {
 		$("#editPayee").focus();
@@ -1026,6 +1042,7 @@ var QueryString = function () {
 						,data: nt
 					}).success(function(response) {
 						// Sumbit xfer transaction, if applicable
+						$(".typeahead").typeahead("destroy");
 						if ($("#xferAccountId").val() !== "") {
 							var xt = {
 								account: $("#xferAccountId").val()
