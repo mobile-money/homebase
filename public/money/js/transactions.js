@@ -878,9 +878,11 @@ var QueryString = function () {
 							'<td name="ticker">'+position.ticker+'</td>'+
 							'<td name="name">'+position.name+'</td>'+
 							'<td name="quantity">'+position.quantity+'</td>'+
-							'<td name="price">'+position.currentPrice+'</td>'+
-							'<td name="basis">'+cost.toFixed(2)+'</td>'+
-							'<td name="value">'+value.toFixed(2)+'</td>'+
+							'<td name="price">'+position.currentPrice+'</td>';
+							if (typeof(cost) !== "undefined") {
+								row += '<td name="basis">'+cost.toFixed(2)+'</td>';
+							}
+							row += '<td name="value">'+value.toFixed(2)+'</td>'+
 							'<td name="dChange"';
 							if (dollarChange > 0) {
 								row += ' style="color:green;"'
@@ -1160,7 +1162,7 @@ var QueryString = function () {
 				$("#newPayee").addClass("error");
 				errors++;
 			} else {
-				if (nt.ticker.length > 10) {
+				if (nt.ticker.length > 15) {
 					$("#newPayee").addClass("error");
 					errors++;
 				}
