@@ -131,14 +131,14 @@ function determineSystemAction(db, locId, currentTemp, targetTemp) {
 }
 
 function postLocationUpdate(db, id) {
-	console.log("bing: "+id);
+	// console.log("bing: "+id);
 	return new Promise(function(resolve, reject) {
 		db.Location_Update.findOne({
 			where: {
 				locationId: id
 			}
 		}).then(function(lUpdate) {
-			console.log(lUpdate);
+			// console.log(lUpdate);
 			if (lUpdate !== null) {
 				lUpdate.update({
 					lastUpdate: moment.utc()
@@ -150,12 +150,12 @@ function postLocationUpdate(db, id) {
 					locationId: id
 					,lastUpdate: moment.utc()
 				}).then(function(row) {
-					console.log(row);
+					// console.log(row);
 					resolve();
 				});
 			}
 		}).catch(function(error) {
-			console.log(error);
+			// console.log(error);
 			reject(error);
 		});
 	});
