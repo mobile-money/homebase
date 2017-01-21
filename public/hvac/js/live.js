@@ -293,8 +293,16 @@ function updateReading(obj) {
 function updateDashboard(obj) {
 	console.log(obj);
 	$("#loc_"+obj.data.LocationId).find('td[name="locCurTemp"]').html(convertTemp("c",obj.data.temperature,0) + "°");
-	if (obj.schedule !== null) {
-		$("#loc_"+obj.data.LocationId).find('td[name="locTarTemp"]').html(convertTemp("c",obj.schedule.targetTemp,0) + "°");
+	if (obj.system !== null) {
+		if (obj.system.state === 0) {
+			$("#loc_"+obj.location.id).find('td[name="locTarTemp"]').html("Off").addClass("highlightTime");
+		} else if (obj.system.state === 1) {
+			$("#loc_"+obj.location.id).find('td[name="locTarTemp"]').html("On").addClass("highlightTime");
+		} else {
+			if (obj.schedule !== null) {
+				$("#loc_"+obj.location.id).find('td[name="locTarTemp"]').html(convertTemp("c",obj.schedule.targetTemp,0) + "°").removeClass("highlightTime");
+			}					
+		}
 	}
 	if (obj.systemAction !== null) {
 		if (obj.systemAction === "heat") {
