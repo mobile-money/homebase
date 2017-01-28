@@ -25,7 +25,7 @@ module.exports = function(app, Bill, _, io) {
 	// Insert new bill
 	app.post("/api/v1/money/bills", function(req, res) {
 		console.log("create bill requested");
-		var body = _.pick(req.body, 'payee', 'description', 'category', 'account', 'startDate', 'amount', 'frequency', 'every', 'onThe');
+		var body = _.pick(req.body, 'payee', 'description', 'category', 'account', 'startDate', 'amount', 'frequency', 'every', 'onThe', 'automatic');
 		Bill.create(body)
 		.then(
 			function(bill) {
@@ -45,7 +45,7 @@ module.exports = function(app, Bill, _, io) {
 	// Modify bill by ID
 	app.put("/api/v1/money/bills", function(req, res) {
 		console.log("modify bill requested");
-		var body = _.pick(req.body, 'id', 'payee', 'description', 'category', 'account', 'startDate', 'amount', 'frequency', 'every', 'onThe');
+		var body = _.pick(req.body, 'id', 'payee', 'description', 'category', 'account', 'startDate', 'amount', 'frequency', 'every', 'onThe', 'automatic');
 		Bill.update(body)
 		.then(
 			function(result) {

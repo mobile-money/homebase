@@ -24,6 +24,7 @@ module.exports = function(db) {
 					,frequency: newBill.frequency
 					,every: newBill.every
 					,amount: newBill.amount
+					,automatic: newBill.automatic
 					,AccountId: newBill.account
 					,CategoryId: newBill.category
 				}
@@ -67,6 +68,7 @@ module.exports = function(db) {
 						result.frequency = data.frequency;
 						result.every = data.every;
 						result.amount = data.amount;
+						result.automatic = data.automatic;
 						result.AccountId = data.account;
 						if (data.hasOwnProperty("category")) {
 							result.CategoryId = data.category;							

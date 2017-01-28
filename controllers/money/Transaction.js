@@ -16,6 +16,9 @@ module.exports = function(db) {
 					}
 					,{
 						model: db.Category
+					}
+					,{
+						model: db.Bill
 					}]
 					// ,offset: Number(offset)
 					// ,limit: Number(limit)
@@ -26,7 +29,7 @@ module.exports = function(db) {
 					db.FutureTransaction.findAll({
 						where: { AccountId: Number(id) }
 						,order: [["transactionDate", "DESC"]]
-						,include: [{ model: db.Category }]
+						,include: [{ model: db.Category }, {model: db.Bill}]
 					}).then(function(fResults) {
 						if (fResults.length > 0) {
 							var amounts = _.pluck(fResults, "amount");
@@ -51,6 +54,9 @@ module.exports = function(db) {
 							}
 							,{
 								model: db.Category
+							}
+							,{
+								model: db.Bill
 							}]
 							,offset: Number(offset)
 							,limit: Number(limit)
@@ -82,6 +88,9 @@ module.exports = function(db) {
 					}
 					,{
 						model: db.Category
+					}
+					,{
+						model: db.Bill
 					}]
 					,offset: Number(offset)
 					,limit: Number(limit)
@@ -102,6 +111,7 @@ module.exports = function(db) {
 					,include: [
 						{model: db.Category}
 						,{model: db.Summary}
+						,{model: db.Bill}
 					]
 				})
 				.then(
@@ -136,6 +146,9 @@ module.exports = function(db) {
 					}
 					,{
 						model: db.Category
+					}
+					,{
+						model: db.Bill
 					}]
 					,order: [["transactionDate", "ASC"]]
 				}).then(function(results) {

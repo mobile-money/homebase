@@ -9,6 +9,8 @@ $(document).ready(function() {
 		format: 'mm/dd/yyyy'
 		,autoclose: true
 	});
+	$("#newAuto").bootstrapToggle();
+	$("#editAuto").bootstrapToggle();
 
 	getBills();
 
@@ -110,6 +112,13 @@ $(document).ready(function() {
 							partTwo += '</td>';
 							row += partOne + partTwo;
 						}
+						row += '<td name="auto">';
+						if (bill.automatic) {
+							row += "Yes";
+						} else {
+							row += "No";
+						}
+						row += '</td>';
 						row += '<td name="amount">'+bill.amount.toFixed(2)+'</td>';
 						if (bill.lastAdded !== null) {
 							row += '<td name="lastAdded">'+moment.utc(bill.lastAdded).format("MM/DD/YYYY")+'</td>';
@@ -176,6 +185,8 @@ $(document).ready(function() {
 		$("#newStartDate").val("");
 		$("#newFrequency").val("none");
 		$("#subFreq").empty();
+		// $("#newAuto").prop("checked",false);
+		$("#newAuto").bootstrapToggle('off');
 		$("#typeWLabel").addClass("active");
 		$("#typeDLabel").removeClass("active");
 		$("#newAmount").val("");
@@ -189,6 +200,8 @@ $(document).ready(function() {
 		$("#editStartDate").val("");
 		$("#editFrequency").val("none");
 		$("#editSubFreq").empty();
+		// $("#editAuto").prop("checked",false);
+		$("#editAuto").bootstrapToggle('off');
 		$("#editTypeWLabel").addClass("active");
 		$("#editTypeDLabel").removeClass("active");
 		$("#editAmount").val("");
@@ -262,6 +275,7 @@ $(document).ready(function() {
 			,frequency: $("#newFrequency").val()
 			,every: Number($("#subFreqEvery").val())
 			,amount: Number($("#newAmount").val())
+			,automatic: $("#newAuto").prop("checked")
 		}
 		if ($("#newDescription").val() !== "") {
 			newBill.description = $("#newDescription").val();
@@ -418,6 +432,14 @@ $(document).ready(function() {
 					}
 				}
 				$("#editSubFreq").html(subFreq);
+				// Set Automatic
+				if ($("#"+id+" td[name=auto]").text() === "Yes") {
+					// $("#editAuto").prop("checked", true);
+					$("#editAuto").bootstrapToggle('on');
+				} else {
+					// $("#editAuto").prop("checked", false);
+					$("#editAuto").bootstrapToggle('off');
+				}
 				// Set Type and Amount
 				var amount = $("#"+id+" td[name=amount]").text();
 				if (amount[0] === "-") {
@@ -453,6 +475,7 @@ $(document).ready(function() {
 			,frequency: $("#editFrequency").val()
 			,every: $("#editSubFreqEvery").val()
 			,amount: Number($("#editAmount").val())
+			,automatic: $("#editAuto").prop("checked")
 		}
 		if ($("#editCategory").val() !== "none") {
 			newBill.category = Number($("#editCategory").val());

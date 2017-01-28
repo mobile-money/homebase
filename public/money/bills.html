@@ -9,6 +9,7 @@
 
 		<!-- Optional theme -->
 		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="../shared/css/bootstrap-toggle.min.css">
 
 		<link rel="stylesheet" href="../shared/css/style.css">
 		<link rel="shortcut icon" href="../shared/img/favicon.ico" type="image/x-icon">
@@ -71,6 +72,10 @@
 						<div class="input-group">
 							<label>Sub Frequency</label>
 							<div id="subFreq"></div>
+						</div>
+						<div class="input-group">
+							<label>Automatic Payment</label><br />
+							<input type="checkbox" class="newBill" id="newAuto" data-toggle="toggle" />
 						</div>
 						<div class="input-group">
 							<label>Default Account</label>
@@ -138,6 +143,10 @@
 						<div class="input-group">
 							<label>Sub Frequency</label>
 							<div id="editSubFreq"></div>
+						</div>
+						<div class="input-group">
+							<label>Automatic Payment</label><br />
+							<input type="checkbox" class="editBill" id="editAuto" data-toggle="toggle" />
 						</div>
 						<div class="input-group">
 							<label>Default Account</label>
@@ -231,6 +240,7 @@
 							<th>Category</th>
 							<th>Account</th>
 							<th>Frequency</th>
+							<th>Automatic Payment</th>
 							<th>Amount</th>
 							<th>Last Occurrence</th>
 							<th>Start Date</th>
@@ -247,6 +257,7 @@
 		<!-- Latest compiled and minified JavaScript -->
 		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="../shared/js/bootstrap-datepicker.min.js"></script>
+		<script type="text/javascript" src="../shared/js/bootstrap-toggle.min.js"></script>
 		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
 		<script type="text/javascript" src="/money/js/bills.js"></script>
 	</body>

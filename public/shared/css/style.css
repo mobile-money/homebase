@@ -2,7 +2,12 @@ body.live-view {
 	background-color: #000;
 	color: #CC7F02;
 }
-
+.trans-badge {
+	padding:3px;
+	background-color:#dedede;
+	border:1px solid #c7c7c7;
+	margin-right:2px;
+}
 .test-border {
 	border: 1px black solid;
 }

@@ -560,7 +560,7 @@ var QueryString = function () {
 			,url: "/api/v1/money/transactions/account/"+$("#accountSelect").val()+"/"+offset+"/"+limit
 		})
 		.success(function(response) {
-			// console.log(response);
+			console.log(response);
 			$("#transactionTable tbody").empty();
 			// var balance = Number(response.cTrans[0].Summary.balance);
 			var balance = 0;
@@ -600,7 +600,12 @@ var QueryString = function () {
 				'</td>'+
 				'<td name="payee">';
 				if (result.BillId !== null) {
-					row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded" title="Repeating Transaction" style="padding:3px;background-color:#dedede;border:1px solid #c7c7c7;margin-right:2px;"></i>';
+					row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
+				}
+				if (result.Bill !== null) {
+					if (result.Bill.automatic) {
+						row += '&nbsp;<i class="glyphicon glyphicon-flash img-rounded trans-badge" title="Automatic Payment"></i>';
+					}
 				}
 				row += result.payee+'</td>';
 				if (result.description !== null) {
