@@ -1219,8 +1219,8 @@ var QueryString = function () {
 
 	function editTransaction(id) {
 		$("#editTransactionId").val(id);
-		$("#editPayee").val($("#"+id+" td[name=payee]").text());
-		$("#editDescription").val($("#"+id+" td[name=description]").text());
+		$("#editPayee").val($("#"+id+" td[name=payee]").text().trim());
+		$("#editDescription").val($("#"+id+" td[name=description]").text().trim());
 		$("#editCheck").val($("#"+id+" td[name=check]").html());
 		$("#editCategory").append("<option />");
 		for (var i = 0; i < categoryArray.length; i++) {
