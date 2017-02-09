@@ -560,7 +560,7 @@ var QueryString = function () {
 			,url: "/api/v1/money/transactions/account/"+$("#accountSelect").val()+"/"+offset+"/"+limit
 		})
 		.success(function(response) {
-			console.log(response);
+			// console.log(response);
 			$("#transactionTable tbody").empty();
 			// var balance = Number(response.cTrans[0].Summary.balance);
 			var balance = 0;
@@ -1244,7 +1244,7 @@ var QueryString = function () {
 		//Get values
 		var et = {};
 		if ($("#editPayee").val() !== "") {
-			et.payee = $("#editPayee").val();
+			et.payee = $("#editPayee").val().trim();
 		}
 		if ($("#editDescription").val() !== "") {
 			et.description = $("#editDescription").val();
@@ -1342,8 +1342,8 @@ var QueryString = function () {
 	function editFTransaction(id) {
 		$("#editFutureTransactionId").val(id);
 		$("#editFTDate").datepicker('setDate', new Date($("#f_"+id+" td[name=transactionDate]").text()));
-		$("#editFPayee").val($("#f_"+id+" td[name=payee]").text());
-		$("#editFDescription").val($("#f_"+id+" td[name=description]").text());
+		$("#editFPayee").val($("#f_"+id+" td[name=payee]").text().trim());
+		$("#editFDescription").val($("#f_"+id+" td[name=description]").text().trim());
 		$("#editFCheck").val($("#f_"+id+" td[name=check]").html());
 		$("#editFDeposit").val($("#f_"+id+" td[name=plus]").html());
 		$("#editFWithdrawl").val($("#f_"+id+" td[name=minus]").html());
