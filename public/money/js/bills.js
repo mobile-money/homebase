@@ -37,6 +37,54 @@ $(document).ready(function() {
 		resetEditBill();
 	});
 
+	$("#newAccount").on("change", function() {
+		var val = $(this).val().split("_");
+
+		switch (val[1]) {
+			case "Checking":
+			case "Savings":
+				$("#newMinusType").html(" Withdrawl ");
+				$("#newPlusType").html(" Deposit ");
+				break;
+			case "Credit Card":
+				$("#newMinusType").html(" Purchase ");
+				$("#newPlusType").html(" Payment ");
+				break;
+			case "Loan":
+			case "Mortgage":
+				$("#newMinusType").html(" Increase ");
+				$("#newPlusType").html(" Payment ");
+				break;
+			default:
+				$("#newMinusType").html(" Withdrawl ");
+				$("#newPlusType").html(" Deposit ");
+		}
+	});
+
+	$("#editAccount").on("change", function() {
+		var val = $(this).val().split("_");
+
+		switch (val[1]) {
+			case "Checking":
+			case "Savings":
+				$("#editMinusType").html(" Withdrawl ");
+				$("#editPlusType").html(" Deposit ");
+				break;
+			case "Credit Card":
+				$("#editMinusType").html(" Purchase ");
+				$("#editPlusType").html(" Payment ");
+				break;
+			case "Loan":
+			case "Mortgage":
+				$("#editMinusType").html(" Increase ");
+				$("#editPlusType").html(" Payment ");
+				break;
+			default:
+				$("#editMinusType").html(" Withdrawl ");
+				$("#editPlusType").html(" Deposit ");
+		}
+	});
+
 // SOCKET IO
 	socket.on("connect", function() {
 		// console.log("connected to server");
@@ -156,7 +204,9 @@ $(document).ready(function() {
 			});
 			$("#newAccount").empty().append('<option value="none" />');
 			response.forEach(function(account) {
-				$("#newAccount").append('<option value="'+account.id+'">'+account.name+'</option>');
+				if (account.type !== "Investment") {
+					$("#newAccount").append('<option value="'+account.id+'_'+account.type+'">'+account.name+'</option>');
+				}
 			});
 			$("#addBillModal").modal("show");
 		}).error(function(jqXHR, textStatus, errorThrown) {
@@ -267,10 +317,11 @@ $(document).ready(function() {
 
 	function insertBill() {
 		$("#addBillButton").off("click");
+		var accountVal = $("#newAccount").val().split("_");
 		//Get values
 		var newBill = {
 			payee: $("#newPayee").val()
-			,account: Number($("#newAccount").val())
+			,account: Number(accountVal[0])
 			,startDate: $("#newStartDate").val()
 			,frequency: $("#newFrequency").val()
 			,every: Number($("#subFreqEvery").val())
@@ -396,12 +447,14 @@ $(document).ready(function() {
 				var setAccount = $("#"+id+" td[name=account]").text();
 				$("#editAccount").empty().append('<option value="none" />');
 				response.forEach(function(account) {
-					var option = '<option value="'+account.id+'"';
-					if (account.name === setAccount) {
-						option += ' selected';
+					if (account.type !== "Investment") {
+						var option = '<option value="'+account.id+'_'+account.type+'"';
+						if (account.name === setAccount) {
+							option += ' selected';
+						}
+						option += '>'+account.name+'</option>';
+						$("#editAccount").append(option);
 					}
-					option += '>'+account.name+'</option>';
-					$("#editAccount").append(option);
 				});
 				// Set Start Date
 				$("#editStartDate").datepicker("setDate", $("#"+id+" td[name=startDate]").text());
@@ -465,12 +518,13 @@ $(document).ready(function() {
 
 	function modifyBill() {
 		$("#editBillButton").off("click");
+		var accountVal = $("#editAccount").val().split("_");
 		//Get values
 		var newBill = {
 			id: $("#editBillId").val()
 			,payee: $("#editPayee").val()
 			,description: $("#editDescription").val()
-			,account: Number($("#editAccount").val())
+			,account: Number(accountVal[0])
 			,startDate: $("#editStartDate").val()
 			,frequency: $("#editFrequency").val()
 			,every: $("#editSubFreqEvery").val()

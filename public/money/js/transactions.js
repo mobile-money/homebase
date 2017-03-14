@@ -323,30 +323,30 @@ var QueryString = function () {
 		switch (accountNames[$("#accountSelect").val()].type) {
 			case "Checking":
 			case "Savings":
-				$("#payeeHeader").html("Payee");
-				$("#plusHeader").html("Deposit");
-				$("#minusHeader").html("Withdrawl");
-				$("#balanceHeader").html("Balance");
+				$(".payeeHeader").html("Payee");
+				$(".plusHeader").html("Deposit");
+				$(".minusHeader").html("Withdrawl");
+				$(".balanceHeader").html("Balance");
 				$("#newDeposit").prop("step", "0.01");
 				$("#newWithdrawl").prop("step", "0.01");
 				$(".zulu").show();
 				$("#periodSelect").show();
 				break;
 			case "Credit Card":
-				$("#payeeHeader").html("Payee");
-				$("#plusHeader").html("Payment");
-				$("#balanceHeader").html("Balance");
-				$("#minusHeader").html("Purchase");
+				$(".payeeHeader").html("Payee");
+				$(".plusHeader").html("Payment");
+				$(".balanceHeader").html("Balance");
+				$(".minusHeader").html("Purchase");
 				$("#newDeposit").prop("step", "0.01");
 				$("#newWithdrawl").prop("step", "0.01");
 				$(".zulu").show();
 				$("#periodSelect").show();
 				break;
 			case "Investment":
-				$("#payeeHeader").html("Ticker");
-				$("#plusHeader").html("Quantity");
-				$("#minusHeader").html("Price");
-				$("#balanceHeader").html("Cost");
+				$(".payeeHeader").html("Ticker");
+				$(".plusHeader").html("Quantity");
+				$(".minusHeader").html("Price");
+				$(".balanceHeader").html("Cost");
 				$("#newDeposit").prop("step", "0.001");
 				$("#newWithdrawl").prop("step", "0.001");
 				$(".zulu").hide();
@@ -354,10 +354,10 @@ var QueryString = function () {
 				break;
 			case "Loan":
 			case "Mortgage":
-				$("#payeeHeader").html("Payee");
-				$("#plusHeader").html("Payment");
-				$("#minusHeader").html("Increase");
-				$("#balanceHeader").html("Balance");
+				$(".payeeHeader").html("Payee");
+				$(".plusHeader").html("Payment");
+				$(".minusHeader").html("Increase");
+				$(".balanceHeader").html("Balance");
 				$("#newDeposit").prop("step", "0.01");
 				$("#newWithdrawl").prop("step", "0.01");
 				$(".zulu").show();

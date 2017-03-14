@@ -41,7 +41,7 @@
 					<div class="modal-body">
 						<input type="hidden" id="editTransactionId" />
  						<div class="input-group">
-							<label>Payee</label>
+							<label class="payeeHeader">Payee</label>
 							<input id="editPayee" class="form-control editTrans" type="text" placeholder="Payee" />
 						</div>
 						<div class="input-group">
@@ -78,7 +78,7 @@
 							<input id="editFTDate" class="form-control editDateField editFTrans datepicker" type="text" />
 						</div>
  						<div class="input-group">
-							<label>Payee</label>
+							<label class="payeeHeader">Payee</label>
 							<input id="editFPayee" class="form-control editFTrans" type="text" placeholder="Payee" />
 						</div>
 						<div class="input-group">
@@ -90,11 +90,11 @@
 							<input type="number" class="form-control editFTrans" min="0" max="1000000" step="1" id="editFCheck" />
 						</div>
  						<div class="input-group">
-							<label>Deposit</label>
+							<label class="plusHeader">Deposit</label>
 							<input type="number" class="form-control currency editFTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="editFDeposit" />
 						</div>
 						<div class="input-group">
-							<label>Withdrawl</label>
+							<label class="minusHeader">Withdrawl</label>
 							<input type="number" class="form-control currency editFTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="editFWithdrawl" />
 						</div>
 						<div class="input-group">
@@ -226,13 +226,13 @@
 								<th>Transaction Date</th>
 <!-- 								<th>Posted Date</th>
  -->								
-								<th id="payeeHeader">Payee</th>
+								<th class="payeeHeader" id="payeeHeader">Payee</th>
 								<th>Description</th>
 								<th class="zulu">Check #</th>
-								<th id="plusHeader">Deposit</th>
-								<th id="minusHeader">Withdrawl</th>
+								<th class="plusHeader" id="plusHeader">Deposit</th>
+								<th class="minusHeader" id="minusHeader">Withdrawl</th>
 								<th class="zulu">Category</th>
-								<th id="balanceHeader">Balance</th>
+								<th class="balanceHeader" id="balanceHeader">Balance</th>
 								<th class="zulu"></th>
 							</tr>
 							<tr>
