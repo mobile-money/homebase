@@ -281,9 +281,9 @@ function updateReading(obj) {
 	$("#timeReading").removeClass("highlightTime");
 	if (obj.schedule !== null) {
 		if (obj.systemAction === "heat") {
-			$("#actionDiv").html('&nbsp;<img src="img/fire.png" alt="Heat" style="height:20px;">');
+			$("#actionDiv").html('&nbsp;<img src="../shared/img/fire.png" alt="Heat" style="height:20px;">');
 		} else if (obj.systemAction === "cool") {
-			$("#actionDiv").html('&nbsp;<img src="img/wind.png" alt="Cool" style="height:20px;">');
+			$("#actionDiv").html('&nbsp;<img src="../shared/img/wind.png" alt="Cool" style="height:20px;">');
 		} else {
 			$("#actionDiv").html("");
 		}

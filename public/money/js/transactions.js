@@ -582,6 +582,7 @@ var QueryString = function () {
 			// Current Transactions
 			response.cTrans.forEach(function(result) {
 				var dp = false;
+				var dateNow = new Date();
 				var row;
 				var tDateMoment = moment.utc(result.transactionDate);
 				if (result.hasOwnProperty("future")) {
@@ -590,7 +591,7 @@ var QueryString = function () {
 					if (tDateMoment.isAfter(moment(),'days')) {
 						row += ' class="success"';
 					}
-					row += '><td><input type="text" size="10"class="datepicker form-control" data-tid="'+result.id+'" id="post_'+result.id+'" /></td>';
+					row += '><td><input type="text" size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" /></td>';
 				} else {
 					row = '<tr id="'+result.id+'">'+
 						'<td>'+moment.utc(result.postDate).format("MM/DD/YYYY")+'</td>';
