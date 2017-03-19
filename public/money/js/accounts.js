@@ -6,6 +6,7 @@ $(document).ready(function() {
 	$("body").show();
 		
 	getAccounts(null, null);
+	getInactiveAccounts(null, null);
 });
 
 // FIELD EVENTS
@@ -27,6 +28,9 @@ $(document).ready(function() {
 	});
 	$("#deleteAccountButton").click(function() {
 		removeAccount();
+	});
+	$("#reactivateAccountButton").click(function() {
+		undeleteAccount();
 	});
 	
 	$("#addAccountModal").on("shown.bs.modal", function() {
@@ -55,6 +59,11 @@ $(document).ready(function() {
 
 	$("#deleteAccountModal").on("hidden.bs.modal", function() {
 		$("#deleteAccountId").val("");
+	});
+
+	$("#reactivateAccountModal").on("hidden.bs.modal", function() {
+		$("#reactivateAccountId").val("");
+		$("#reactivateModalBody").html("");
 	});
 
 // SOCKET IO
@@ -148,11 +157,46 @@ function getAccounts(id, type) {
 				// } else {
 				// 	row += '<td name="default"><i class="glyphicon glyphicon-remove"></i></td>';
 				// }
-				row += '<td><button class="btn btn-primary" title="Edit Account" onclick="editAccount(\''+account.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>'+
-				'<button class="btn btn-danger" title="Delete Account" onclick="deleteAccount(\''+account.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>'+
-				'</td>'+
+				row += '<td><button class="btn btn-primary" title="Edit Account" onclick="editAccount(\''+account.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>';
+				if (account.default !== true) {
+					row += '<button class="btn btn-danger" title="Delete Account" onclick="deleteAccount(\''+account.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>';
+				}
+				row += '</td>'+
 			'</tr>';
 			$("#accountTable tbody").append(row);
+		});
+		if (type !== null) {
+			accountHighlight(id);			
+		}
+	})
+	.error(function(jqXHR, textStatus, errorThrown) {
+		if (jqXHR.status === 500) {
+			$("#infoModalBody").html("There was a problem.  Please try again.");
+			$("#infoModal").modal("show");
+		}
+	});
+}
+
+function getInactiveAccounts(id, type) {
+	$.ajax({
+		type: "GET"
+		,url: "/api/v1/money/accounts/inactive"
+	})
+	.success(function(response) {
+		var now = moment();
+		$("#inactiveAccountTable tbody").empty();
+		response.forEach(function(account) {
+			var row = '<tr id="'+account.id+'">'+
+				// '<td name="name"><a href="/money/transactions?acct='+account.id+'"><span id="text">'+account.name+'</span></td>'+
+				'<td name="name"><span id="text">'+account.name+'</span></td>'+
+				'<td name="type">'+account.type+'</td>'+
+				'<td>'+
+					'<button class="btn btn-primary" title="Reactivate Account" onclick="reactivateAccount(\''+account.id+'\');">'+
+						'<i class="glyphicon glyphicon-pencil"></i>'+
+					'</button>'+
+				'</td>'+
+			'</tr>';
+			$("#inactiveAccountTable tbody").append(row);
 		});
 		if (type !== null) {
 			accountHighlight(id);			
@@ -312,6 +356,7 @@ function removeAccount() {
 			}
 		})
 		.success(function() {
+			getInactiveAccounts(id,"add");
 			return false;
 		})
 		.error(function(jqXHR, textStatus, errorThrown) {
@@ -320,3 +365,33 @@ function removeAccount() {
 		});
 	}
 }
+
+function reactivateAccount(id) {
+	$("#reactivateAccountId").val(id);
+	$("#reactivateModalBody").html("Would you like to reactivate the "+$("#"+id+" td[name=name] span[id=text]").html()+" account?");
+	$("#reactivateAccountModal").modal("show");
+}
+
+function undeleteAccount() {
+	var id = $("#reactivateAccountId").val();
+	$("#reactivateAccountModal").modal("hide");
+	if (typeof id !== "undefined" && id.length > 0) {
+		$.ajax({
+			type: "PUT"
+			,url: "/api/v1/money/accounts/reactivate"
+			,data: {
+				id: id
+			}
+		})
+		.success(function() {
+			getAccounts(id,"add");
+			getInactiveAccounts(null,null);
+			return false;
+		})
+		.error(function(jqXHR, textStatus, errorThrown) {
+			$("#infoModalBody").html("There was a problem.  Please try again.");
+			$("#infoModal").modal("show");
+		});
+	}
+}
+

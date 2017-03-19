@@ -110,4 +110,44 @@ module.exports = function(app, Account, _, io) {
 			}
 		);
 	});
+
+	app.get("/api/v1/money/accounts/inactive", function(req, res) {
+		console.log("inactive accounts requested");
+		Account.getInactive()
+		.then(
+			function(results) {
+				if (results.length > 0) {
+					console.log("inactive accounts retrieved");
+					res.json(results);
+				} else {
+					console.log("no inactive accounts found");
+					res.json([]);
+				}
+			}
+		)
+		.catch(
+			function(error) {
+				console.log("inactive accounts retrieval error: "+error);
+				res.status(500).send();
+			}
+		);
+	});
+
+	app.put("/api/v1/money/accounts/reactivate", function(req, res) {
+		var body = _.pick(req.body, 'id');
+		console.log("reactivate account "+body.id+"requested");
+		Account.reactivate(body.id)
+		.then(
+			function() {
+				res.status(200).send();
+			}
+		)
+		.catch(
+			function(error) {
+				console.log("reactivate account error: "+error);
+				res.status(500).send();
+			}
+		);
+	});
+
 }

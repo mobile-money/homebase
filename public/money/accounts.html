@@ -150,6 +150,24 @@
 			</div>
 		</div>
 		<!--End Delete Account Modal-->
+		<!--Start Reactivate Account Modal-->
+		<div class="modal fade" id="reactivateAccountModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Reactivate Account</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="reactivateAccountId" />
+						<div id="reactivateModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" aria-label="OK" title="Reactivate Account" id="reactivateAccountButton">Reactivate</button><button class="btn btn-danger" data-dismiss="modal" title="Cancel Reactivate Account">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Reactivate Account Modal-->
 
 
 		<nav class="navbar navbar-default">
@@ -200,6 +218,19 @@
 					</thead>
 					<tbody></tbody>
 				</table>
+				<div class="well">
+					<h5>Inactive Accounts</h5>
+					<table id="inactiveAccountTable" class="table table-striped">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Type</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>

@@ -19,6 +19,11 @@ module.exports = function(sequelize, DataTypes) {
 				len: [1, 24]
 			}
 		}
+		,active: {
+			type: DataTypes.BOOLEAN
+			,allowNull: false
+			,defaultValue: true
+		}
 	}
 	,{
 	// 	paranoid: true

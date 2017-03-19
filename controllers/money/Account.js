@@ -3,7 +3,10 @@ module.exports = function(db) {
 		getAll: function() {
 			return new Promise(function(resolve, reject) {
 				db.Account.findAll({
-					order: [['name', 'ASC']]
+					where: {
+						active: true
+					}
+					,order: [['name', 'ASC']]
 					,include: [
 						{
 							model: db.Summary
@@ -66,26 +69,42 @@ module.exports = function(db) {
 		}
 		,delete: function(id) {
 			return new Promise(function(resolve, reject) {
-				db.Account.destroy({
+				// db.Account.destroy({
+				// 	where: {
+				// 		id: id
+				// 	}
+				// })
+				// .then(
+				// 	function(rows) {
+				// 		if (rows === 1) {
+				// 			resolve();
+				// 		} else {
+				// 			reject();
+				// 		}
+				// 	}
+				// )
+				// .catch(
+				// 	function(error) {
+				// 		reject(error);
+				// 	}
+				// );
+				db.Account.update({
+					active: false
+				}
+				,{
 					where: {
 						id: id
 					}
-				})
-				.then(
-					function(rows) {
-						if (rows === 1) {
-							resolve();
-						} else {
-							reject();
-						}
+				}).then(function(result) {
+					if (result[0] === 1) {
+						resolve();
+					} else {
+						reject("There was a problem deleting the account");
 					}
-				)
-				.catch(
-					function(error) {
-						reject(error);
-					}
-				);
-			})
+				}).catch(function(error) {
+					reject(error);
+				});
+			});
 		}
 		,update: function(data) {
 			return new Promise(function(resolve, reject) {
@@ -173,6 +192,56 @@ module.exports = function(db) {
 						reject({code: 99, error: error});
 					}
 				);
+			});
+		}
+		,getInactive: function() {
+			return new Promise(function(resolve, reject) {
+				db.Account.findAll({
+					where: {
+						active: false
+					}
+					,order: [['name', 'ASC']]
+					,include: [
+						{
+							model: db.Summary
+							,separate: true
+							,order: [['start', 'DESC']]
+						}
+						,{
+							model: db.Position
+						}
+					]
+				})
+				.then(
+					function(results) {
+						resolve(results);
+					}
+				)
+				.catch(
+					function(error) {
+						reject(error);
+					}
+				);
+			});
+		}
+		,reactivate: function(id) {
+			return new Promise(function(resolve, reject) {
+				db.Account.update({
+					active: true
+				}
+				,{
+					where: {
+						id: id
+					}
+				}).then(function(result) {
+					if (result[0] === 1) {
+						resolve();
+					} else {
+						reject("There was a problem reactivating the account");
+					}
+				}).catch(function(error) {
+					reject(error);
+				});
 			});
 		}
 	};
