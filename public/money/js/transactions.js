@@ -364,6 +364,14 @@ var QueryString = function () {
 				$("#periodSelect").show();
 				break;
 			default: 
+				$(".payeeHeader").html("Payee");
+				$(".plusHeader").html("Deposit");
+				$(".minusHeader").html("Withdrawl");
+				$(".balanceHeader").html("Balance");
+				$("#newDeposit").prop("step", "0.01");
+				$("#newWithdrawl").prop("step", "0.01");
+				$(".zulu").show();
+				$("#periodSelect").show();
 		}
 	}
 
