@@ -4,16 +4,19 @@ var request = require("request");
 function getCurrentPrice(tick,db) {
 	return new Promise(function(resolve, reject) {
 		request({
-			uri: "http://finance.yahoo.com/webservice/v1/symbols/"+encodeURI(tick)+"/quote?format=json"
+			// uri: "http://finance.yahoo.com/webservice/v1/symbols/"+encodeURI(tick)+"/quote?format=json"
+			uri: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"+encodeURI(tick)+"%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback="
 			,method: "GET"
-			,headers: {
-				"User-Agent": "Mozilla/5.0 (Linux; Android 6.0.1; MotoG3 Build/MPI24.107-55) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.81 Mobile Safari/537.36"
-			}
+			// ,headers: {
+			// 	"User-Agent": "Mozilla/5.0 (Linux; Android 6.0.1; MotoG3 Build/MPI24.107-55) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.81 Mobile Safari/537.36"
+			// }
 		}, function(error, response, body) {
 			if (!error && response.statusCode == 200) {
 				var resp = JSON.parse(body);
-				if (resp.list.meta.count === 1) {
-					resolve({price: resp.list.resources[0].resource.fields.price, name: resp.list.resources[0].resource.fields.name});
+				// if (resp.list.meta.count === 1) {
+				if (resp.query.count === 1) {
+					// resolve({price: resp.list.resources[0].resource.fields.price, name: resp.list.resources[0].resource.fields.name});
+					resolve({price: resp.query.results.quote.Ask, name: resp.query.results.quote.Name});
 				} else if (resp.list.meta.count === 0) {
 					// Ticker not found
 					db.Trade.findAll({
