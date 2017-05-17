@@ -20,18 +20,22 @@ module.exports = function(db) {
 							console.log(encodeURI(tick));
 							if (moment.utc().dayOfYear() !== moment.utc(position.updatedAt).dayOfYear()) {
 								request({
-									uri: "http://finance.yahoo.com/webservice/v1/symbols/"+encodeURI(tick)+"/quote?format=json&view=detail"
+									// uri: "http://finance.yahoo.com/webservice/v1/symbols/"+encodeURI(tick)+"/quote?format=json&view=detail"
+									uri: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"+encodeURI(tick)+"%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback="
 									,method: "GET"
-									,headers: {
-										"User-Agent": "Mozilla/5.0 (Linux; Android 6.0.1; MotoG3 Build/MPI24.107-55) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.81 Mobile Safari/537.36"
-									}
+									// ,headers: {
+									// 	"User-Agent": "Mozilla/5.0 (Linux; Android 6.0.1; MotoG3 Build/MPI24.107-55) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.81 Mobile Safari/537.36"
+									// }
 								}, function(error, response, body) {
 									if (!error && response.statusCode == 200) {
 										var resp = JSON.parse(body);
-										if (resp.list.meta.count === 1) {
+										// if (resp.list.meta.count === 1) {
+										if (resp.query.count === 1) {
 											db.Position.update({
-												currentPrice: resp.list.resources[0].resource.fields.price
-												,name: resp.list.resources[0].resource.fields.name
+												// currentPrice: resp.list.resources[0].resource.fields.price
+												// ,name: resp.list.resources[0].resource.fields.name
+												currentPrice: resp.query.results.quote.Ask
+												,name: resp.query.results.quote.Name
 											}
 											,{
 												where: { ticker: tick }
