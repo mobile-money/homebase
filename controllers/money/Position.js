@@ -17,7 +17,7 @@ module.exports = function(db) {
 							// no position found
 							reject({code: 1});
 						} else {
-							console.log(encodeURI(tick));
+							// console.log(encodeURI(tick));
 							if (moment.utc().dayOfYear() !== moment.utc(position.updatedAt).dayOfYear()) {
 								request({
 									// uri: "http://finance.yahoo.com/webservice/v1/symbols/"+encodeURI(tick)+"/quote?format=json&view=detail"
@@ -40,7 +40,8 @@ module.exports = function(db) {
 											,{
 												where: { ticker: tick }
 											}).then(function() {
-												resolve({code: 0, price: resp.list.resources[0].resource.fields.price});
+												// resolve({code: 0, price: resp.list.resources[0].resource.fields.price});
+												resolve({code: 0, price: resp.query.results.quote.Ask});
 											}
 											,function(error) {
 												// Position update error
