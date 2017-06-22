@@ -61,47 +61,6 @@ var QueryString = function () {
 		})
 	}, minLength: 3});
 
-	// $("#newPayee").keyup(function(e) {
-	// 	if (e.target.value.length >= 2) {
-	// 		if ((e.which === 8) || 
-	// 			(e.which === 32) || 
-	// 			(e.which === 46) || 
-	// 			(e.which >= 48 && e.which <= 57) ||
-	// 			(e.which >= 65 && e.which <= 90) ||
-	// 			(e.which >= 186 && e.which <= 192) || 
-	// 			(e.which >= 219 && e.which <= 222)) {
-	// 			$.get("/api/v1/money/transactions/lookup/payee/"+e.target.value, function(response) {
-	// 				$("#newPayee").typeahead({source: response, minLength: 3});
-	// 			}, 'json');
-	// 		}
-	// 	}
-	// 	/*
-	// 	8
-	// 	32
-	// 	46
-	// 	48-57
-	// 	65-90
-	// 	186-192
-	// 	219-222
-	// 	*/
-	// });
-
-	// $("#newDescription").keyup(function(e) {
-	// 	if (e.target.value.length >= 2) {
-	// 		if ((e.which === 8) || 
-	// 			(e.which === 32) || 
-	// 			(e.which === 46) || 
-	// 			(e.which >= 48 && e.which <= 57) ||
-	// 			(e.which >= 65 && e.which <= 90) ||
-	// 			(e.which >= 186 && e.which <= 192) || 
-	// 			(e.which >= 219 && e.which <= 222)) {
-	// 			$.get("/api/v1/money/transactions/lookup/description/"+e.target.value, function(response) {
-	// 				$("#newDescription").typeahead({source: response, minLength: 3});
-	// 			}, 'json');
-	// 		}
-	// 	}
-	// });
-
 	$("#editTransactionModal").on("shown.bs.modal", function() {
 		$("#editPayee").focus();
 	});
@@ -379,27 +338,22 @@ var QueryString = function () {
 		$("#xferModal").modal("hide");
 		$("#xferAccounts").html('<option id="noAccountSelected" />');
 		if ($("#xferAccountId").val() !== "") {
-			$("#startXferBtn").removeClass("btn-default");
-			$("#startXferBtn").addClass("btn-primary active");
+			$("#startXferBtn").removeClass("btn-default").addClass("btn-primary active");
 		} else {
-			$("#startXferBtn").removeClass("btn-primary active");
-			$("#startXferBtn").addClass("btn-default");
+			$("#startXferBtn").removeClass("btn-primary active").addClass("btn-default");
 		}
 	}
 
 	function transactionHighlight(id) {
-		var baseBG = $("#"+id).css("background-color");
-		$("#"+id).css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
+		var jq_elem = $("#"+id);
+		var baseBG = jq_elem.css("background-color");
+        jq_elem.css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
 	}
 
 	function tradeHighlight(id, type) {
-		if (type === "trade") {
-			var baseBG = $("#trade_"+id).css("background-color");
-			$("#trade_"+id).css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
-		} else if (type === "position") {
-			var baseBG = $("#position_"+id).css("background-color");
-			$("#position_"+id).css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
-		}
+		var jq_elem = $("#"+type+"_"+id);
+		var baseBG = jq_elem.css("background-color");
+		jq_elem.css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
 	}
 
 	function resetAddTransaction() {
@@ -411,10 +365,8 @@ var QueryString = function () {
 		$("#newWithdrawl").val("");
 		$("#newCategory").val("");
 		$("#xferAccountId").val("");
-		$("#startXferBtn").removeClass("btn-primary active");
-		$("#startXferBtn").addClass("btn-default");
-		$("#noXferBtn").removeClass("btn-default");
-		$("#noXferBtn").addClass("active btn-primary");
+		$("#startXferBtn").removeClass("btn-primary active").addClass("btn-default");
+		$("#noXferBtn").removeClass("btn-default").addClass("active btn-primary");
 	}
 
 	function getCategories() {
@@ -429,7 +381,7 @@ var QueryString = function () {
 				$("#newCategory").append('<option value="'+category.id+'">'+category.name+'</option>');
 			});
 		})
-		.error(function(jqXHR, textStatus, errorThrown) {
+		.error(function(jqXHR) {
 			if (jqXHR.status === 404) {
 				return false;
 			} else {
@@ -445,36 +397,37 @@ var QueryString = function () {
 			,url: "/api/v1/money/accounts"
 		})
 		.success(function(response) {
+			var jq_accountSelect = $("#accountSelect");
 			$("#addTransaction").prop("disabled", false);
 			accountArray = response;
-			$("#accountSelect").empty();
+            jq_accountSelect.empty();
 			if (response.length === 1) {
 				$("#startXferBtn").prop("disabled", true);
 			}
 			response.forEach(function(account) {
 				accountNames[account.id] = {name: account.name, type: account.type};
-				if (typeof QueryString.acct !== "undefined") {
-					if (account.id == QueryString.acct) {
-						$("#accountSelect").append('<option value="'+account.id+'" selected>'+account.name+'</option>');
+				if (typeof QueryString["acct"] !== "undefined") {
+					if (account.id === QueryString["acct"]) {
+                        jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
 					} else {
-						$("#accountSelect").append('<option value="'+account.id+'">'+account.name+'</option>');
+                        jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
 					}					
 				} else {
 					if (account.default === true) {
-						$("#accountSelect").append('<option value="'+account.id+'" selected>'+account.name+'</option>');
+                        jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
 					} else {
-						$("#accountSelect").append('<option value="'+account.id+'">'+account.name+'</option>');
+                        jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
 					}					
 				}
 			});
-			if (accountNames[$("#accountSelect").val()].type === "Investment") {
-				getInvestments($("#accountSelect").val(), null, null);
+			if (accountNames[jq_accountSelect.val()].type === "Investment") {
+				getInvestments(jq_accountSelect.val(), null, null);
 			} else {
 				getTransactions(null, null);
 				// getPeriods($("#accountSelect").val());
 			}
 		})
-		.error(function(jqXHR, textStatus, errorThrown) {
+		.error(function(jqXHR) {
 			if (jqXHR.status === 404) {
 				$("#addTransaction").prop("disabled", true);
 				return false;
@@ -486,76 +439,76 @@ var QueryString = function () {
 		});
 	}
 
-	function getPeriods(id) {
-		$.ajax({
-			type: "GET"
-			,url: "/api/v1/money/summaries/"+id
-		})
-		.success(function(response) {
-			$("#periodSelect").empty();
-			var nowStamp = moment().format("x");
-			response.forEach(function(period) {
-				if (period.start !== null) {
-					var startStamp = moment.utc(period.start).format("x");
-					var startString = moment.utc(period.start).format("MMM D, YYYY")
-					var endStamp = moment.utc(period.end).format("x");
-					var endString = moment.utc(period.end).format("MMM D, YYYY");
-					if (nowStamp >= startStamp && nowStamp <= endStamp) {
-						$("#periodSelect").append('<option value="'+period.id+'" selected>'+startString+' - '+endString+'</option>');
-					} else {
-						$("#periodSelect").append('<option value="'+period.id+'">'+startString+' - '+endString+'</option>');
-					}
-				}
-			});
-			if ($("#periodSelect").val() !== null) {
-				// getTransactions($("#periodSelect").val(), null, null);
-			}
-		})
-		.error(function(jqXHR, textStatus, errorThrown) {
-			if (jqXHR.status === 404) {
-				return false;
-			} else {
-				$("#infoModalBody").html("There was a problem.  Please try again.");
-				$("#infoModal").modal("show");
-			}
-		});
-	}
+	// function getPeriods(id) {
+	// 	$.ajax({
+	// 		type: "GET"
+	// 		,url: "/api/v1/money/summaries/"+id
+	// 	})
+	// 	.success(function(response) {
+	// 		$("#periodSelect").empty();
+	// 		var nowStamp = moment().format("x");
+	// 		response.forEach(function(period) {
+	// 			if (period.start !== null) {
+	// 				var startStamp = moment.utc(period.start).format("x");
+	// 				var startString = moment.utc(period.start).format("MMM D, YYYY")
+	// 				var endStamp = moment.utc(period.end).format("x");
+	// 				var endString = moment.utc(period.end).format("MMM D, YYYY");
+	// 				if (nowStamp >= startStamp && nowStamp <= endStamp) {
+	// 					$("#periodSelect").append('<option value="'+period.id+'" selected>'+startString+' - '+endString+'</option>');
+	// 				} else {
+	// 					$("#periodSelect").append('<option value="'+period.id+'">'+startString+' - '+endString+'</option>');
+	// 				}
+	// 			}
+	// 		});
+	// 		if ($("#periodSelect").val() !== null) {
+	// 			// getTransactions($("#periodSelect").val(), null, null);
+	// 		}
+	// 	})
+	// 	.error(function(jqXHR, textStatus, errorThrown) {
+	// 		if (jqXHR.status === 404) {
+	// 			return false;
+	// 		} else {
+	// 			$("#infoModalBody").html("There was a problem.  Please try again.");
+	// 			$("#infoModal").modal("show");
+	// 		}
+	// 	});
+	// }
 
-	function clearTransaction(id) {
-		// console.log(id);
-		$.ajax({
-			type: "PUT"
-			,url: "/api/v1/money/clear/transactions"
-			,data: {
-				id: id
-			}
-		}).success(function(response) {
-			// $("#clr_"+id).attr("disabled", true);
-		}).error(function(jqXHR, textStatus, errorThrown) {
-			$("#clr_"+id).removeAttr("checked");
-			$("#infoModalBody").html("There was a problem.  Please try again.");
-			$("#infoModal").modal("show");
-		});
-	}
+	// function clearTransaction(id) {
+	// 	// console.log(id);
+	// 	$.ajax({
+	// 		type: "PUT"
+	// 		,url: "/api/v1/money/clear/transactions"
+	// 		,data: {
+	// 			id: id
+	// 		}
+	// 	}).success(function(response) {
+	// 		// $("#clr_"+id).attr("disabled", true);
+	// 	}).error(function(jqXHR, textStatus, errorThrown) {
+	// 		$("#clr_"+id).removeAttr("checked");
+	// 		$("#infoModalBody").html("There was a problem.  Please try again.");
+	// 		$("#infoModal").modal("show");
+	// 	});
+	// }
 
-	function postTransaction(id, value) {
-		// console.log(id);
-		$.ajax({
-			type: "PUT"
-			,url: "/api/v1/money/post/transactions"
-			,data: {
-				id: id
-				,date: value
-			}
-		}).success(function(response) {
-			// $("#clr_"+id).attr("disabled", true);
-		}).error(function(jqXHR, textStatus, errorThrown) {
-			// $("#clr_"+id).removeAttr("checked");
-			$("#post_"+id).val("");
-			$("#infoModalBody").html("There was a problem.  Please try again.");
-			$("#infoModal").modal("show");
-		});
-	}
+	// function postTransaction(id, value) {
+	// 	// console.log(id);
+	// 	$.ajax({
+	// 		type: "PUT"
+	// 		,url: "/api/v1/money/post/transactions"
+	// 		,data: {
+	// 			id: id
+	// 			,date: value
+	// 		}
+	// 	}).success(function(response) {
+	// 		// $("#clr_"+id).attr("disabled", true);
+	// 	}).error(function(jqXHR, textStatus, errorThrown) {
+	// 		// $("#clr_"+id).removeAttr("checked");
+	// 		$("#post_"+id).val("");
+	// 		$("#infoModalBody").html("There was a problem.  Please try again.");
+	// 		$("#infoModal").modal("show");
+	// 	});
+	// }
 
 	function getTransactions(offset, limit, transId) {
 		setupTable();
@@ -569,7 +522,7 @@ var QueryString = function () {
 		})
 		.success(function(response) {
 			// console.log(response);
-			$("#transactionTable tbody").empty();
+			$("#transactionTable").find("tbody").empty();
 			// var balance = Number(response.cTrans[0].Summary.balance);
 			var balance = 0;
 			var initialBalance = 0;
@@ -669,7 +622,9 @@ var QueryString = function () {
 					'</td>';
 				}
 				row += '</tr>';
-				$("#transactionTable tbody").append(row);
+				if (result.description !== "gobble gobble") {
+                    $("#transactionTable tbody").append(row);
+				}
 				if (dp) {
 					$("#post_"+result.id).datepicker({
 						format: 'mm/dd/yyyy'
