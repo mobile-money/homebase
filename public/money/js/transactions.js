@@ -165,8 +165,9 @@ var QueryString = function () {
 	});
 
 	$("#accountSelect").change(function() {
+
 		resetAddTransaction();
-		$("#transactionTable tbody").empty();
+		$("#transactionTable").find("tbody").empty();
 		if (accountNames[$("#accountSelect").val()].type === "Investment") {
 			// $("#periodSelect").hide();
 			getInvestments($("#accountSelect").val(), null, null, null);
@@ -406,8 +407,8 @@ var QueryString = function () {
 			}
 			response.forEach(function(account) {
 				accountNames[account.id] = {name: account.name, type: account.type};
-				if (typeof QueryString["acct"] !== "undefined") {
-					if (account.id === QueryString["acct"]) {
+				if (typeof QueryString.acct !== "undefined") {
+					if (account.id === QueryString.acct) {
                         jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
 					} else {
                         jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
