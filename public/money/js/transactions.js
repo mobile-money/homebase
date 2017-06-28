@@ -113,12 +113,15 @@ var QueryString = function () {
 	$("#addTransaction").click(function() {
 		addTransaction();
 	});
+
 	$("#editTransactionButton").click(function() {
 		modifyTransaction();
 	});
+
 	$("#editFTransactionButton").click(function() {
 		modifyFTransaction();
 	});
+
 	$("#commitFTransactionButton").click(function() {
 		sendCommit();
 	});
@@ -167,6 +170,7 @@ var QueryString = function () {
 	$("#accountSelect").change(function() {
 
 		resetAddTransaction();
+		clearSearch();
 		$("#transactionTable").find("tbody").empty();
 		if (accountNames[$("#accountSelect").val()].type === "Investment") {
 			// $("#periodSelect").hide();
@@ -179,6 +183,119 @@ var QueryString = function () {
 		setupTable();
 		$("#newPayee").focus();
 	});
+
+	$("#searchClear").click(function() {
+        getTransactions(null, null);
+	});
+
+	$("#searchField").keypress(function(e) {
+        if(e.which == 13) {
+            var obj = {
+            	text: $("#searchField").val()
+				,accountId: Number($("#accountSelect").val())
+			};
+            if (obj.text == "") { return false; }
+            $("#searchClear").prop('disabled',false);
+            $.ajax({
+				type: "POST"
+				,url: "/api/v1/money/transactions/search"
+				,data: obj
+			}).success(function(response) {
+                $("#transactionTable").find("tbody").empty();
+                // Current Transactions
+                response.forEach(function(result) {
+                    var dp = false;
+                    var dateNow = new Date();
+                    var row;
+                    var tDateMoment = moment.utc(result.transactionDate);
+                    if (result.hasOwnProperty("future")) {
+                        dp = true;
+                        row = '<tr id="f_'+result.id+'"';
+                        if (tDateMoment.isAfter(moment(),'days')) {
+                            row += ' class="success"';
+                        }
+                        row += '><td><input type="text" size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" /></td>';
+                    } else {
+                        row = '<tr id="'+result.id+'">'+
+                            '<td>'+moment.utc(result.postDate).format("MM/DD/YYYY")+'</td>';
+                    }
+                    row += '<td name="transactionDate">'+
+                        tDateMoment.format("MM/DD/YYYY")+
+                        '</td>'+
+                        '<td name="payee">';
+                    if (result.BillId !== null) {
+                        row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
+                    }
+                    row += result.payee+'</td>';
+                    if (result.description !== null) {
+                        row += '<td name="description">';
+                        if (result.xfer !== null) {
+                            row += "[Transfer] ";
+                        }
+                        row += result.description+'</td>';
+                    } else {
+                        row += '<td name="description">';
+                        if (result.xfer !== null) {
+                            row += "[Transfer]";
+                        }
+                        row += '</td>';
+                    }
+                    if (result.checkNumber !== null) {
+                        row += '<td name="check">'+result.checkNumber+'</td>';
+                    } else {
+                        row += '<td name="check"></td>';
+                    }
+
+                    if (result.amount !== null) {
+                        if (result.amount > 0) {
+                            row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
+                        } else {
+                            row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
+                        }
+                    }
+                    if (result.Category !== null) {
+                        row += '<td name="category">'+result.Category.name+'</td>';
+                    } else {
+                        row += '<td name="category"></td>';
+                    }
+                    row += '<td name="balance"></td>';
+                    if (result.hasOwnProperty("future")) {
+                        row += '<td>'+
+                            '<button class="btn btn-primary btn-xs" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
+                            '<i class="glyphicon glyphicon-pencil"></i>'+
+                            '</button>'+
+                            '<button class="btn btn-danger btn-xs" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
+                            '<i class="glyphicon glyphicon-remove"></i>'+
+                            '</button>'+
+                            '</td>';
+                    } else {
+                        row += '<td>' +
+                            '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\'' + result.id + '\');">' +
+                            '<i class="glyphicon glyphicon-pencil"></i>' +
+                            '</button>' +
+                            '</td>';
+                    }
+                    row += '</tr>';
+                    if (result.description !== "gobble gobble") {
+                        $("#transactionTable tbody").append(row);
+                    }
+                    if (dp) {
+                        $("#post_"+result.id).datepicker({
+                            format: 'mm/dd/yyyy'
+                            ,autoclose: true
+                            ,todayHighlight: true
+                        }).on("changeDate", function(e) {
+                            sendCommit(Number(e.target.dataset.tid), e.target.value)
+                        });
+                    }
+                });
+			}).error(function(jqXHR) {
+				$("#infoModalBody").html("There was a problem.  Please try again.");
+				$("#infoModal").modal("show");
+				console.log(jqXHR);
+            });
+        }
+    });
 
 // SOCKET IO
 	socket.on("connect", function() {
@@ -271,6 +388,11 @@ var QueryString = function () {
 	});
 
 // FUNCTIONS
+	function clearSearch() {
+		$("#searchField").val("");
+		$("#searchClear").prop('disabled',true);
+	}
+
 	function getBills() {
 		$.ajax({
 			type: "GET"
@@ -407,8 +529,8 @@ var QueryString = function () {
 			}
 			response.forEach(function(account) {
 				accountNames[account.id] = {name: account.name, type: account.type};
-				if (typeof QueryString.acct !== "undefined") {
-					if (account.id === QueryString.acct) {
+				if (typeof QueryString["acct"] !== "undefined") {
+					if (account.id == QueryString["acct"]) {
                         jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
 					} else {
                         jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
@@ -512,6 +634,8 @@ var QueryString = function () {
 	// }
 
 	function getTransactions(offset, limit, transId) {
+        $("#searchDiv").show();
+        clearSearch();
 		setupTable();
 		if (offset === null) { offset = 0; }
 		if (limit === null || limit <= transactionLimit) {
@@ -669,7 +793,7 @@ var QueryString = function () {
 		// setupTable();
 		// if (offset === null) { offset = 0; }
 		// if (limit === null) { limit = 10; }
-		$.ajax({
+        $.ajax({
 			type: "GET"
 			,url: "/api/v1/money/transactions/more/account/"+$("#accountSelect").val()+"/"+offset+"/"+limit
 		})
@@ -763,6 +887,7 @@ var QueryString = function () {
 
 	function getInvestments(id, tradeId, positionId, type) {
 		setupTable();
+        $("#searchDiv").hide();
 		$.ajax({
 			type: "GET"
 			,url: "/api/v1/money/investments/"+id

@@ -218,4 +218,17 @@ module.exports = function(app, Transaction, _, io) {
 			res.status(500).send();
 		});
 	});
-}
+
+	// Search transactions
+	app.post("/api/v1/money/transactions/search", function(req,res) {
+		console.log("search transactions requested");
+		var body = _.pick(req.body, 'text', 'accountId');
+		Transaction.search(body).then(function(results) {
+			console.log("search transactions retrieved");
+			res.json(results);
+		}).catch(function(error) {
+			console.log("search transactions error: "+error);
+			res.status(500).send();
+		});
+	});
+};

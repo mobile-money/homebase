@@ -84,6 +84,8 @@ body.live-view {
 	border-color: #2d2d2d;
 }
 
+.highlight { background-color: yellow }
+
 .highlightInfo {
 	/*color: #fff;
 	font-weight: bold;
