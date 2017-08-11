@@ -409,73 +409,75 @@ $(document).ready(function() {
 			var incomes = '<tr><td colspan="4"><strong>Incomes</strong></td></tr>';
 
 			categoryArray.forEach(function(category) {
-				if (budget.hasOwnProperty(category.id)) {
-					var calcWidth = 0;
-					var barWidth = 0;
-					var thisBudget = budget[category.id.toString()];
-					var budgetRatio = budgetDays / Number(thisBudget.time);
-					var adjustedBudget = Math.ceil(thisBudget.value * budgetRatio);
-					// console.log(adjustedBudget);
-					// var thisBudget = _.where(budget, {id: category.id.toString()});
-					// console.log(thisBudget);
-					if (category.expense === true) {
-						totalExpense += (Number(data.values[category.id]) * -1);
-						budgetedExpense += adjustedBudget;
-						calcWidth = Math.floor(((Number(data.values[category.id]) * -1).toFixed(2) / adjustedBudget.toFixed(2)) * 100);
-						// calcWidth = Math.floor(((Number(data.values[category.id]) * -1).toFixed(2) / Number(budget[category.id].value).toFixed(2)) * 100);
-						// console.log(calcWidth);
-						if (calcWidth > 100) {
-							barWidth = 100;
-						} else {
-							barWidth = calcWidth;
-						}
-						var barColorClass = "progress-bar-success";
-						if (calcWidth > 100) {
-							barColorClass = "progress-bar-danger";
-						} else if (calcWidth > 70) {
-							barColorClass = "progress-bar-warning";
-						}
-						expenses += '<tr>'+
-							'<td><a onclick="categoryTable('+category.id+')">'+category.name+'</a></td>'+
-							'<td>$'+(Number(data.values[category.id]) * -1).toFixed(2)+'</td>'+
-							'<td>'+
-								'<div class="progress">'+
-									'<div class="progress-bar '+barColorClass+'" role="progressbar" aria-valuenow="'+Number(data.values[category.id]).toFixed(2)+'" aria-valuemin="0" aria-valuemax="'+Number(budget[category.id]).toFixed(2)+'" style="width:'+barWidth+'%;">'+
-										calcWidth+"%"+
-									'</div>'+
-								'</div>'+
-							'</td>'+
-							'<td>$'+adjustedBudget.toFixed(2)+'</td>'+
-						'</tr>';
-					} else {
-						totalIncome += Number(data.values[category.id]);
-						budgetedIncome += adjustedBudget;
-						calcWidth = Math.floor((Number(data.values[category.id]).toFixed(2) / adjustedBudget.toFixed(2)) * 100);
-						if (calcWidth > 100) {
-							barWidth = 100;
-						} else {
-							barWidth = calcWidth;
-						}
-						var barColorClass = "progress-bar-danger";
-						if (calcWidth > 100) {
-							barColorClass = "progress-bar-success";
-						} else if (calcWidth > 70) {
-							barColorClass = "progress-bar-warning";
-						}
-						incomes += '<tr>'+
-							'<td><a onclick="categoryTable('+category.id+')">'+category.name+'</a></td>'+
-							'<td>$'+Number(data.values[category.id]).toFixed(2)+'</td>'+
-							'<td>'+
-								'<div class="progress">'+
-									'<div class="progress-bar '+barColorClass+'" role="progressbar" aria-valuenow="'+Number(data.values[category.id]).toFixed(2)+'" aria-valuemin="0" aria-valuemax="'+Number(budget[category.id]).toFixed(2)+'" style="width:'+barWidth+'%;">'+
-										calcWidth+"%"+
-									'</div>'+
-								'</div>'+
-							'</td>'+
-							'<td>$'+adjustedBudget.toFixed(2)+'</td>'+
-						'</tr>';
-					}
-				}
+				if (category.id != 1) {
+                    if (budget.hasOwnProperty(category.id)) {
+                        var calcWidth = 0;
+                        var barWidth = 0;
+                        var thisBudget = budget[category.id.toString()];
+                        var budgetRatio = budgetDays / Number(thisBudget.time);
+                        var adjustedBudget = Math.ceil(thisBudget.value * budgetRatio);
+                        // console.log(adjustedBudget);
+                        // var thisBudget = _.where(budget, {id: category.id.toString()});
+                        // console.log(thisBudget);
+                        if (category.expense === true) {
+                            totalExpense += (Number(data.values[category.id]) * -1);
+                            budgetedExpense += adjustedBudget;
+                            calcWidth = Math.floor(((Number(data.values[category.id]) * -1).toFixed(2) / adjustedBudget.toFixed(2)) * 100);
+                            // calcWidth = Math.floor(((Number(data.values[category.id]) * -1).toFixed(2) / Number(budget[category.id].value).toFixed(2)) * 100);
+                            // console.log(calcWidth);
+                            if (calcWidth > 100) {
+                                barWidth = 100;
+                            } else {
+                                barWidth = calcWidth;
+                            }
+                            var barColorClass = "progress-bar-success";
+                            if (calcWidth > 100) {
+                                barColorClass = "progress-bar-danger";
+                            } else if (calcWidth > 70) {
+                                barColorClass = "progress-bar-warning";
+                            }
+                            expenses += '<tr>' +
+                                '<td><a onclick="categoryTable(' + category.id + ')">' + category.name + '</a></td>' +
+                                '<td>$' + (Number(data.values[category.id]) * -1).toFixed(2) + '</td>' +
+                                '<td>' +
+                                '<div class="progress">' +
+                                '<div class="progress-bar ' + barColorClass + '" role="progressbar" aria-valuenow="' + Number(data.values[category.id]).toFixed(2) + '" aria-valuemin="0" aria-valuemax="' + Number(budget[category.id]).toFixed(2) + '" style="width:' + barWidth + '%;">' +
+                                calcWidth + "%" +
+                                '</div>' +
+                                '</div>' +
+                                '</td>' +
+                                '<td>$' + adjustedBudget.toFixed(2) + '</td>' +
+                                '</tr>';
+                        } else {
+                            totalIncome += Number(data.values[category.id]);
+                            budgetedIncome += adjustedBudget;
+                            calcWidth = Math.floor((Number(data.values[category.id]).toFixed(2) / adjustedBudget.toFixed(2)) * 100);
+                            if (calcWidth > 100) {
+                                barWidth = 100;
+                            } else {
+                                barWidth = calcWidth;
+                            }
+                            var barColorClass = "progress-bar-danger";
+                            if (calcWidth > 100) {
+                                barColorClass = "progress-bar-success";
+                            } else if (calcWidth > 70) {
+                                barColorClass = "progress-bar-warning";
+                            }
+                            incomes += '<tr>' +
+                                '<td><a onclick="categoryTable(' + category.id + ')">' + category.name + '</a></td>' +
+                                '<td>$' + Number(data.values[category.id]).toFixed(2) + '</td>' +
+                                '<td>' +
+                                '<div class="progress">' +
+                                '<div class="progress-bar ' + barColorClass + '" role="progressbar" aria-valuenow="' + Number(data.values[category.id]).toFixed(2) + '" aria-valuemin="0" aria-valuemax="' + Number(budget[category.id]).toFixed(2) + '" style="width:' + barWidth + '%;">' +
+                                calcWidth + "%" +
+                                '</div>' +
+                                '</div>' +
+                                '</td>' +
+                                '<td>$' + adjustedBudget.toFixed(2) + '</td>' +
+                                '</tr>';
+                        }
+                    }
+                }
 			});
 
 			var budgetBar = '<div class="col-md-6" style="font-size:0.7em;">Budgeted&nbsp;&#43;&#47;&#45;<br /><div class="progress">';

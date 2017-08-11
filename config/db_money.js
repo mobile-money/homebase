@@ -38,6 +38,7 @@ db.Bill = sequelize.import(__dirname + "/../models/money/Bill.js");
 db.Budget = sequelize.import(__dirname + "/../models/money/Budget.js");
 db.Position = sequelize.import(__dirname + "/../models/money/Position.js");
 db.Trade = sequelize.import(__dirname + "/../models/money/Trade.js");
+db.CategorySplit = sequelize.import(__dirname + "/../models/money/CategorySplit.js");
 // // END IMPORTS // //
 
 db.sequelize = sequelize;

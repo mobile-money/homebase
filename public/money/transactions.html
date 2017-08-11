@@ -166,7 +166,26 @@
 				</div>
 			</div>
 		</div>
-		<!--End Delete Transaction Modal-->
+		<!--End Xfer Modal-->
+		<!--Start Multi Category Modal-->
+		<div class="modal fade" id="multiCategoryModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Multiple Categories</h4>
+					</div>
+					<div class="modal-body">
+						<div id="multiCategoryModalBody">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-success" title="OK" id="completeMultiCategoryButton"><i class="glyphicon glyphicon-ok"></i></button>
+						<button class="btn btn-danger" title="Cancel" id="cancelMultiCategoryButton">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Multi Category Modal-->
 
 		<nav class="navbar navbar-default">
 		  <div class="container-fluid">
@@ -265,7 +284,9 @@
 									<input type="number" class="form-control currency newTrans" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="newWithdrawl" />
 								</td>
 								<td class="zulu">
-									<select class="form-control newTrans zulu" id="newCategory"></select>
+									<select class="form-control newTrans zulu" id="newCategory">
+										<option value="-1">Multiple</option>
+									</select>
 								</td>
 								<td class="zulu">
 									<button class="btn btn-default btn-sm" id="startXferBtn">Xfer</button>
@@ -287,6 +308,7 @@
 		<script type="text/javascript" src="../shared/js/socket.io-1.4.3.js"></script>
 		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
 		<!-- Latest compiled and minified JavaScript -->
+		<script type="text/javascript" src="../shared/js/tether.min.js"></script>
 		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="../shared/js/bootstrap-datepicker.min.js"></script>
 		<script type="text/javascript" src="../shared/js/bootstrap3-typeahead.min.js"></script>

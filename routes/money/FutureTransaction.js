@@ -25,8 +25,8 @@ module.exports = function(app, FutureTransaction, _, io) {
 	// Insert future transaction
 	app.post("/api/v1/money/futureTransactions", function(req, res) {
 		console.log("future transaction add requested");
-		var body = _.pick(req.body, 'account', 'tDate', 'payee', 'description', 'check', 'amount', 'category', 'xfer', 'bill');
-		// console.log(body);
+		var body = _.pick(req.body, 'account', 'tDate', 'payee', 'description', 'check', 'amount', 'category', 'xfer', 'bill', 'multiCat');
+		console.log(body);
 		FutureTransaction.add(body)
 		.then(
 			function(obj) {

@@ -35,6 +35,7 @@ var Bill = require("./controllers/money/Bill.js")(db_money);
 var Budget = require("./controllers/money/Budget.js")(db_money);
 var Trade = require("./controllers/money/Trade.js")(db_money);
 var Position = require("./controllers/money/Position.js")(db_money);
+var CategorySplit = require("./controllers/money/CategorySplit.js")(db_money);
 
 // Start socket.io
 io.on("connection", function(socket) {
@@ -65,6 +66,7 @@ require("./routes/money/Budget.js")(app, Budget, _, io);
 require("./routes/money/Trade.js")(app, Trade, _, io);
 require("./routes/money/Position.js")(app, Position, _, io);
 require("./routes/money/Flow.js")(app, Transaction, _, io);
+require("./routes/money/CategorySplit.js")(app, CategorySplit, _, io);
 
 app.get("/", function(req, res) {
 	res.redirect("/homebase");
