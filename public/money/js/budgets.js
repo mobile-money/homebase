@@ -278,7 +278,7 @@ $(document).ready(function() {
 						// getPeriods();
 					}
 				})
-				.error(function(jqXHR, textStatus, errorThrown) {
+				.error(function(jqXHR/*, textStatus, errorThrown*/) {
 					if (jqXHR.status === 404) {
 						return false;
 					} else {
@@ -324,7 +324,7 @@ $(document).ready(function() {
 						buildBudget();
 					}
 				})
-				.error(function(jqXHR, textStatus, errorThrown) {
+				.error(function(jqXHR/*, textStatus, errorThrown*/) {
 					if (jqXHR.status === 404) {
 						return false;
 					} else {

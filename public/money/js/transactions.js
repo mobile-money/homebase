@@ -87,10 +87,18 @@ $("#completeMultiCategoryButton").click(function() {
 	$(".multiCatValue").each(function(i,e) {
         if (e["valueAsNumber"]) {
         	var idSplit = e.id.split("_");
+            var val = e["valueAsNumber"];
+        	var cat = _.where(categoryArray,{id: Number(idSplit[1])});
+        	console.log(cat.length);
+        	if (cat.length > 0) {
+        	    if (cat[0].expense) {
+        	        val = val * -1;
+                }
+            }
             multiCategoriesObj.push({
                 id: idSplit[1]
                 ,name: idSplit[2]
-                ,value: e["valueAsNumber"]
+                ,value: val
             });
             lastId = idSplit[1];
             cnt++;
@@ -1228,38 +1236,64 @@ function getMoreTransactions(balance, offset, limit) {
 
 function initiateMultiCategory() {
     var amount = 0.00;
+    var filteredList = _.filter(categoryArray, function(obj) { return Number(obj.id) !== 1; });
+    var midpoint = Math.ceil(((filteredList.length - 1)/2));
     var $depositElem = $("#newDeposit");
     if ($depositElem.val() !== "") {
     	amount = Number($depositElem.val());
 	} else if ($("#newWithdrawl").val() !== "") {
     	amount = Number($("#newWithdrawl").val());
 	}
-	var body = '<table><thead><tr><th style="padding: 5px;">Transaction Amount</th><th id="transAmount" style="padding: 5px;">'+amount.toFixed(2)+'</th></tr></thead><tbody>';
-    categoryArray.forEach(function(cat) {
-        if (cat.id !== 1) {
-            body += '<tr><td style="padding: 5px;">' + cat.name + '</td><td style="padding: 5px;"><input type="number" class="form-control currency multiCatValue" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="multiCat_' + cat.id + '_'+ cat.name +'" /></td></tr>';
+	var body = '<table><thead><tr><th style="padding: 5px;">Unassigned Amount</th><th id="transAmount" style="padding: 5px;">'+amount.toFixed(2)+'</th>'+
+        '<th style="padding: 5px;">Discount</th><th style="padding: 5px;"><div class="input-group">'+
+        '<input type="number" class="form-control" min="0" max="100" step="1" id="multiCatDiscount" />'+
+        '<span class="input-group-addon">%</span></div></th></tr></thead><tbody>';
+    for (var i=0; i<midpoint; i++) {
+        var left = i;
+        var right = i+midpoint;
+        body += '<tr>'+
+            '<td style="padding: 5px;">' + filteredList[left].name + '</td><td style="padding: 5px;">'+
+            '<input type="number" class="form-control currency multiCatValue" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="multiCat_' + filteredList[left].id + '_'+ filteredList[left].name +'" />'+
+            '</td><td style="padding: 5px;">';
+        if (right <= (filteredList.length+1)) {
+            body += filteredList[right].name + '</td><td style="padding: 5px;">'+
+            '<input type="number" class="form-control currency multiCatValue" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="multiCat_' + filteredList[right].id + '_'+ filteredList[right].name +'" />';
         }
-	});
+        body += '</td>'+
+            '</tr>';
+    }
     body += "</tbody></table>";
     $("#multiCategoryModalBody").html(body);
-    $(".multiCatValue").change(function() {
+    $(".multiCatValue").change(function() {calc();});
+    $("#multiCatDiscount").change(function() {
+        var val = $("#multiCatDiscount");
+        if (!val.val() || Number(val.val()) < 0) {
+            val.val(0);
+        } else if (Number(val.val()) > 100) {
+            val.val(100);
+        }
+        calc();
+    });
+
+    function calc() {
         var $amountElem = $("#transAmount");
         $amountElem.removeClass("error");
         var $completeButtonElem = $("#completeMultiCategoryButton");
         $completeButtonElem.prop("disabled",false);
+        var discount = (100 - $("#multiCatDiscount").val()) * 0.01;
         var assignedAmount = 0;
         $(".multiCatValue").each(function(i,elem) {
-        	if (elem["valueAsNumber"]) {
+            if (elem["valueAsNumber"]) {
                 assignedAmount += elem["valueAsNumber"];
-        	}
-		});
-        var newAmount = amount - assignedAmount;
-        $amountElem.html(newAmount);
+            }
+        });
+        var newAmount = amount - (assignedAmount * discount);
+        $amountElem.html(newAmount.toFixed(2));
         if (newAmount < 0) {
             $amountElem.addClass("error");
             $completeButtonElem.prop("disabled",true);
-		}
-    });
+        }
+    }
 
     $("#multiCategoryModal").modal("show");
 }

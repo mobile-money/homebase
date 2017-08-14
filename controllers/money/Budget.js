@@ -105,46 +105,67 @@ module.exports = function(db) {
 		}
 		,values: function(id, start, end) {
 			return new Promise(function(resolve, reject) {
-				db.Budget.findById(id)
-				.then(
-					function(budg) {
-						var amounts = JSON.parse(budg.amounts);
-						// var categoryIds = _.pluck(amounts, "id");
-						var categoryIds = _.keys(amounts);
-						db.Transaction.findAll({
-							where: {
-								CategoryId: {
-									$in: categoryIds
-								}
-								,transactionDate: {
-									$gte: moment.unix(start)
-									,$lte: moment.unix(end)
+				db.Budget.findById(id).then(function(budg) {
+					var amounts = JSON.parse(budg.amounts);
+					var categoryIds = _.keys(amounts);
+					db.Transaction.findAll({
+						where: {
+							CategoryId: {
+								$in: categoryIds
+							}
+							,transactionDate: {
+								$gte: moment.unix(start)
+								,$lte: moment.unix(end)
+							}
+						}
+					}).then(function(trans) {
+						var totals = {};
+						for (var i = 0; i < categoryIds.length; i++) {
+							var budTotal = 0;
+							for (var k = 0; k < trans.length; k++) {
+								if (Number(trans[k].CategoryId) === Number(categoryIds[i])) {
+									budTotal += trans[k].amount;
 								}
 							}
-						})
-						.then(
-							function(trans) {
-								// console.log(trans);
-								var totals = {};
-								for (var i = 0, ilen = categoryIds.length; i < ilen; i++) {
-									var budTotal = 0;
-									for (var k = 0, klen = trans.length; k < klen; k++) {
-										if (trans[k].CategoryId == categoryIds[i]) {
-											budTotal += trans[k].amount;
-											// console.log("trans: "+k+"; cat: "+i);
+							totals[categoryIds[i]] = budTotal;
+						}
+						// Get multi transactions
+                        db.Transaction.findAll({
+                            where: {
+                                CategoryId: "1"
+                                , transactionDate: {
+                                    $gte: moment.unix(start)
+                                    , $lte: moment.unix(end)
+                                }
+                            }
+                        }).then(function(multiTrans) {
+                        	if (multiTrans.length > 0) {
+                        		var transIds = _.pluck(multiTrans, "id");
+                        		db.CategorySplit.findAll({
+									where: {
+										transaction: {
+											$in: transIds
 										}
 									}
-									totals[categoryIds[i]] = budTotal;
-								}
-								resolve({budget: budg, values: totals});
-							}
-						);
-					}
-				).catch(
-					function(error) {
-						reject(error);
-					}
-				);
+								}).then(function(splits) {
+									for (var i=0; i<splits.length; i++) {
+										var data = JSON.parse(splits[i].payload);
+										for (var k=0; k<data.length; k++) {
+											if (totals.hasOwnProperty(data[k].id)) {
+												totals[data[k].id] += data[k].value;
+											}
+										}
+									}
+                                    resolve({budget: budg, values: totals});
+								});
+							} else {
+                                resolve({budget: budg, values: totals});
+                            }
+						});
+					});
+				}).catch(function(error) {
+					reject(error);
+				});
 			});
 		}
 		,favorite: function(id) {
@@ -173,4 +194,4 @@ module.exports = function(db) {
 			});
 		}
 	};
-}
+};

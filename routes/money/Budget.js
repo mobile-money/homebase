@@ -143,4 +143,4 @@ module.exports = function(app, Budget, _, io) {
 			}
 		);
 	});
-}
+};
