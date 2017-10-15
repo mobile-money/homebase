@@ -142,14 +142,14 @@ function postLocationUpdate(db, id) {
 			if (lUpdate !== null) {
 				lUpdate.update({
 					lastUpdate: moment.utc()
-				}).then(function(row) {
+				}).then(function() { // row
 					resolve();
 				});
 			} else {
 				db.Location_Update.create({
 					locationId: id
 					,lastUpdate: moment.utc()
-				}).then(function(row) {
+				}).then(function() { // row
 					// console.log(row);
 					resolve();
 				});
@@ -164,26 +164,28 @@ function postLocationUpdate(db, id) {
 function CtoF(cVal,dec) {
 	var fVal = (Number(cVal) * (9/5) + 32);
 	if (dec !== null) {
-		return Number(fVal.toFixed(dec));
-	} else {
-		return fVal;
+		fVal =  Number(fVal.toFixed(dec));
 	}
+    return fVal;
 }
 
 function CtoK(cVal,dec) {
 	var kVal = Number(cVal) + 273;
 	if (dec !== null) {
-		return Number(kVal.toFixed(dec));
-	} else {
-		return kVal;
+		kVal =  Number(kVal.toFixed(dec));
 	}
+	return kVal;
 }
 
 module.exports = function(db) {
 	return {
 		insert: function(data) {
 			return new Promise(function(resolve, reject) {
-				db.Sensor.findById(data.sensorId).then(function(sensor) {
+				// db.Sensor.findById(data.sensorId).then(function(sensor) {
+				db.Sensor.findOne({
+					where: { id: data.sensorId }
+					,include: [db.Location]
+                }).then(function(sensor) {
 					if (sensor !== null) {
 						db.EnvData.create({
 							LocationId: sensor.LocationId
@@ -196,14 +198,14 @@ module.exports = function(db) {
 										findCurrentSchedule(db, sensor.LocationId).then(function(schedule) {
 											if (schedule !== null) {
 												determineSystemAction(db, sensor.LocationId, result.temperature, schedule.targetTemp).then(function(systemAction) {
-													resolve({data: result, system: system, schedule: schedule, systemAction: systemAction});
+													resolve({data: result, system: system, schedule: schedule, systemAction: systemAction, test: sensor});
 												});
 											} else {
-												resolve({data: result, system: system, schedule: null, systemAction: null});
+												resolve({data: result, system: system, schedule: null, systemAction: null, test: sensor});
 											}
 										});
 									} else {
-										resolve({data: result, system: null, schedule: null, systemAction: null});
+										resolve({data: result, system: null, schedule: null, systemAction: null, test: sensor});
 									}
 								});
 							});
@@ -341,7 +343,7 @@ module.exports = function(db) {
 							loc.Sensors.forEach(function(sensor) {
 								if (sensor.enabled) {
 									filteredLocations.push(loc);
-									return;
+									// return;
 								}
 							});
 						}

@@ -27,10 +27,13 @@ $(document).ready(function() {
 		// console.log("connected to server");
 	});
 
-	socket.on("newReading", function(data) {
+	socket.on("newReading", function(rec) {
 		console.log("new reading");
-		console.log(data);
-		// console.log("connected to server");
+		console.log(rec);
+		// var newRow = "<tr>"+
+		// 	"<td>"+rec.data.id+"</td>"+
+		// 	"<td>"+moment(rec.data.createdAt).format("MMM D, YYYY HH:mm:ss")+"</td>"+
+		// 	"<td>"++"</td>"
 	});
 
 // FUNCTIONS
