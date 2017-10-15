@@ -30,10 +30,18 @@ $(document).ready(function() {
 	socket.on("newReading", function(rec) {
 		console.log("new reading");
 		console.log(rec);
-		// var newRow = "<tr>"+
-		// 	"<td>"+rec.data.id+"</td>"+
-		// 	"<td>"+moment(rec.data.createdAt).format("MMM D, YYYY HH:mm:ss")+"</td>"+
-		// 	"<td>"++"</td>"
+		var newRow = "<tr>"+
+			"<td>"+rec.data.id+"</td>"+
+			"<td>"+moment(rec.data.createdAt).format("MMM D, YYYY HH:mm:ss")+"</td>"+
+			"<td>"+rec.sensor.Location.floor+"&nbsp;"+rec.sensor.Location.room;
+        if (rec.sensor.Location.note !== null) {
+            newRow += " (" + item.Location.note + ")";
+        }
+		newRow += "</td>"+
+            "<td>"+convertTemp("c",rec.data.temperature,1)+"</td>"+
+            "<td>"+rec.data.humidity+"</td>"+
+			"</tr>";
+		$("#dataTable").find("tbody").prepend(newRow);
 	});
 
 // FUNCTIONS

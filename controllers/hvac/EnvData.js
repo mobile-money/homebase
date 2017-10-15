@@ -198,14 +198,14 @@ module.exports = function(db) {
 										findCurrentSchedule(db, sensor.LocationId).then(function(schedule) {
 											if (schedule !== null) {
 												determineSystemAction(db, sensor.LocationId, result.temperature, schedule.targetTemp).then(function(systemAction) {
-													resolve({data: result, system: system, schedule: schedule, systemAction: systemAction, test: sensor});
+													resolve({data: result, system: system, schedule: schedule, systemAction: systemAction, sensor: sensor});
 												});
 											} else {
-												resolve({data: result, system: system, schedule: null, systemAction: null, test: sensor});
+												resolve({data: result, system: system, schedule: null, systemAction: null, sensor: sensor});
 											}
 										});
 									} else {
-										resolve({data: result, system: null, schedule: null, systemAction: null, test: sensor});
+										resolve({data: result, system: null, schedule: null, systemAction: null, sensor: sensor});
 									}
 								});
 							});
