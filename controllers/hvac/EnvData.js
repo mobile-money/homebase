@@ -5,7 +5,7 @@ var transporter = nodemailer.createTransport('smtps://alitz55%40gmail.com:oomiwg
 var mailOptions = {
     from: '"Web Server" <webserver@homebase.loc>', // sender address
     to: 'alitz55@gmail.com', // list of receivers
-    subject: 'Homebase Communication Error', // Subject line
+    subject: 'Homebase Communication Error' // Subject line
 };
 
 function findSystem(db, locId) {
@@ -222,7 +222,7 @@ module.exports = function(db) {
 					where: params
 					,include : [ db.Location ]
 					,order: [[ 'createdAt', 'DESC' ]]
-					,limit: 1000
+					,limit: 200
 				}).then(function(results) {
 					resolve(results);
 				}).catch(function(error) {
@@ -261,7 +261,7 @@ module.exports = function(db) {
 								var locTempObj = { name: nameStr + " - Temperature", data: [] };
 								var locHumdObj = { name: nameStr + " - Humidity", data: [] };
 								locList.forEach(function(row) {
-									var temp = row.temperature
+									var temp = row.temperature;
 									if (option.tempScale === "f") {
 										temp = CtoF(temp,null);
 									} else if (option.tempScale === "k") {
@@ -370,7 +370,7 @@ module.exports = function(db) {
 							} else {
 								tempObj.updated = false;
 								mailOptions.text = 'There has not been an update in the last '+minuteSpan+' minutes from: '+tempObj.floor+' '+tempObj.room;
-								mailOptions.html = 'There has not been an update in the last '+minuteSpan+' minutes from:<br />'+tempObj.floor+' '+tempObj.room
+								mailOptions.html = 'There has not been an update in the last '+minuteSpan+' minutes from:<br />'+tempObj.floor+' '+tempObj.room;
 								transporter.sendMail(mailOptions, function(error, info){
 								    if(error){
 								        return console.log(error);
@@ -388,4 +388,4 @@ module.exports = function(db) {
 			});
 		}
 	};
-}
+};
