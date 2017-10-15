@@ -14,15 +14,22 @@ $(document).ready(function() {
 		showNav();
 	});
 	$("#dataType").change(function() {
-		if ($("#dataType").val() === "env") {
+	    var val = $("#dataType").val();
+		if (val === "env") {
 			getEnvData();
-		} else if ($("#dataType").val() === "runs") {
+		} else if (val === "runs") {
 			getRunsData();
 		}
 	});
 
 // SOCKET IO
 	socket.on("connect", function() {
+		// console.log("connected to server");
+	});
+
+	socket.on("newReading", function(data) {
+		console.log("new reading");
+		console.log(data);
 		// console.log("connected to server");
 	});
 
@@ -44,8 +51,9 @@ function getEnvData() {
 			"<th>Temperature (°F)</th>"+
 			"<th>Humidity (%)</th>"+
 		"</tr>";
-		$("#dataTable").find("thead").html(header);
-		$("#dataTable").find("tbody").empty();
+		var table = $("#dataTable");
+		table.find("thead").html(header);
+		table.find("tbody").empty();
 		results.forEach(function(item) {
 			var row = "<tr>"+
 				"<td>"+item.id+"</td>"+
@@ -60,7 +68,7 @@ function getEnvData() {
 			"</tr>";
 			$("#dataTable").find("tbody").append(row);
 		});
-	}).error(function(jqXHR, textStatus, errorThrown) {
+	}).error(function(jqXHR) { // ,textStatus,errorThrown
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
@@ -80,8 +88,9 @@ function getRunsData() {
 			"<th>Run Time (minutes)</th>"+
 			"<th>System</th>"+
 		"</tr>";
-		$("#dataTable").find("thead").html(header);
-		$("#dataTable").find("tbody").empty();
+		var table = $("#dataTable");
+		table.find("thead").html(header);
+		table.find("tbody").empty();
 		results.forEach(function(item) {
 			var onMoment = moment(item.on);
 			var offMoment = null;
@@ -105,7 +114,7 @@ function getRunsData() {
 			"</tr>";
 			$("#dataTable").find("tbody").append(row);
 		});
-	}).error(function(jqXHR, textStatus, errorThrown) {
+	}).error(function(jqXHR) { // , textStatus, errorThrown
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
