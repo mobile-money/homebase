@@ -28,9 +28,7 @@ $(document).ready(function() {
 	});
 
 	socket.on("newReading", function(rec) {
-		console.log("new reading");
-		console.log(rec);
-		var newRow = "<tr>"+
+		var newRow = '<tr id="'+rec.data.id+'">'+
 			"<td>"+rec.data.id+"</td>"+
 			"<td>"+moment(rec.data.createdAt).format("MMM D, YYYY HH:mm:ss")+"</td>"+
 			"<td>"+rec.sensor.Location.floor+"&nbsp;"+rec.sensor.Location.room;
@@ -42,9 +40,16 @@ $(document).ready(function() {
             "<td>"+rec.data.humidity+"</td>"+
 			"</tr>";
 		$("#dataTable").find("tbody").prepend(newRow);
+		highlightRow(rec.data.id);
 	});
 
 // FUNCTIONS
+function highlightRow(id) {
+    var jq_elem = $("#"+id);
+    var baseBG = jq_elem.css("background-color");
+    jq_elem.css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
+}
+
 function showNav() {
 	$("#navToggleDiv").remove();
 	$("#navBar").show();
