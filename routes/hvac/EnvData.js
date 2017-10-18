@@ -57,7 +57,7 @@ module.exports = function(app, EnvData, _, io) {
 	// Check for recent updates
 	app.get("/api/v1/hvac/envData/healthCheck", function(req, res) {
 		console.log("performing sensor health check");
-		EnvData.healthCheck(21).then(function(result) {
+		EnvData.healthCheck(61).then(function(result) {
 			console.log("result of health check: "+result);
 			res.json(result);
 		}).catch(function(error) {
