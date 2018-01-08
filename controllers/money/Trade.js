@@ -1,5 +1,6 @@
 var moment = require("moment");
 var request = require("request");
+var _ = require("underscore");
 
 function getCurrentPrice(tick,db) {
 	return new Promise(function(resolve, reject) {
@@ -260,5 +261,20 @@ module.exports = function(db) {
 				);
 			});
 		}
+        ,descriptionLookup: function(term) {
+            return new Promise(function(resolve, reject) {
+                db.Trade.findAll({
+                    attributes: ['description']
+                    ,where: {
+                        description: {
+                            $like: '%'+term+'%'
+                        }
+                    }
+                    ,order: [["description", "ASC"]]
+                }).then(function(results) {
+                    resolve(_.uniq(_.pluck(results, "description"), true));
+                });
+            });
+        }
 	}
-}
+};

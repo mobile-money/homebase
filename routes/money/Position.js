@@ -40,4 +40,11 @@ module.exports = function(app, Position, _, io) {
 			res.status(204).send();
 		}
 	});
-}
+
+    // Ticker lookup for typeahead
+    app.get("/api/v1/money/positions/lookup/ticker/:term", function(req, res) {
+        Position.tickerLookup(req.params.term).then(function(response) {
+            res.json(response);
+        })
+    });
+};

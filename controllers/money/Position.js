@@ -1,5 +1,6 @@
 var moment = require("moment");
 var request = require("request");
+var _ = require("underscore");
 
 module.exports = function(db) {
 	return {
@@ -47,7 +48,7 @@ module.exports = function(db) {
 												// Position update error
 												reject({code: 5, error: error});
 											});
-										} else if (resp.list.meta.count === 0) {
+										} else if (resp.query.count === 0) {
 											// Ticker not found
 											db.Trade.findAll({
 												where: {
@@ -126,5 +127,20 @@ module.exports = function(db) {
 				);
 			});
 		}
+		,tickerLookup: function(term) {
+        return new Promise(function(resolve, reject) {
+            db.Position.findAll({
+                attributes: ['ticker']
+                ,where: {
+                    ticker: {
+                        $like: '%'+term+'%'
+                    }
+                }
+                ,order: [["ticker", "ASC"]]
+            }).then(function(results) {
+                resolve(_.uniq(_.pluck(results, "ticker"), true));
+            });
+        });
+    }
 	};
-}
+};

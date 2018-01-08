@@ -170,19 +170,33 @@ $("#newCategory").change(function() {
 
 $("#newDescription").typeahead({source: function(query, process) {
 		// return $.get("/api/v1/money/transactions/lookup/payee/"+encodeURI(query));
-		$.ajax({
-			url: "/api/v1/money/transactions/lookup/description/"+encodeURI(query)
-			,success: process
-		})
+        if (accountNames[$("#accountSelect").val()].type !== "Investment") {
+            $.ajax({
+                url: "/api/v1/money/transactions/lookup/description/" + encodeURI(query)
+                , success: process
+            });
+        } else {
+            $.ajax({
+                url: "/api/v1/money/trades/lookup/description/" + encodeURI(query)
+                , success: process
+            });
+        }
 	}, minLength: 3});
 
 $("#newPayee").typeahead({source: function(query, process) {
-	// return $.get("/api/v1/money/transactions/lookup/payee/"+encodeURI(query));
-	$.ajax({
-		url: "/api/v1/money/transactions/lookup/payee/"+encodeURI(query)
-		,success: process
-	})
-}, minLength: 3});
+        // return $.get("/api/v1/money/transactions/lookup/payee/"+encodeURI(query));
+    if (accountNames[$("#accountSelect").val()].type !== "Investment") {
+        $.ajax({
+            url: "/api/v1/money/transactions/lookup/payee/" + encodeURI(query)
+            , success: process
+        });
+    } else {
+        $.ajax({
+            url: "/api/v1/money/positions/lookup/ticker/" + encodeURI(query)
+            , success: process
+        });
+    }
+}, minLength: 1});
 
 $("#searchClear").click(function() {
     getTransactions(null, null);

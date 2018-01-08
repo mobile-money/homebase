@@ -1,0 +1,8 @@
+<component name="libraryTable">
+  <library name="Moment JS" type="javaScript">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/public/shared/js/moment.min.js" />
+    </CLASSES>
+    <SOURCES />
+  </library>
+</component>
