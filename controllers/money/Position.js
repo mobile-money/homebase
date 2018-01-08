@@ -127,20 +127,39 @@ module.exports = function(db) {
 				);
 			});
 		}
+		,forceUpdatePrice: function(data) {
+			return new Promise(function(resolve, reject) {
+				db.Position.findOne({
+					where: {
+						ticker: data.tick
+					}
+				}).then(function(result) {
+					if (result !== null) {
+						result.update({
+							currentPrice: data.price
+						}).then(function(fin) {
+							resolve({code: 0});
+						})
+					} else {
+						reject({code: 1});
+					}
+				})
+			});
+		}
 		,tickerLookup: function(term) {
-        return new Promise(function(resolve, reject) {
-            db.Position.findAll({
-                attributes: ['ticker']
-                ,where: {
-                    ticker: {
-                        $like: '%'+term+'%'
-                    }
-                }
-                ,order: [["ticker", "ASC"]]
-            }).then(function(results) {
-                resolve(_.uniq(_.pluck(results, "ticker"), true));
-            });
-        });
-    }
+			return new Promise(function(resolve, reject) {
+				db.Position.findAll({
+					attributes: ['ticker']
+					,where: {
+						ticker: {
+							$like: '%'+term+'%'
+						}
+					}
+					,order: [["ticker", "ASC"]]
+				}).then(function(results) {
+					resolve(_.uniq(_.pluck(results, "ticker"), true));
+				});
+			});
+		}
 	};
 };

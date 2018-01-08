@@ -198,6 +198,11 @@ $("#newPayee").typeahead({source: function(query, process) {
     }
 }, minLength: 1});
 
+$("#newPriceModal").on("hidden.bs.modal", function() {
+    $("#tickerId").val("");
+    $("#newTickerPrice").val("");
+});
+
 $("#searchClear").click(function() {
     getTransactions(null, null);
 });
@@ -339,6 +344,13 @@ $("#startXferBtn").click(function() {
     });
 });
 
+$("#updatePriceButton").click(function() {
+   // console.log("clicked");
+   // console.log($("#tickerId").val());
+   // console.log($("#newTickerPrice").val());
+   updateTickerPrice($("#tickerId").val(),$("#newTickerPrice").val());
+});
+
 $("#xferAccounts").change(function() {
     var val = $("#xferAccounts").val();
     if (val !== null) {
@@ -374,7 +386,7 @@ socket.on("priceUpdated", function(update) {
     var newDChange = newValue - basis;
     var newPChange = (basis / newDChange) * 100;
 
-    $("."+update.tick.toUpperCase()+" td[name=price]").html(Number(update.price).toFixed(2));
+    $("."+update.tick.toUpperCase()+" td[name=price] span").html(Number(update.price).toFixed(2));
     $valElem.html(newValue.toFixed(2));
     $dChangeElem.html(newDChange.toFixed(2));
     $pChangeElem.html(newPChange.toFixed(2));
@@ -881,46 +893,48 @@ function getInvestments(id, tradeId, positionId, type) {
                         '</thead>'+
                         '<tbody>';
                     response.positions.forEach(function(position) {
-                        if (position.ticker.toUpperCase() !== "CASH") {
-                            if (moment.utc(position.updatedAt).dayOfYear() !== moment.utc().dayOfYear()) {
-                                $.ajax({
-                                    type: "GET"
-                                    ,url: "/api/v1/money/positions/update/"+position.ticker
-                                });
+                        if (position.quantity > 0) {
+                            if (position.ticker.toUpperCase() !== "CASH") {
+                                if (moment.utc(position.updatedAt).dayOfYear() !== moment.utc().dayOfYear()) {
+                                    $.ajax({
+                                        type: "GET"
+                                        , url: "/api/v1/money/positions/update/" + position.ticker
+                                    });
+                                }
                             }
+                            var value = (Number(position.quantity) * Number(position.currentPrice));
+                            var cost = costs[position.ticker];
+                            var dollarChange = value - cost;
+                            var percentChange = (dollarChange / cost) * 100;
+                            totalBasis += cost;
+                            totalValue += value;
+                            var row = '<tr id="position_' + position.id + '" class="' + position.ticker.toUpperCase() + ' positionRow"';
+                            row += '>' +
+                                '<td name="ticker">' + position.ticker + '</td>' +
+                                '<td name="name">' + position.name + '</td>' +
+                                '<td name="quantity">' + position.quantity + '</td>' +
+                                '<td name="price"><span onClick="newPrice(\''+position.ticker+'\')">' + position.currentPrice + '</span></td>';
+                            if (typeof(cost) !== "undefined") {
+                                row += '<td name="basis">' + cost.toFixed(2) + '</td>';
+                            }
+                            row += '<td name="value">' + value.toFixed(2) + '</td>' +
+                                '<td name="dChange"';
+                            if (dollarChange > 0) {
+                                row += ' style="color:green;"'
+                            } else if (dollarChange < 0) {
+                                row += ' style="color:red;"'
+                            }
+                            row += '>' + dollarChange.toFixed(2) + '</td>' +
+                                '<td name="pChange"';
+                            if (percentChange > 0) {
+                                row += ' style="color:green;"'
+                            } else if (percentChange < 0) {
+                                row += ' style="color:red;"'
+                            }
+                            row += '>' + percentChange.toFixed(2) + '</td>' +
+                                '</tr>';
+                            table += row;
                         }
-                        var value = (Number(position.quantity) * Number(position.currentPrice));
-                        var cost = costs[position.ticker];
-                        var dollarChange = value - cost;
-                        var percentChange = (dollarChange / cost) * 100;
-                        totalBasis += cost;
-                        totalValue += value;
-                        var row = '<tr id="position_'+position.id+'" class="'+position.ticker.toUpperCase()+' positionRow"';
-                        row += '>'+
-                            '<td name="ticker">'+position.ticker+'</td>'+
-                            '<td name="name">'+position.name+'</td>'+
-                            '<td name="quantity">'+position.quantity+'</td>'+
-                            '<td name="price">'+position.currentPrice+'</td>';
-                        if (typeof(cost) !== "undefined") {
-                            row += '<td name="basis">'+cost.toFixed(2)+'</td>';
-                        }
-                        row += '<td name="value">'+value.toFixed(2)+'</td>'+
-                            '<td name="dChange"';
-                        if (dollarChange > 0) {
-                            row += ' style="color:green;"'
-                        } else if (dollarChange < 0) {
-                            row += ' style="color:red;"'
-                        }
-                        row += '>'+dollarChange.toFixed(2)+'</td>'+
-                            '<td name="pChange"';
-                        if (percentChange > 0) {
-                            row += ' style="color:green;"'
-                        } else if (percentChange < 0) {
-                            row += ' style="color:red;"'
-                        }
-                        row += '>'+percentChange.toFixed(2)+'</td>'+
-                            '</tr>';
-                        table += row;
                     });
                     table += '<tr>'+
                         '<td colspan="4"></td>'+
@@ -1474,6 +1488,12 @@ function modifyTransaction() {
     return false;
 }
 
+function newPrice(tick) {
+    // console.log(tickId);
+    $("#tickerId").val(tick);
+    $("#newPriceModal").modal("show");
+}
+
 function removeTransaction() {
     var id = $("#deleteTransactionId").val();
     $("#deleteTransactionModal").modal("hide");
@@ -1591,7 +1611,7 @@ function setupTable() {
 }
 
 function setXfer() {
-	$("#xferModal").modal("hide");
+    $("#xferModal").modal("hide");
 	$("#xferAccounts").html('<option id="noAccountSelected" />');
 	if ($("#xferAccountId").val() !== "") {
 		$("#startXferBtn").removeClass("btn-default").addClass("btn-primary active");
@@ -1610,4 +1630,16 @@ function transactionHighlight(id) {
 	var jq_elem = $("#"+id);
 	var baseBG = jq_elem.css("background-color");
 	jq_elem.css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
+}
+
+function updateTickerPrice(tick, price) {
+    $("#newPriceModal").modal("hide");
+    $.ajax({
+       type: "POST"
+        ,url: "/api/v1/money/positions/update"
+        ,data: {
+           tick: tick
+            ,price: price
+        }
+    });
 }
