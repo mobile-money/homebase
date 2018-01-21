@@ -1008,6 +1008,7 @@ function getTransactions(offset, limit, transId) {
             balance += Number(response.adjust);
 
             // Current Transactions
+            var flag = false;
             response.cTrans.forEach(function(result) {
                 var dp = false;
                 var dateNow = new Date();
@@ -1021,8 +1022,12 @@ function getTransactions(offset, limit, transId) {
                     }
                     row += '><td><input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" /></td>';
                 } else {
-                    row = '<tr id="'+result.id+'">'+
-                        '<td>'+moment.utc(result.postDate).format("MM/DD/YYYY")+'</td>';
+                    if (flag) {
+                        row = '<tr id="'+result.id+'" style="background:#fffff0">';
+                    } else {
+                        row = '<tr id="'+result.id+'">';
+                    }
+                    row += '<td>'+moment.utc(result.postDate).format("MM/DD/YYYY")+'</td>';
                 }
                 row += '<td name="transactionDate">'+
                     tDateMoment.format("MM/DD/YYYY")+
@@ -1108,6 +1113,9 @@ function getTransactions(offset, limit, transId) {
                 row += '</tr>';
                 if (result.description !== "gobble gobble") {
                     $("#transactionTable").find("tbody").append(row);
+                    flag = false;
+                } else {
+                    flag = true;
                 }
                 if (dp) {
                     $("#post_"+result.id).datepicker({
@@ -1180,10 +1188,16 @@ function getMoreTransactions(balance, offset, limit) {
             // $("#transactionTable tbody").empty();
             // var balance = Number(response[0].Summary.balance);
 
+            var flag = false;
             response.cTrans.forEach(function(result) {
                 if (!result.hasOwnProperty("future")) {
-                    var row = '<tr id="'+result.id+'">'+
-                        '<td>';
+                    var row;
+                    if (flag) {
+                        row = '<tr id="'+result.id+'" style="background: #fffff0;"><td>';
+                    } else {
+                        row = '<tr id="'+result.id+'"><td>';
+                    }
+                    
                     if (result.postDate !== null) {
                         row += moment.utc(result.postDate).format("MM/DD/YYYY");
                     }
@@ -1233,7 +1247,12 @@ function getMoreTransactions(balance, offset, limit) {
                         '</button>'+
                         '</td>'+
                         '</tr>';
-                    $tableElem.find("tbody").append(row);
+                    if (result.description !== "gobble gobble") {
+                        $tableElem.find("tbody").append(row);
+                        flag = false;
+                    } else {
+                        flag = true;
+                    }
                     balance -= result.amount;
                 }
             });
