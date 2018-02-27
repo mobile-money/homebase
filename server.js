@@ -7,6 +7,7 @@ var bodyParser = require("body-parser");
 var _ = require("underscore");
 var db_hvac = require("./config/db_hvac.js");
 var db_money = require("./config/db_money.js");
+var db_automobile = require("./config/db_automobile.js");
 
 app.use(express.static(__dirname + "/public", {extensions: ['html']}));
 app.use(bodyParser.json());
@@ -36,6 +37,9 @@ var Budget = require("./controllers/money/Budget.js")(db_money);
 var Trade = require("./controllers/money/Trade.js")(db_money);
 var Position = require("./controllers/money/Position.js")(db_money);
 var CategorySplit = require("./controllers/money/CategorySplit.js")(db_money);
+// AUTOMOBILE
+var Car = require("./controllers/automobile/Car.js")(db_automobile);
+var MaintenanceLog = require("./controllers/automobile/MaintenanceLog.js")(db_automobile);
 
 // Start socket.io
 io.on("connection", function(socket) {
@@ -67,6 +71,9 @@ require("./routes/money/Trade.js")(app, Trade, _, io);
 require("./routes/money/Position.js")(app, Position, _, io);
 require("./routes/money/Flow.js")(app, Transaction, _, io);
 require("./routes/money/CategorySplit.js")(app, CategorySplit, _, io);
+// AUTOMOBILE
+require("./routes/automobile/Car.js")(app, Car, _);
+require("./routes/automobile/MaintenanceLog.js")(app, MaintenanceLog, _);
 
 app.get("/", function(req, res) {
 	res.redirect("/homebase");
@@ -79,8 +86,12 @@ db_hvac.sequelize.sync({
 	db_money.sequelize.sync({
 		// force: true
 	}).then(function() {
-		http.listen(PORT, function() {
-			console.log("Server started on port: " + PORT);
-		})
+		db_automobile.sequelize.sync({
+			// force: true
+		}).then(function() {
+            http.listen(PORT, function() {
+                console.log("Server started on port: " + PORT);
+            });
+		});
 	});
 });

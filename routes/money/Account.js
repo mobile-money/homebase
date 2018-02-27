@@ -61,7 +61,7 @@ module.exports = function(app, Account, _, io) {
 				res.status(500).send();
 			}
 		);
-	})
+	});
 
 	app.delete("/api/v1/money/accounts", function(req, res) {
 		console.log("delete account requested");
@@ -150,4 +150,4 @@ module.exports = function(app, Account, _, io) {
 		);
 	});
 
-}
+};

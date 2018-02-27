@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Cars - Autmobile</title>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
+
+		<link rel="stylesheet" href="../shared/css/style.css">
+		<link rel="shortcut icon" href="../shared/img/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="../shared/img/favicon.ico" type="image/x-icon">
+	</head>
+	<body style="display:none;">
+		<!--Start Info Modal-->
+		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div id="infoModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-info" data-dismiss="modal" aria-label="OK" title="OK">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Info Modal-->
+		<!--Start Add Car Modal-->
+		<div class="modal fade" id="addCarModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Add a Car</h4>
+					</div>
+					<div class="modal-body">
+						<div class="input-group">
+							<label>Car Make</label>
+							<input id="newMake" class="form-control" type="text" placeholder="New Car Make" maxlength="48" />
+						</div>
+						<div class="input-group">
+							<label>Car Model</label>
+							<input id="newModel" class="form-control" type="text" placeholder="New Car Model" maxlength="48" />
+						</div>
+						<div class="input-group">
+							<label>Car Year</label>
+							<input id="newYear" type="number" min="1980" max="2200" step="1" class="form-control" />
+						</div>
+						<div class="input-group">
+							<label>Car VIN</label>
+							<input id="newVin" class="form-control" type="text" placeholder="New Car VIN" maxlength="17" />
+						</div>
+						<div class="input-group">
+							<label>Car License Plate</label>
+							<input id="newLicensePlate" class="form-control" type="text" placeholder="XXXXXXX" maxlength="7" />
+						</div>
+						<div class="input-group">
+							<label>Purchase Date</label>
+							<input id="newPurchaseDate" class="form-control" type="date" />
+						</div>
+						<div class="input-group">
+							<label>Purchase Mileage</label>
+							<input id="newPurchaseMileage" type="number" min="0" max="300000" step="1" class="form-control" />
+						</div>
+						<div class="input-group">
+							<label>Current Mileage</label>
+							<input id="newCurrentMileage" type="number" min="0" max="300000" step="1" class="form-control" />
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-success" title="Add Car" id="addCarButton"><i class="glyphicon glyphicon-plus"></i></button>
+						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Car">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Add Car Modal-->
+		<!--Start Edit Car Modal-->
+		<div class="modal fade" id="editCarModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Edit Car</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="editCarId" />
+						<div class="input-group">
+							<label>Car Make</label>
+							<input id="editMake" class="form-control" type="text" maxlength="48" />
+						</div>
+						<div class="input-group">
+							<label>Car Model</label>
+							<input id="editModel" class="form-control" type="text" maxlength="48" />
+						</div>
+						<div class="input-group">
+							<label>Car Year</label>
+							<input id="editYear" type="number" min="1980" max="2200" step="1" class="form-control" />
+						</div>
+						<div class="input-group">
+							<label>Car VIN</label>
+							<input id="editVin" class="form-control" type="text" maxlength="17" />
+						</div>
+						<div class="input-group">
+							<label>Car License Plate</label>
+							<input id="editLicensePlate" class="form-control" type="text" maxlength="7" />
+						</div>
+						<div class="input-group">
+							<label>Purchase Date</label>
+							<input id="editPurchaseDate" class="form-control" type="date" />
+						</div>
+						<div class="input-group">
+							<label>Purchase Mileage</label>
+							<input id="editPurchaseMileage" type="number" min="0" max="300000" step="1" class="form-control" />
+						</div>
+						<div class="input-group">
+							<label>Current Mileage</label>
+							<input id="editCurrentMileage" type="number" min="0" max="300000" step="1" class="form-control" />
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" title="Edit Car" id="editCarButton"><i class="glyphicon glyphicon-pencil"></i></button>
+						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Car">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Edit Car Modal-->
+		<!--Start Delete Car Modal-->
+		<div class="modal fade" id="deleteCarModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Delete Car</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="deleteCarId" />
+						<div id="deleteModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-danger" title="Delete Car" id="deleteCarButton"><i class="glyphicon glyphicon-trash"></i></button>
+						<button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Car">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Delete Car Modal-->
+		<!--Start Reactivate Account Modal-->
+		<div class="modal fade" id="reactivateCarModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Reactivate Car</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="reactivateCarId" />
+						<div id="reactivateModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" aria-label="OK" title="Reactivate Car" id="reactivateCarButton">Reactivate</button>
+						<button class="btn btn-danger" data-dismiss="modal" title="Cancel Reactivate Car">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Reactivate Car Modal-->
+
+
+		<nav class="navbar navbar-default">
+		  <div class="container-fluid">
+		    <!-- Brand and toggle get grouped for better mobile display -->
+		    <div class="navbar-header">
+		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+		        <span class="sr-only">Toggle navigation</span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		        <span class="icon-bar"></span>
+		      </button>
+		      <a class="navbar-brand" href="/homebase">
+		      		<img src="../shared/img/brand.png" style="height:100%;" />
+		      </a>
+		    </div>
+
+		    <!-- Collect the nav links, forms, and other content for toggling -->
+		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		      <ul class="nav navbar-nav">
+		        <li class="active"><a href="/automobile/cars">Cars <span class="sr-only">(current)</span></a></li>
+		      	<!--<li><a href="/automobile/maintenance_log">Maintenance Log</a></li>-->
+		      </ul>
+			    <!--<div class="pull-right">
+			    	<div id="username"></div>
+			    	<button class="btn-xs btn-danger" id="logout">Log Out</button>
+			    </div>-->
+		    </div><!-- /.navbar-collapse -->
+		  </div><!-- /.container-fluid -->
+		</nav>
+
+
+
+
+		<div class="container-fluid">
+			<div class="col-md-12">
+				<table id="carTable" class="table table-striped">
+					<thead>
+						<tr>
+							<th>Make</th>
+							<th>Model</th>
+							<th>Year</th>
+							<th>VIN</th>
+							<th>License&nbsp;Plate</th>
+							<th>Purchase&nbsp;Date</th>
+							<th>Purchase&nbsp;Mileage</th>
+							<th>Current&nbsp;Mileage</th>
+							<th></th>
+							<th><button class="btn btn-success" title="Add Car" data-toggle="modal" data-target="#addCarModal"><i class="glyphicon glyphicon-plus"></i></button></th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+				<div class="well">
+					<h5>Inactive Cars</h5>
+					<table id="inactiveCarTable" class="table table-striped">
+						<thead>
+							<tr>
+								<th>Make</th>
+								<th>Model</th>
+								<th>Year</th>
+								<th>VIN</th>
+								<th>License&nbsp;Plate</th>
+								<th>Purchase&nbsp;Date</th>
+								<th>Purchase&nbsp;Mileage</th>
+								<th>Current&nbsp;Mileage</th>
+								<th>Sold&nbsp;Date</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="../shared/js/jquery.color-2.1.2.min.js"></script>
+		<!--<script type="text/javascript" src="../shared/js/socket.io-1.4.5.js"></script>-->
+		<!-- Latest compiled and minified JavaScript -->
+		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
+		<script type="text/javascript" src="/automobile/js/cars.js"></script>
+	</body>
+</html>

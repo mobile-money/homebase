@@ -245,4 +245,4 @@ module.exports = function(db) {
 			});
 		}
 	};
-}
+};
