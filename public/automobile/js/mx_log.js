@@ -253,7 +253,7 @@ function getLogs() {
                     '<td name="service_date">'+moment.utc(log.service_date).format("MMM D, YYYY")+'</td>' +
                     '<td name="mileage">'+log.mileage+'</td>'+
                     '<td name="description">'+htmlDecode(log.description)+'</td>' +
-                    '<td name="cost">'+log.cost+'</td>' +
+                    '<td name="cost">'+log.cost.toFixed(2)+'</td>' +
                     '<td name="servicer">'+log.servicer+'</td>' +
                     '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
                     '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
