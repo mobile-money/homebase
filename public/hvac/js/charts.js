@@ -198,7 +198,7 @@ function makeChart(data, bands) {
 }
 
 function makeRunsChart(data) {
-	console.log(data);
+	// console.log(data);
 	Highcharts.setOptions({global: { useUTC: false } });
 	var myChart = Highcharts.chart('chartBody', {
 		chart: {

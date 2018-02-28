@@ -1,7 +1,11 @@
 $(document).ready(function() {
 	$("body").show();
 
-	getLogs();
+	if (QueryString.hasOwnProperty("CarId")) {
+	    $("#currentCarId").val(QueryString["CarId"]);
+    }
+
+    populateCars();
 });
 
 var QueryString = function () {
@@ -27,6 +31,10 @@ var QueryString = function () {
 }();
 
 // FIELD EVENTS //
+$("#addLogButton").click(function() {
+    addLog();
+});
+
 $("#addLogModal").on("hidden.bs.modal", function() {
     $("#addServiceDate").val("");
     $("#addMileage").val("");
@@ -37,8 +45,9 @@ $("#addLogModal").on("hidden.bs.modal", function() {
     // $("#editPayee").focus();
 });
 
-$("#addLogButton").click(function() {
-    addLog();
+$("#carSelect").change(function() {
+    $("#currentCarId").val($("#carSelect").val());
+    getLogs();
 });
 
 $("#deleteLogButton").click(function() {
@@ -92,16 +101,6 @@ $("#searchField").keypress(function(e) {
 });
 
 // FUNCTIONS //
-function htmlEncode(value){
-    //create a in-memory div, set it's inner text(which jQuery automatically encodes)
-    //then grab the encoded contents back out.  The div never exists on the page.
-    return $('<div/>').text(value).html();
-}
-
-function htmlDecode(value){
-    return $('<div/>').html(value).text();
-}
-
 function addLog() {
     var errorCount = 0;
     var serviceDate = $("#addServiceDate");
@@ -151,7 +150,7 @@ function addLog() {
                 ,description: htmlEncode(description.val().replace(/(?:\r\n|\r|\n)/g,"<br />"))
                 ,cost: cost.val()
                 ,servicer: servicer.val()
-                ,CarId: Number(QueryString["CarId"])
+                ,CarId: Number($("#currentCarId").val())
             }
         }).success(function(/*response*/) {
             getLogs();
@@ -164,9 +163,17 @@ function addLog() {
 }
 
 function clearSearch() {
-	$("#searchField").val("");
-	$("#searchClear").prop('disabled',true);
-	getLogs();
+    $("#searchField").val("");
+    $("#searchClear").prop('disabled',true);
+    getLogs();
+}
+
+function deleteLog(id) {
+    var date = $("#"+id+" td[name=service_date]").html();
+    var desc = $("#"+id+" td[name=description]").html();
+    $("#deleteLogId").val(id);
+    $("#deleteModalBody").html("<strong>Are you sure you want to delete the log on "+date+"?</strong><br /><br />"+desc);
+    $("#deleteLogModal").modal("show");
 }
 
 function editLog(id) {
@@ -177,6 +184,49 @@ function editLog(id) {
     $("#editCost").val($("#"+id+" td[name=cost]").html());
     $("#editServicer").val($("#"+id+" td[name=servicer]").html());
     $("#editLogModal").modal("show");
+}
+
+function getLogs() {
+    $.ajax({
+        type: "GET"
+        ,url: "/api/v1/automobile/mx_log/"+$("#currentCarId").val()
+    })
+        .success(function(response) {
+            $("#logTable").find("tbody").empty();
+            response.forEach(function(log) {
+                var row = '<tr id="'+log.id+'">' +
+                    '<td name="service_date">'+moment.utc(log.service_date).format("MMM D, YYYY")+'</td>' +
+                    '<td name="mileage">'+log.mileage+'</td>'+
+                    '<td name="description">'+htmlDecode(log.description)+'</td>' +
+                    '<td name="cost">'+log.cost.toFixed(2)+'</td>' +
+                    '<td name="servicer">'+log.servicer+'</td>' +
+                    '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
+                    '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
+                    '</td>'+
+                    '</tr>';
+                $("#logTable").find("tbody").append(row);
+            });
+        })
+        .error(function(jqXHR) {
+            if (jqXHR.status === 404) {
+                $("#addTransaction").prop("disabled", true);
+                return false;
+            } else {
+                $("#addTransaction").prop("disabled", true);
+                $("#infoModalBody").html("There was a problem.  Please try again.");
+                $("#infoModal").modal("show");
+            }
+        });
+}
+
+function htmlDecode(value){
+    return $('<div/>').html(value).text();
+}
+
+function htmlEncode(value){
+    //create a in-memory div, set it's inner text(which jQuery automatically encodes)
+    //then grab the encoded contents back out.  The div never exists on the page.
+    return $('<div/>').text(value).html();
 }
 
 function modifyLog() {
@@ -229,7 +279,7 @@ function modifyLog() {
                 ,description: htmlEncode(description.val().replace(/(?:\r\n|\r|\n)/g,"<br />"))
                 ,cost: cost.val()
                 ,servicer: servicer.val()
-                ,CarId: Number(QueryString["CarId"])
+                ,CarId: Number($("#currentCarId").val())
             }
         }).success(function(/*response*/) {
             getLogs();
@@ -241,45 +291,31 @@ function modifyLog() {
     }
 }
 
-function getLogs() {
+function populateCars() {
     $.ajax({
         type: "GET"
-        ,url: "/api/v1/automobile/mx_log/"+QueryString["CarId"]
-    })
-        .success(function(response) {
-            $("#logTable").find("tbody").empty();
-            response.forEach(function(log) {
-                var row = '<tr id="'+log.id+'">' +
-                    '<td name="service_date">'+moment.utc(log.service_date).format("MMM D, YYYY")+'</td>' +
-                    '<td name="mileage">'+log.mileage+'</td>'+
-                    '<td name="description">'+htmlDecode(log.description)+'</td>' +
-                    '<td name="cost">'+log.cost.toFixed(2)+'</td>' +
-                    '<td name="servicer">'+log.servicer+'</td>' +
-                    '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
-                    '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
-                    '</td>'+
-                '</tr>';
-                $("#logTable").find("tbody").append(row);
-            });
-        })
-        .error(function(jqXHR) {
-            if (jqXHR.status === 404) {
-                $("#addTransaction").prop("disabled", true);
-                return false;
-            } else {
-                $("#addTransaction").prop("disabled", true);
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
+        ,url: "/api/v1/automobile/car"
+    }).success(function(response) {
+        if (!QueryString.hasOwnProperty("CarId")) {
+            if (response.length > 0) {
+                $("#currentCarId").val(response[0].id);
             }
+        }
+        response.forEach(function(car) {
+            var obj = {
+                value: car.id
+                ,text: car.year + " " + car.make + " " + car.model
+            };
+            if (car.id == $("#currentCarId").val()) {
+                obj.selected = true;
+            }
+           $("#carSelect").append($('<option>', obj));
         });
-}
-
-function deleteLog(id) {
-    var date = $("#"+id+" td[name=service_date]").html();
-    var desc = $("#"+id+" td[name=description]").html();
-    $("#deleteLogId").val(id);
-    $("#deleteModalBody").html("<strong>Are you sure you want to delete the log on "+date+"?</strong><br /><br />"+desc);
-    $("#deleteLogModal").modal("show");
+        getLogs();
+    }).error(function() { //jqXHR, textStatus, errorThrown
+        $("#infoModalBody").html("There was a problem.  Please try again.");
+        $("#infoModal").modal("show");
+    });
 }
 
 function removeLog() {
@@ -289,14 +325,12 @@ function removeLog() {
         $.ajax({
             type: "DELETE"
             ,url: "/api/v1/automobile/mx_log/"+id
-        })
-            .success(function() {
-                getLogs();
-                return false;
-            })
-            .error(function() { //jqXHR, textStatus, errorThrown
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
-            });
+        }).success(function() {
+            getLogs();
+            return false;
+        }).error(function() { //jqXHR, textStatus, errorThrown
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        });
     }
 }
