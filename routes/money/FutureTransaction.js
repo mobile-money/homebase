@@ -153,4 +153,4 @@ module.exports = function(app, FutureTransaction, _, io) {
 	// 		}
 	// 	);
 	// });
-}
+};

@@ -1,4 +1,4 @@
-var moment = require("moment");
+let moment = require("moment");
 
 module.exports = function(db, Transaction) {
 	return {
@@ -113,6 +113,7 @@ module.exports = function(db, Transaction) {
 							,payee: fTrans.payee
 							,description: fTrans.description
 							,amount: fTrans.amount
+							,xfer: fTrans.xfer
 						};
 						if (fTrans.checkNumber !== null) {
 							newTran.check = fTrans.checkNumber;
@@ -164,4 +165,4 @@ module.exports = function(db, Transaction) {
 			});
 		}
 	}
-}
+};

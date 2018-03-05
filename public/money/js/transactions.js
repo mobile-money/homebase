@@ -1546,10 +1546,6 @@ function resetAddTransaction() {
 }
 
 function sendCommit(rid, pdate) {
-    // console.log(rid);
-    // console.log(pdate);
-    // var id = $("#commitFutureTransactionId").val();
-    // $("#commitFutureTransactionModal").modal("hide");
     $.ajax({
         type: "PUT"
         ,url: "/api/v1/money/futureTransaction/commit/"+rid
