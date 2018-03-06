@@ -113,11 +113,13 @@ module.exports = function(db, Transaction) {
 							,payee: fTrans.payee
 							,description: fTrans.description
 							,amount: fTrans.amount
-							,xfer: fTrans.xfer
 						};
 						if (fTrans.checkNumber !== null) {
 							newTran.check = fTrans.checkNumber;
 						}
+                        if (fTrans.xfer !== null) {
+                            newTran.xfer = fTrans.xfer;
+                        }
 						if (fTrans.CategoryId !== null) {
 							newTran.category = fTrans.CategoryId;
 						}
