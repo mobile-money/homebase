@@ -30,7 +30,7 @@ function getCurrentPrice(tick,db) {
                         cp = resp.query.results.quote.Open;
 					}
 					resolve({price: cp, name: resp.query.results.quote.Name});
-				} else if (resp.list.meta.count === 0) {
+				} else if (resp.query.count === 0) { //comment
 					// Ticker not found
 					db.Trade.findAll({
 						where: {
