@@ -17,7 +17,7 @@ function getCurrentPrice(tick,db) {
 				if (resp.query.count === 1) {
 					// resolve({price: resp.list.resources[0].resource.fields.price, name: resp.list.resources[0].resource.fields.name});
 					resolve({price: resp.query.results.quote.Ask, name: resp.query.results.quote.Name});
-				} else if (resp.list.meta.count === 0) {
+				} else if (resp.query.count === 0) {
 					// Ticker not found
 					db.Trade.findAll({
 						where: {
