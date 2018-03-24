@@ -1,5 +1,6 @@
 var moment = require("moment");
 var request = require("request");
+var _ = require("underscore");
 
 function getCurrentPrice(tick,db) {
 	return new Promise(function(resolve, reject) {
@@ -11,13 +12,25 @@ function getCurrentPrice(tick,db) {
 			// 	"User-Agent": "Mozilla/5.0 (Linux; Android 6.0.1; MotoG3 Build/MPI24.107-55) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.81 Mobile Safari/537.36"
 			// }
 		}, function(error, response, body) {
+			console.log("current price response: "+response);
+			console.log("current price error: "+error);
+			console.log("current price body"+body);
 			if (!error && response.statusCode == 200) {
 				var resp = JSON.parse(body);
 				// if (resp.list.meta.count === 1) {
 				if (resp.query.count === 1) {
 					// resolve({price: resp.list.resources[0].resource.fields.price, name: resp.list.resources[0].resource.fields.name});
-					resolve({price: resp.query.results.quote.Ask, name: resp.query.results.quote.Name});
-				} else if (resp.query.count === 0) {
+					// try to find current price
+					var cp = -0.01;
+					if (resp.query.results.quote.Ask !== null) {
+						cp = resp.query.results.quote.Ask;
+					} else if (resp.query.results.quote.LastTradePriceOnly !== null) {
+                        cp = resp.query.results.quote.LastTradePriceOnly;
+					} else if (resp.query.results.quote.Open !== null) {
+                        cp = resp.query.results.quote.Open;
+					}
+					resolve({price: cp, name: resp.query.results.quote.Name});
+				} else if (resp.list.meta.count === 0) {
 					// Ticker not found
 					db.Trade.findAll({
 						where: {
@@ -49,7 +62,8 @@ module.exports = function(db) {
 				db.sequelize.transaction()
 				.then(
 					function(t) {
-						var transactionMoment = moment.utc(data.tDate, "MM/DD/YYYY");
+                        // console.log("trade add transaction started");
+                        var transactionMoment = moment.utc(data.tDate, "MM/DD/YYYY");
 						db.Position.findOne({
 							where: {
 								AccountId: data.account
@@ -58,6 +72,7 @@ module.exports = function(db) {
 						})
 						.then(
 							function(position) {
+								// console.log("existing position: "+position);
 								if (position === null) {
 									if (data.ticker === "CASH") {
 										db.Position.create({
@@ -246,5 +261,20 @@ module.exports = function(db) {
 				);
 			});
 		}
+        ,descriptionLookup: function(term) {
+            return new Promise(function(resolve, reject) {
+                db.Trade.findAll({
+                    attributes: ['description']
+                    ,where: {
+                        description: {
+                            $like: '%'+term+'%'
+                        }
+                    }
+                    ,order: [["description", "ASC"]]
+                }).then(function(results) {
+                    resolve(_.uniq(_.pluck(results, "description"), true));
+                });
+            });
+        }
 	}
-}
+};

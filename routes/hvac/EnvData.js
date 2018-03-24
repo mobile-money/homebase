@@ -43,7 +43,7 @@ module.exports = function(app, EnvData, _, io) {
 
 	// Get last reading by LocationId
 	app.get("/api/v1/hvac/envData/lastReading/:id", function(req, res) {
-		var id = req.params.id
+		var id = req.params.id;
 		console.log("last reading requested for LocationId " + id);
 		EnvData.lastReading(id).then(function(result) {
 			console.log("last reading retrieved for LocationId "+id);
@@ -57,7 +57,7 @@ module.exports = function(app, EnvData, _, io) {
 	// Check for recent updates
 	app.get("/api/v1/hvac/envData/healthCheck", function(req, res) {
 		console.log("performing sensor health check");
-		EnvData.healthCheck(5).then(function(result) {
+		EnvData.healthCheck(61).then(function(result) {
 			console.log("result of health check: "+result);
 			res.json(result);
 		}).catch(function(error) {
@@ -65,4 +65,4 @@ module.exports = function(app, EnvData, _, io) {
 			res.status(500).json(error);
 		});
 	});
-}
+};

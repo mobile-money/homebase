@@ -4,7 +4,14 @@ module.exports = function(db) {
 			return new Promise(function(resolve, reject) {
 				db.Sensor.findAll({
 					where: params
-					,include: [ db.Model, db.Location, db.Host ]
+					,include: [
+						db.Model,
+						db.Host,
+						{
+							model: db.Location
+							,include: db.System
+						}
+					]
 				}).then(function(results) {
 					resolve(results);
 				}).catch(function(error) {
@@ -75,4 +82,4 @@ module.exports = function(db) {
 			});
 		}
 	};
-}
+};

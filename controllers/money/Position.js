@@ -1,5 +1,6 @@
 var moment = require("moment");
 var request = require("request");
+var _ = require("underscore");
 
 module.exports = function(db) {
 	return {
@@ -22,7 +23,7 @@ module.exports = function(db) {
 								request({
 									// uri: "http://finance.yahoo.com/webservice/v1/symbols/"+encodeURI(tick)+"/quote?format=json&view=detail"
 									uri: "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"+encodeURI(tick)+"%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback="
-									,method: "GET"
+                                    ,method: "GET"
 									// ,headers: {
 									// 	"User-Agent": "Mozilla/5.0 (Linux; Android 6.0.1; MotoG3 Build/MPI24.107-55) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.81 Mobile Safari/537.36"
 									// }
@@ -47,7 +48,7 @@ module.exports = function(db) {
 												// Position update error
 												reject({code: 5, error: error});
 											});
-										} else if (resp.list.meta.count === 0) {
+										} else if (resp.query.count === 0) {
 											// Ticker not found
 											db.Trade.findAll({
 												where: {
@@ -126,5 +127,39 @@ module.exports = function(db) {
 				);
 			});
 		}
+		,forceUpdatePrice: function(data) {
+			return new Promise(function(resolve, reject) {
+				db.Position.findOne({
+					where: {
+						ticker: data.tick
+					}
+				}).then(function(result) {
+					if (result !== null) {
+						result.update({
+							currentPrice: data.price
+						}).then(function(fin) {
+							resolve({code: 0});
+						})
+					} else {
+						reject({code: 1});
+					}
+				})
+			});
+		}
+		,tickerLookup: function(term) {
+			return new Promise(function(resolve, reject) {
+				db.Position.findAll({
+					attributes: ['ticker']
+					,where: {
+						ticker: {
+							$like: '%'+term+'%'
+						}
+					}
+					,order: [["ticker", "ASC"]]
+				}).then(function(results) {
+					resolve(_.uniq(_.pluck(results, "ticker"), true));
+				});
+			});
+		}
 	};
-}
+};

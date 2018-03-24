@@ -28,7 +28,7 @@ module.exports = function(db, Transaction) {
 					,payee: data.payee
 					,amount: data.amount
 					,AccountId: data.account
-				}
+				};
 				if (data.description !== "") {
 					newTrans.description = data.description;
 				}
@@ -45,7 +45,18 @@ module.exports = function(db, Transaction) {
 					newTrans.BillId = data.bill;
 				}
 				db.FutureTransaction.create(newTrans).then(function(newTransaction) {
-					resolve(newTransaction);
+					if (data.hasOwnProperty("multiCat")) {
+						db.CategorySplit.create({
+							transaction: newTransaction.id
+							,payload: data.multiCat
+						}).then(function(split) {
+							resolve(newTransaction);
+						},function(splitError) {
+							console.log("error creating category split: " + splitError);
+						});
+					} else {
+                        resolve(newTransaction);
+                    }
 				},function(error) {
 					reject(error);
 				});
@@ -95,17 +106,20 @@ module.exports = function(db, Transaction) {
 					if (fTrans === null) {
 						reject({code: 1});
 					} else {
-						newTran = {
+						var newTran = {
 							account: fTrans.AccountId
 							,pDate: data.pDate
 							,tDate: moment(fTrans.transactionDate).format("MM/DD/YYYY")
 							,payee: fTrans.payee
 							,description: fTrans.description
 							,amount: fTrans.amount
-						}
+						};
 						if (fTrans.checkNumber !== null) {
 							newTran.check = fTrans.checkNumber;
 						}
+                        if (fTrans.xfer !== null) {
+                            newTran.xfer = fTrans.xfer;
+                        }
 						if (fTrans.CategoryId !== null) {
 							newTran.category = fTrans.CategoryId;
 						}
@@ -114,15 +128,37 @@ module.exports = function(db, Transaction) {
 						}
 						// console.log(newTran);
 						Transaction.add(newTran).then(function(nTrans) {
-							db.FutureTransaction.destroy({
-								where: {id: data.id}
-							}).then(function(rows) {
-								if (rows === 1) {
-									resolve(nTrans);
-								} else {
-									reject({code: 2});
-								}
-							});
+							// console.log("nTrans ID: " + nTrans.newTransaction.id);
+							if (fTrans.CategoryId === 1) {
+								db.CategorySplit.findOne({
+									where: { transaction: fTrans.id }
+								}).then(function(split) {
+									// console.log("split ID: " + split.id);
+									split.update({
+										transaction: nTrans.newTransaction.id
+									}).then(function() {
+                                        db.FutureTransaction.destroy({
+                                            where: {id: data.id}
+                                        }).then(function (rows) {
+                                            if (rows === 1) {
+                                                resolve(nTrans);
+                                            } else {
+                                                reject({code: 2});
+                                            }
+                                        });
+									});
+								});
+							} else {
+                                db.FutureTransaction.destroy({
+                                    where: {id: data.id}
+                                }).then(function (rows) {
+                                    if (rows === 1) {
+                                        resolve(nTrans);
+                                    } else {
+                                        reject({code: 2});
+                                    }
+                                });
+                            }
 						});
 					}
 				}).catch(function(error) {
@@ -131,4 +167,4 @@ module.exports = function(db, Transaction) {
 			});
 		}
 	}
-}
+};

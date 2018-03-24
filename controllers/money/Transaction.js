@@ -604,5 +604,68 @@ module.exports = function(db) {
 				})
 			});
 		}
+		,search: function(data) {
+			return new Promise(function(resolve, reject) {
+				db.FutureTransaction.findAll({
+                    where: {
+                        AccountId: data.accountId
+                        ,$or: [
+                            {
+                                payee: {
+                                    $like: '%' + data.text + '%'
+                                }
+                            }
+                            ,{
+                                description: {
+                                    $like: '%' + data.text + '%'
+                                }
+                            }
+                        ]
+                    }
+                    ,include: [{
+                        model: db.Category
+                    }]
+                    ,order: [["transactionDate", "DESC"]]
+                    ,limit: 50
+				}).then(function(fTrans) {
+                    db.Summary.findAll({
+                        attributes: ['id']
+                        ,where: {
+                            AccountId: data.accountId
+                        }
+                    }).then(function(summs) {
+                        var summId = _.pluck(summs, 'id');
+                        db.Transaction.findAll({
+                            where: {
+                                SummaryId: {
+                                    $in: summId
+                                }
+                                ,$or: [
+                                    {
+                                        payee: {
+                                            $like: '%' + data.text + '%'
+                                        }
+                                    }
+                                    ,{
+                                        description: {
+                                            $like: '%' + data.text + '%'
+                                        }
+                                    }
+                                ]
+                            }
+                            ,include: [{
+                                model: db.Category
+                            }]
+                            ,order: [["transactionDate", "DESC"]]
+                            ,limit: 50
+                        }).then(function(trans) {
+                            resolve(_.flatten([fTrans, trans]));
+                        });
+                    })
+				}).catch(function(error) {
+					reject(error);
+				});
+			});
+		}
 	}
-}
+};

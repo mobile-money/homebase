@@ -14,9 +14,10 @@ $(document).ready(function() {
 		showNav();
 	});
 	$("#dataType").change(function() {
-		if ($("#dataType").val() === "env") {
+	    var val = $("#dataType").val();
+		if (val === "env") {
 			getEnvData();
-		} else if ($("#dataType").val() === "runs") {
+		} else if (val === "runs") {
 			getRunsData();
 		}
 	});
@@ -26,7 +27,29 @@ $(document).ready(function() {
 		// console.log("connected to server");
 	});
 
+	socket.on("newReading", function(rec) {
+		var newRow = '<tr id="'+rec.data.id+'">'+
+			"<td>"+rec.data.id+"</td>"+
+			"<td>"+moment(rec.data.createdAt).format("MMM D, YYYY HH:mm:ss")+"</td>"+
+			"<td>"+rec.sensor.Location.floor+"&nbsp;"+rec.sensor.Location.room;
+        if (rec.sensor.Location.note !== null) {
+            newRow += " (" + item.Location.note + ")";
+        }
+		newRow += "</td>"+
+            "<td>"+convertTemp("c",rec.data.temperature,1)+"</td>"+
+            "<td>"+rec.data.humidity+"</td>"+
+			"</tr>";
+		$("#dataTable").find("tbody").prepend(newRow);
+		highlightRow(rec.data.id);
+	});
+
 // FUNCTIONS
+function highlightRow(id) {
+    var jq_elem = $("#"+id);
+    var baseBG = jq_elem.css("background-color");
+    jq_elem.css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
+}
+
 function showNav() {
 	$("#navToggleDiv").remove();
 	$("#navBar").show();
@@ -44,8 +67,9 @@ function getEnvData() {
 			"<th>Temperature (°F)</th>"+
 			"<th>Humidity (%)</th>"+
 		"</tr>";
-		$("#dataTable").find("thead").html(header);
-		$("#dataTable").find("tbody").empty();
+		var table = $("#dataTable");
+		table.find("thead").html(header);
+		table.find("tbody").empty();
 		results.forEach(function(item) {
 			var row = "<tr>"+
 				"<td>"+item.id+"</td>"+
@@ -60,7 +84,7 @@ function getEnvData() {
 			"</tr>";
 			$("#dataTable").find("tbody").append(row);
 		});
-	}).error(function(jqXHR, textStatus, errorThrown) {
+	}).error(function(jqXHR) { // ,textStatus,errorThrown
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
@@ -80,8 +104,9 @@ function getRunsData() {
 			"<th>Run Time (minutes)</th>"+
 			"<th>System</th>"+
 		"</tr>";
-		$("#dataTable").find("thead").html(header);
-		$("#dataTable").find("tbody").empty();
+		var table = $("#dataTable");
+		table.find("thead").html(header);
+		table.find("tbody").empty();
 		results.forEach(function(item) {
 			var onMoment = moment(item.on);
 			var offMoment = null;
@@ -105,7 +130,7 @@ function getRunsData() {
 			"</tr>";
 			$("#dataTable").find("tbody").append(row);
 		});
-	}).error(function(jqXHR, textStatus, errorThrown) {
+	}).error(function(jqXHR) { // , textStatus, errorThrown
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
