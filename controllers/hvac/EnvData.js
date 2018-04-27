@@ -383,7 +383,7 @@ module.exports = function(db) {
 								    console.log('Message sent: ' + info.response);
 								});
 								db.Location_Update.update({
-									last_notification: moment().format("YYYY-MM-DD HH:mm:ss")
+									lasNotification: moment().format("YYYY-MM-DD HH:mm:ss")
 								},{
 									where: { locationId: locId}
 								});
