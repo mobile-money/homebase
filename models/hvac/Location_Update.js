@@ -6,5 +6,8 @@ module.exports = function(sequelize, DataTypes) {
 		,lastUpdate: {
 			type: DataTypes.DATE
 		}
+		,lastNotification: {
+			type: DataTypes.DATE
+		}
 	});
-}
+};

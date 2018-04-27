@@ -358,6 +358,9 @@ module.exports = function(db) {
 							,lastUpdate: {
 								$gte: targetTime
 							}
+							,lastNotification: {
+								$gte: targetTime
+							}
 						}
 					}).then(function(updates) {
 						var updateIds = _.uniq(_.pluck(updates, 'locationId'));
@@ -378,6 +381,11 @@ module.exports = function(db) {
 								        return console.log(error);
 								    }
 								    console.log('Message sent: ' + info.response);
+								});
+								db.Location_Update.update({
+									last_notification: moment().format("YYYY-MM-DD HH:mm:ss")
+								},{
+									where: { locationId: locId}
 								});
 							}
 							retObj[locId] = tempObj;
