@@ -43,14 +43,23 @@ module.exports = function(app, MaintenanceLog, _) {
 
     // Delete mx
     app.delete("/api/v1/automobile/mx_log/:id", function(req, res) {
-        var mxId = req.params.id;
-        console.log("mx " + mxId + " delete requested");
-        MaintenanceLog.delete(mxId).then(function(results) {
-            console.log("mx " + mxId + "deleted");
+        var ids= req.params.id.split("_");
+        console.log("mx " + ids[0] + " delete requested");
+        MaintenanceLog.delete(ids[0],ids[1]).then(function(results) {
+            console.log("mx " + ids[0] + " deleted");
             res.json(results);
         }).catch(function(error) {
             console.log("mx delete error: " + error);
             res.status(500).json(error);
         });
     });
+
+    // // Data Xfer from MySQL to DynamoDB
+    // app.get("/api/v1/automobile/dataXfer/mx_log",function(req,res) {
+    //     MaintenanceLog.dataXfer().then(function(result) {
+    //         res.status(200).json(result);
+    //     }).catch(function(err) {
+    //         res.status(500).json(err);
+    //     })
+    // });
 };

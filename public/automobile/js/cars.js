@@ -97,7 +97,7 @@ function getInactiveCars() {
                 '<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
                 '<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
                 '<td name="current_mileage">'+car.current_mileage+'</td>' +
-                '<td name="sold_date">'+moment.utc(car.sold_date).format("MMM D, YYYY")+'</td>' +
+                '<td name="sold_date">'+moment(car.sold_date).format("MMM D, YYYY")+'</td>' +
                 '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>' +
 				'<td></td>' +
 				'<td>'+

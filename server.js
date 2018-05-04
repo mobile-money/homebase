@@ -74,6 +74,9 @@ require("./routes/money/CategorySplit.js")(app, CategorySplit, _, io);
 // AUTOMOBILE
 require("./routes/automobile/Car.js")(app, Car, _);
 require("./routes/automobile/MaintenanceLog.js")(app, MaintenanceLog, _);
+// TESTING
+var aws_config = require("./config/aws.js");
+require("./routes/Test.js")(app, aws_config);
 
 app.get("/", function(req, res) {
 	res.redirect("/homebase");

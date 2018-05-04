@@ -146,11 +146,11 @@ function addLog() {
             ,url: "/api/v1/automobile/mx_log"
             ,data: {
                 service_date: serviceDate.val()
-                ,mileage: mileage.val()
+                ,mileage: Number(mileage.val())
                 ,description: htmlEncode(description.val().replace(/(?:\r\n|\r|\n)/g,"<br />"))
-                ,cost: cost.val()
+                ,cost: Number(cost.val())
                 ,servicer: servicer.val()
-                ,CarId: Number($("#currentCarId").val())
+                ,CarId: $("#currentCarId").val()
             }
         }).success(function(/*response*/) {
             getLogs();
@@ -198,7 +198,7 @@ function getLogs() {
                     '<td name="service_date">'+moment.utc(log.service_date).format("MMM D, YYYY")+'</td>' +
                     '<td name="mileage">'+log.mileage+'</td>'+
                     '<td name="description">'+htmlDecode(log.description)+'</td>' +
-                    '<td name="cost">'+log.cost.toFixed(2)+'</td>' +
+                    '<td name="cost">'+Number(log.cost).toFixed(2)+'</td>' +
                     '<td name="servicer">'+log.servicer+'</td>' +
                     '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
                     '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
@@ -275,11 +275,11 @@ function modifyLog() {
             ,url: "/api/v1/automobile/mx_log/"+id
             ,data: {
                 service_date: serviceDate.val()
-                ,mileage: mileage.val()
+                ,mileage: Number(mileage.val())
                 ,description: htmlEncode(description.val().replace(/(?:\r\n|\r|\n)/g,"<br />"))
-                ,cost: cost.val()
+                ,cost: Number(cost.val())
                 ,servicer: servicer.val()
-                ,CarId: Number($("#currentCarId").val())
+                ,CarId: $("#currentCarId").val()
             }
         }).success(function(/*response*/) {
             getLogs();
@@ -324,7 +324,7 @@ function removeLog() {
     if (typeof id !== "undefined" && id.length > 0) {
         $.ajax({
             type: "DELETE"
-            ,url: "/api/v1/automobile/mx_log/"+id
+            ,url: "/api/v1/automobile/mx_log/"+id+"_"+$("#currentCarId").val()
         }).success(function() {
             getLogs();
             return false;

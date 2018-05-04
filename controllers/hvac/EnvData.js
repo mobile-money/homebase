@@ -358,9 +358,6 @@ module.exports = function(db) {
 							,lastUpdate: {
 								$gte: targetTime
 							}
-							,lastNotification: {
-								$gte: targetTime
-							}
 						}
 					}).then(function(updates) {
 						var updateIds = _.uniq(_.pluck(updates, 'locationId'));

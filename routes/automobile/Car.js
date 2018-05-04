@@ -1,7 +1,8 @@
 module.exports = function(app, Car, _) {
     // Insert car
     app.post("/api/v1/automobile/car", function(req, res) {
-        var car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage');
+        var keys = ["active","current_mileage","license_plate","make","model","purchase_date","purchase_mileage","vin","year","sold_date"];
+        var car = _.pick(req.body,keys);
         console.log("inserting car");
         console.log(car);
         Car.insert(car).then(function(result) {
@@ -39,7 +40,9 @@ module.exports = function(app, Car, _) {
                 res.status(500).send();
             });
         } else {
-            var car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage');
+            var keys = ["active","current_mileage","license_plate","make","model","purchase_date","purchase_mileage","vin","year","sold_date"];
+            var car = _.pick(req.body,keys);
+            // var car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage');
             console.log("car " + carId + " update requested");
             console.log(car);
             Car.update(carId, car).then(function (results) {
@@ -91,4 +94,13 @@ module.exports = function(app, Car, _) {
             res.status(500).send();
         });
     });
+
+    // // Data Xfer from MySQL to DynamoDB
+    // app.get("/api/v1/automobile/car/dataXfer",function(req,res) {
+    //     Car.dataXfer().then(function(result) {
+    //         res.status(200).json(result);
+    //     }).catch(function(err) {
+    //         res.status(500).json(err);
+    //     })
+    // });
 };
