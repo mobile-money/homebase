@@ -61,4 +61,13 @@ module.exports = function(app, Summary, _) {
 			}
 		);
 	});
-}
+
+    // Data Xfer from MySQL to DynamoDB
+    // app.get("/api/v1/money/dataXfer/summaries",function(req,res) {
+    //     Summary.dataXfer().then(function(result) {
+    //         res.status(200).json(result);
+    //     }).catch(function(err) {
+    //         res.status(500).json(err);
+    //     })
+    // });
+};

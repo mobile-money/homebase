@@ -1,43 +1,33 @@
 module.exports = function(app, Account, _, io) {
 	app.get("/api/v1/money/accounts", function(req, res) {
 		console.log("accounts requested");
-		Account.getAll()
-		.then(
-			function(results) {
-				if (results.length > 0) {
-					console.log("accounts retrieved");
-					res.json(results);
-				} else {
-					console.log("no accounts found");
-					res.status(404).send();
-				}
+		Account.getAll().then(function(results) {
+			if (results.length > 0) {
+				console.log("accounts retrieved");
+				res.json(results);
+			} else {
+				console.log("no accounts found");
+				res.status(404).send();
 			}
-		)
-		.catch(
-			function(error) {
-				console.log("accounts retrieval error: "+error);
-				res.status(500).send();
-			}
-		);
+		}).catch(
+		function(error) {
+			console.log("accounts retrieval error: "+error);
+			res.status(500).send();
+		});
 	});
 
+	// Insert Account
 	app.post("/api/v1/money/accounts", function(req, res) {
 		console.log("create account requested");
 		var body = _.pick(req.body, 'name', 'balance', 'type', 'default');
-		Account.create(body)
-		.then(
-			function(account) {
-				console.log("account created");
-				io.emit("accountAdded", account.id);
-				res.status(201).send();
-			}
-		)
-		.catch(
-			function(error) {
-				console.log("account creation error: "+error);
-				res.status(500).send();
-			}
-		);
+		Account.create(body).then(function(account) {
+			console.log("account created");
+			io.emit("accountAdded", account.id);
+			res.status(201).send();
+		}).catch(function(error) {
+			console.log("account creation error: "+error);
+			res.status(500).send();
+		});
 	});
 
 	app.put("/api/v1/money/accounts", function(req, res) {
@@ -150,4 +140,12 @@ module.exports = function(app, Account, _, io) {
 		);
 	});
 
+    // Data Xfer from MySQL to DynamoDB
+    // app.get("/api/v1/money/dataXfer/accounts",function(req,res) {
+    //     Account.dataXfer().then(function(result) {
+    //         res.status(200).json(result);
+    //     }).catch(function(err) {
+    //         res.status(500).json(err);
+    //     })
+    // });
 };
