@@ -1,103 +1,262 @@
-var moment = require("moment");
+var AWS = require("aws-sdk");
 var _ = require("underscore");
+var moment = require("moment");
+var uuid = require("uuid/v4");
+
+////
+function addTimeString(date) {
+    return date+"T"+moment.utc().format('HH:mm:ss')+"Z"
+}
+
+function getFutureTransactions(accountId) {
+	return new Promise(function(resolve, reject) {
+        var docClient = new AWS.DynamoDB.DocumentClient();
+        var fTransParams = {
+            TableName: "bank_future_transactions",
+            IndexName: "account_id-transactionDate-index",
+            KeyConditions: {
+                account_id: {
+                    ComparisonOperator: "EQ",
+                    AttributeValueList: [
+                        accountId.toString()
+                    ]
+                }
+            },
+            ScanIndexForward: false
+        };
+        docClient.query(fTransParams, function(err, fTransData) {
+        	if (err) {
+                console.error("Unable to get future transactions. Error JSON:", JSON.stringify(err, null, 2));
+                reject(err);
+			} else {
+        		if (fTransData.Items.length > 0) {
+                    resolve(fTransData.Items);
+        		} else {
+        			resolve([]);
+				}
+            }
+        });
+	});
+}
+
+function getPostedTransactions(Summary) {
+	return new Promise(function(resolve, reject) {
+		// Get transactions from summary, order by post date desc
+        var docClient = new AWS.DynamoDB.DocumentClient();
+        var transParams = {
+            TableName: "bank_transactions",
+            IndexName: "summary_id-postDate-index",
+            KeyConditions: {
+                summary_id: {
+                    ComparisonOperator: "EQ",
+                    AttributeValueList: [
+                        Summary.id
+                    ]
+                }
+            },
+            ScanIndexForward: false
+        };
+        docClient.query(transParams, function(err, transData) {
+        	// console.log(transData);
+        	if (err) {
+                console.error("Unable to get posted transactions. Error JSON:", JSON.stringify(err, null, 2));
+                reject(err);
+			} else {
+                // attach summary to initial posted transaction as Summary
+				if (transData.Items.length > 0) {
+                    transData.Items[0].Summary = Summary;
+				}
+				resolve(transData.Items);
+            }
+        });
+	});
+}
+
+function getAllCategories() {
+	// Get all categories and return the array
+    return new Promise(function(resolve, reject) {
+		var docClient = new AWS.DynamoDB.DocumentClient();
+        var catParams = {
+            TableName: "bank_categories",
+            ScanFilter: {
+                id: {
+                    ComparisonOperator: "NOT_NULL"
+                }
+            }
+        };
+
+        docClient.scan(catParams, function (err, catData) {
+            if (err) {
+                console.error("Unable to get categorie. Error JSON:", JSON.stringify(err, null, 2));
+                reject(err);
+            } else {
+                resolve(catData.Items);
+            }
+        });
+    });
+}
+
+function addCategoryToTransactions(itemArray, cachedCategories) {
+	return new Promise(function(resolve, reject) {
+		try {
+            itemArray.forEach(function(item) {
+                if (item.category_id) {
+                    item.Categoy = _.findWhere(cachedCategories,{id: item.category_id});
+                }
+            });
+            resolve(itemArray);
+		} catch(e) {
+			reject("error while adding categories to transactions: " + e);
+		}
+	});
+}
+
+function getBillsByAccount(account_id) {
+    return new Promise(function(resolve, reject) {
+		var docClient = new AWS.DynamoDB.DocumentClient();
+		var billParams = {
+			TableName: "bank_bills",
+			QueryFilter: {
+				account_id: {
+					ComparisonOperator: "EQ",
+					AttributeValueList: account_id
+				}
+			}
+		};
+
+		docClient.scan(billParams, function (err, billData) {
+			if (err) {
+				console.error("Unable to get bills for account "+account_id+". Error JSON:", JSON.stringify(err, null, 2));
+				reject(err);
+			} else {
+				resolve(billData.Items);
+			}
+		});
+    });
+}
+
+function addBillToTransactions(itemArray, cachedBills) {
+    return new Promise(function(resolve, reject) {
+    	try {
+            itemArray.forEach(function(item) {
+                if (item.bill_id) {
+                    item.Bill = _.findWhere(cachedBills,{id: item.bill_id});
+                }
+            });
+            resolve(itemArray);
+		} catch(e) {
+    		reject("error while adding bills to transactions: " + e);
+		}
+    });
+}
+
+function getLatestSummaryForAccount(account_id,last_summ_id) {
+    return new Promise(function(resolve, reject) {
+        var docClient = new AWS.DynamoDB.DocumentClient();
+        var params = {
+            TableName: "bank_summaries",
+            KeyConditions: {
+            	account_id: {
+            		ComparisonOperator: "EQ",
+					AttributeValueList: [
+						account_id
+					]
+				}
+			},
+            ScanIndexForward: false,
+			Limit: 1
+        };
+        if (last_summ_id !== "-1") {
+        	params.ExclusiveStartKey = {
+        		account_id: account_id,
+				id: last_summ_id
+            };
+		}
+        docClient.query(params, function(err, data) {
+        	// console.log(data);
+            if (err) {
+                console.error("Unable to get latest summary for account "+account_id+". Error JSON:", JSON.stringify(err, null, 2));
+                reject(err);
+            } else {
+            	if (data.Count === 1) {
+                    resolve(data.Items[0]);
+				} else {
+            		reject("unexpected summary return");
+				}
+
+            }
+        });
+    });}
 
 module.exports = function(db) {
 	return {
-		getByAccountId: function(id, offset, limit) {
+		getByAccountId: function(id, last_summ_id) {
 			return new Promise(function(resolve, reject) {
-				db.Transaction.findAll({
-					where: { postDate: null }
-					,include: [{
-						model: db.Summary
-						,include: [{
-							model: db.Account
-							,where: { id: Number(id) }
-						}]
-					}
-					,{
-						model: db.Category
-					}
-					,{
-						model: db.Bill
-					}]
-					// ,offset: Number(offset)
-					// ,limit: Number(limit)
-					,order: [["transactionDate", "DESC"]]
-				}).then(function(results) {
-					var allTrans = results;
-					var adjustAmount = 0;
-					db.FutureTransaction.findAll({
-						where: { AccountId: Number(id) }
-						,order: [["transactionDate", "DESC"]]
-						,include: [{ model: db.Category }, {model: db.Bill}]
-					}).then(function(fResults) {
-						if (fResults.length > 0) {
-							var amounts = _.pluck(fResults, "amount");
-							amounts.forEach(function(amount) {
-								adjustAmount += amount;
+                var adjustAmount = 0;
+
+				// // get all categories
+				// getAllCategories().then(function(categories) {
+                 //    // get all bills for account
+				// 	getBillsByAccount(id.toString()).then(function(bills) {
+                        // Get future transactions
+                        getFutureTransactions(id.toString()).then(function(fTrans) {
+                            if (fTrans.length > 0) {
+                                var amounts = _.pluck(fTrans, "amount");
+                                amounts.forEach(function(amount) {
+                                    adjustAmount += amount;
+                                });
+                            }
+                            var allTrans = fTrans;
+                            allTrans = _.sortBy(allTrans, function(o) { return -o.transactionDate;});
+                            // get latest summary for account
+							getLatestSummaryForAccount(id.toString(),last_summ_id).then(function(summary) {
+                                // get posted transactions from latest summary
+                                getPostedTransactions(summary).then(function(pTrans) {
+									allTrans = _.union(allTrans,pTrans);
+                                    resolve({cTrans: allTrans, adjust: adjustAmount});
+                                });
 							});
-							// console.log(amounts);
-							allTrans = _.union(results, fResults);
-							allTrans = _.sortBy(allTrans, function(o) { return -o.transactionDate;});
-						}
-						db.Transaction.findAll({
-							where: {
-								postDate: { $ne: null }
-							}
-							,order: [["postDate", "DESC"],["transactionDate", "DESC"]]
-							,include: [{
-								model: db.Summary
-								,include: [{
-									model: db.Account
-									,where: { id: Number(id) }
-								}]
-							}
-							,{
-								model: db.Category
-							}
-							,{
-								model: db.Bill
-							}]
-							,offset: Number(offset)
-							,limit: Number(limit)
-						}).then(function(pResults) {
-							if (pResults.length > 0) {
-								allTrans = _.union(allTrans, pResults);
-							}
-							resolve({cTrans: allTrans, adjust: adjustAmount});
-						});
-					});
-				}).catch(function(error) {
-					reject(error);
+                     //    });
+					// });
+				}).catch(function(err) {
+					reject(err);
 				});
 			});
 		}
-		,getMoreByAccountId: function(id, offset, limit) {
+		,getMoreByAccountId: function(id, summId) {
 			return new Promise(function(resolve, reject) {
-				db.Transaction.findAll({
-					where: {
-						postDate: { $ne: null }
-					}
-					,order: [["postDate", "DESC"],["transactionDate", "DESC"]]
-					,include: [{
-						model: db.Summary
-						,include: [{
-							model: db.Account
-							,where: { id: Number(id) }
-						}]
-					}
-					,{
-						model: db.Category
-					}
-					,{
-						model: db.Bill
-					}]
-					,offset: Number(offset)
-					,limit: Number(limit)
-				}).then(function(pResults) {
-					resolve({cTrans: pResults, adjust: 0});
-				}).catch(function(error) {
-					reject(error);
+				// db.Transaction.findAll({
+				// 	where: {
+				// 		postDate: { $ne: null }
+				// 	}
+				// 	,order: [["postDate", "DESC"],["transactionDate", "DESC"]]
+				// 	,include: [{
+				// 		model: db.Summary
+				// 		,include: [{
+				// 			model: db.Account
+				// 			,where: { id: Number(id) }
+				// 		}]
+				// 	}
+				// 	,{
+				// 		model: db.Category
+				// 	}
+				// 	,{
+				// 		model: db.Bill
+				// 	}]
+				// 	,offset: Number(offset)
+				// 	,limit: Number(limit)
+				// }).then(function(pResults) {
+				// 	resolve({cTrans: pResults, adjust: 0});
+				// }).catch(function(error) {
+				// 	reject(error);
+				// });
+
+				getLatestSummaryForAccount(id,summId).then(function(summary) {
+					// console.log(summ);
+                    // get posted transactions from latest summary
+                    getPostedTransactions(summary).then(function(pTrans) {
+                        resolve({cTrans: pTrans, newSummary: summary.id});
+                    });
 				});
 			});
 		}
@@ -160,221 +319,128 @@ module.exports = function(db) {
 		}
 		,add: function(data) {
 			return new Promise(function(resolve, reject) {
-				db.sequelize.transaction()
-				.then(
-					function(t) {
-						db.Account.findById(data.account)
-						.then(
-							function(account) {
-								if (account !== null) {
-									var transactionMoment = moment.utc(data.tDate, "MM/DD/YYYY");
+				db.sequelize.transaction().then(function(t) {
+					db.Account.findById(data.account).then(function(account) {
+						if (account !== null) {
+							var transactionMoment = moment.utc(data.tDate, "MM/DD/YYYY");
+							db.Summary.findOne({
+								where: {
+									AccountId: account.id
+									,initial: false
+									,start: {
+										$lte: transactionMoment.format("YYYY-MM-DD HH:mm:ss")
+									}
+									,end: {
+										$gte: transactionMoment.format("YYYY-MM-DD HH:mm:ss")
+									}
+								}
+							}).then(function(summary) {
+								if (summary === null) {
+									// create new summary
+									var startMoment = moment(transactionMoment).startOf("month");
+									var endMoment = moment(transactionMoment).endOf("month");
+									// console.log(endMoment);
 									db.Summary.findOne({
 										where: {
-											AccountId: account.id
-											,initial: false
-											,start: {
-												$lte: transactionMoment.format("YYYY-MM-DD HH:mm:ss")
+											end: {
+												$lt: startMoment
 											}
-											,end: {
-												$gte: transactionMoment.format("YYYY-MM-DD HH:mm:ss")
-											}
+											,AccountId: account.id
 										}
-									})
-									.then(
-										function(summary) {
-											if (summary === null) {
-												// create new summary
-												var startMoment = moment(transactionMoment).startOf("month");
-												var endMoment = moment(transactionMoment).endOf("month");
-												// console.log(endMoment);
-												db.Summary.findOne({
-													where: {
-														end: {
-															$lt: startMoment
-														}
-														,AccountId: account.id
-													}
-													,order: [['end', 'DESC']]
-												})
-												.then(
-													function(previousSummary) {
-														if (previousSummary === null) {
-															// no previous summary found, use initial
-															db.Summary.findOne({
-																where: {
-																	initial: true
-																	,AccountId: account.id
-																}
-															})
-															.then(
-																function(initialSummary) {
-																	// console.log(initialSummary);
-																	// resolve(initialSummary.balance);
-																	db.Summary.create({
-																		start: startMoment
-																		,end: endMoment
-																		,balance: initialSummary.balance
-																		,initial: false
-																		,AccountId: account.id
-																	}
-																	,{transaction: t})
-																	.then(
-																		function(newSummary) {
-																			// resolve(newSummary);
-																			// add to returned summary
-																			newSummary.balance = newSummary.balance + Number(data.amount);
-																			newSummary.save({transaction: t})
-																			.then(
-																				function(newSummary) {
-																					newSummary.reload();
-																					var newTrans = {
-																						transactionDate: transactionMoment
-																						,payee: data.payee
-																						,amount: Number(data.amount)
-																						,SummaryId: newSummary.id
-																						,UserId: 1
-																					};
-																					if (data.description !== "") {
-																						newTrans.description = data.description;
-																					}
-																					if (data.category !== "") {
-																						newTrans.CategoryId = data.category;
-																					}
-																					if (data.hasOwnProperty("check") && data.check !== "") {
-																						newTrans.checkNumber = data.check;
-																					}
-																					if (data.hasOwnProperty("xfer")) {
-																						newTrans.xfer = Number(data.xfer);
-																					}
-																					if (data.hasOwnProperty("bill")) {
-																						newTrans.BillId = Number(data.bill);
-																					}
-																					if (data.hasOwnProperty("pDate")) {
-																						newTrans.postDate = moment.utc(data.pDate,"MM/DD/YYYY");
-																					}
-																					// console.log(newTrans);
-																					db.Transaction.create(newTrans, {transaction: t})
-																					.then(
-																						function(newTransaction) {
-																							console.log("commiting transaction");
-																							t.commit();
-																							resolve({newTransaction: newTransaction, newSummary: newSummary});
-																						}
-																						,function(error) {
-																							// create transaction error
-																							console.log("rolling back transaction");
-																							t.rollback();
-																							reject({code: 4, error: error});
-																						}
-																					);
-																				}
-																				,function(error) {
-																					// summary balance update error
-																					console.log("rolling back transaction");
-																					t.rollback();
-																					reject({code: 3, error: error});
-																				}
-																			);
-																		}
-																		,function(error) {
-																			// new summary create error
-																			console.log("rolling back transaction");
-																			t.rollback();
-																			reject({code: 2, error: error});
-																		}
-																	);
-																}
-															);
-														} else {
-															// console.log(previousSummary);
-															// resolve(previousSummary.balance);
-															db.Summary.create({
-																start: startMoment
-																,end: endMoment
-																,balance: previousSummary.balance
-																,initial: false
-																,AccountId: account.id
-															}, {transaction: t})
-															.then(
-																function(newSummary) {
-																	// resolve(newSummary);
-																	// add to returned summary
-																	newSummary.balance = newSummary.balance + Number(data.amount);
-																	newSummary.save({transaction: t})
-																	.then(
-																		function(newSummary) {
-																			newSummary.reload();
-																			var newTrans = {
-																				transactionDate: transactionMoment
-																				,payee: data.payee
-																				,amount: Number(data.amount)
-																				,SummaryId: newSummary.id
-																				,UserId: 1
-																			};
-																			if (data.description !== "") {
-																				newTrans.description = data.description;
-																			}
-																			if (data.category !== "") {
-																				newTrans.CategoryId = data.category;
-																			}
-																			if (data.hasOwnProperty("check") && data.check !== "") {
-																				newTrans.checkNumber = Number(data.check);
-																			}
-																			if (data.hasOwnProperty("xfer")) {
-																				newTrans.xfer = Number(data.xfer);
-																			}
-																			if (data.hasOwnProperty("bill")) {
-																				newTrans.BillId = Number(data.bill);
-																			}
-																			if (data.hasOwnProperty("pDate")) {
-																				newTrans.postDate = moment.utc(data.pDate,"MM/DD/YYYY");
-																			}
-																			// console.log(newTrans);
-																			db.Transaction.create(newTrans, {transaction: t})
-																			.then(
-																				function(newTransaction) {
-																					console.log("commiting transaction");
-																					t.commit();
-																					resolve({newTransaction: newTransaction, newSummary: newSummary});
-																				}
-																				,function(error) {
-																					// create transaction error
-																					console.log("rolling back transaction");
-																					t.rollback();
-																					reject({code: 4, error: error});
-																				}
-																			);
-																		}
-																		,function(error) {
-																			// summary balance update error
-																			console.log("rolling back transaction");
-																			t.rollback();
-																			reject({code: 3, error: error});
-																		}
-																	);
-																}
-																,function(error) {
-																	// new summary create error
+										,order: [['end', 'DESC']]
+									}).then(function(previousSummary) {
+										if (previousSummary === null) {
+											// no previous summary found, use initial
+											db.Summary.findOne({
+												where: {
+													initial: true
+													,AccountId: account.id
+												}
+											}).then(function(initialSummary) {
+												// console.log(initialSummary);
+												// resolve(initialSummary.balance);
+												db.Summary.create({
+													start: startMoment
+													,end: endMoment
+													,balance: initialSummary.balance
+													,initial: false
+													,AccountId: account.id
+												}
+												,{transaction: t}).then(function(newSummary) {
+														// resolve(newSummary);
+														// add to returned summary
+														newSummary.balance = newSummary.balance + Number(data.amount);
+														newSummary.save({transaction: t}).then(function(newSummary) {
+															newSummary.reload();
+															var newTrans = {
+																transactionDate: transactionMoment
+																,payee: data.payee
+																,amount: Number(data.amount)
+																,SummaryId: newSummary.id
+																,UserId: 1
+															};
+															if (data.description !== "") {
+																newTrans.description = data.description;
+															}
+															if (data.category !== "") {
+																newTrans.CategoryId = data.category;
+															}
+															if (data.hasOwnProperty("check") && data.check !== "") {
+																newTrans.checkNumber = data.check;
+															}
+															if (data.hasOwnProperty("xfer")) {
+																newTrans.xfer = Number(data.xfer);
+															}
+															if (data.hasOwnProperty("bill")) {
+																newTrans.BillId = Number(data.bill);
+															}
+															if (data.hasOwnProperty("pDate")) {
+																newTrans.postDate = moment.utc(data.pDate,"MM/DD/YYYY");
+															}
+															// console.log(newTrans);
+															db.Transaction.create(newTrans, {transaction: t}).then(function(newTransaction) {
+																	console.log("commiting transaction");
+																	t.commit();
+																	resolve({newTransaction: newTransaction, newSummary: newSummary});
+																},function(error) {
+																	// create transaction error
 																	console.log("rolling back transaction");
 																	t.rollback();
-																	reject({code: 2, error: error});
-																}
-															);
-														}
-													}
-												);
+																	reject({code: 4, error: error});
+																});
+														},function(error) {
+															// summary balance update error
+															console.log("rolling back transaction");
+															t.rollback();
+															reject({code: 3, error: error});
+														});
+													},function(error) {
+														// new summary create error
+														console.log("rolling back transaction");
+														t.rollback();
+														reject({code: 2, error: error});
+													});
+												});
 											} else {
-												// add to returned summary
-												summary.balance = summary.balance + Number(data.amount);
-												summary.save({transaction: t})
-												.then(
-													function(summary) {
-														summary.reload();
+												// console.log(previousSummary);
+												// resolve(previousSummary.balance);
+												db.Summary.create({
+													start: startMoment
+													,end: endMoment
+													,balance: previousSummary.balance
+													,initial: false
+													,AccountId: account.id
+												}, {transaction: t}).then(function(newSummary) {
+													// resolve(newSummary);
+													// add to returned summary
+													newSummary.balance = newSummary.balance + Number(data.amount);
+													newSummary.save({transaction: t}).then(function(newSummary) {
+														newSummary.reload();
 														var newTrans = {
 															transactionDate: transactionMoment
 															,payee: data.payee
 															,amount: Number(data.amount)
-															,SummaryId: summary.id
+															,SummaryId: newSummary.id
 															,UserId: 1
 														};
 														if (data.description !== "") {
@@ -396,48 +462,92 @@ module.exports = function(db) {
 															newTrans.postDate = moment.utc(data.pDate,"MM/DD/YYYY");
 														}
 														// console.log(newTrans);
-														db.Transaction.create(newTrans, {transaction: t})
-														.then(
-															function(newTransaction) {
-																console.log("commiting transaction");
-																t.commit();
-																resolve({newTransaction: newTransaction, newSummary: null});																	
-															}
-															,function(error) {
-																// create transaction error
-																console.log("rolling back transaction");
-																t.rollback();
-																reject({code: 4, error: error});
-															}
-														);
-													}
-													,function(error) {
+														db.Transaction.create(newTrans, {transaction: t}).then(function(newTransaction) {
+															console.log("commiting transaction");
+															t.commit();
+															resolve({newTransaction: newTransaction, newSummary: newSummary});
+														},function(error) {
+															// create transaction error
+															console.log("rolling back transaction");
+															t.rollback();
+															reject({code: 4, error: error});
+														});
+													},function(error) {
 														// summary balance update error
 														console.log("rolling back transaction");
 														t.rollback();
 														reject({code: 3, error: error});
-													}
-												);
+													});
+												},function(error) {
+													// new summary create error
+													console.log("rolling back transaction");
+													t.rollback();
+													reject({code: 2, error: error});
+												});
 											}
 										}
 									);
 								} else {
-									// account not found
-									console.log("rolling back transaction");
-									t.rollback();
-									reject({code: 1});
+									// add to returned summary
+									summary.balance = summary.balance + Number(data.amount);
+									summary.save({transaction: t}).then(function(summary) {
+										summary.reload();
+										var newTrans = {
+											transactionDate: transactionMoment
+											,payee: data.payee
+											,amount: Number(data.amount)
+											,SummaryId: summary.id
+											,UserId: 1
+										};
+										if (data.description !== "") {
+											newTrans.description = data.description;
+										}
+										if (data.category !== "") {
+											newTrans.CategoryId = data.category;
+										}
+										if (data.hasOwnProperty("check") && data.check !== "") {
+											newTrans.checkNumber = Number(data.check);
+										}
+										if (data.hasOwnProperty("xfer")) {
+											newTrans.xfer = Number(data.xfer);
+										}
+										if (data.hasOwnProperty("bill")) {
+											newTrans.BillId = Number(data.bill);
+										}
+										if (data.hasOwnProperty("pDate")) {
+											newTrans.postDate = moment.utc(data.pDate,"MM/DD/YYYY");
+										}
+										// console.log(newTrans);
+										db.Transaction.create(newTrans, {transaction: t}).then(function(newTransaction) {
+											console.log("commiting transaction");
+											t.commit();
+											resolve({newTransaction: newTransaction, newSummary: null});
+										},function(error) {
+											// create transaction error
+											console.log("rolling back transaction");
+											t.rollback();
+											reject({code: 4, error: error});
+										});
+									},function(error) {
+										// summary balance update error
+										console.log("rolling back transaction");
+										t.rollback();
+										reject({code: 3, error: error});
+									});
 								}
-							}
-						)
-						.catch(
-							function(error) {
-								console.log("rolling back transaction");
-								t.rollback();
-								reject({code: 99, error: error});
-							}
-						);
-					}
-				);
+							});
+						} else {
+							// account not found
+							console.log("rolling back transaction");
+							t.rollback();
+							reject({code: 1});
+						}
+					}).catch(function(error) {
+						console.log("rolling back transaction");
+						t.rollback();
+						reject({code: 99, error: error});
+					});
+				});
 			});
 		}
 		,update: function(data) {
@@ -667,5 +777,85 @@ module.exports = function(db) {
 				});
 			});
 		}
+        ,dataXfer: function() {
+            return new Promise(function(resolve,reject) {
+                console.log("starting transactions transfer");
+                function getTrans(offset) {
+                    console.log("starting offset: "+offset);
+                    db.Transaction.findAll({
+                        order: [['postDate', 'DESC']],
+                        limit: 25,
+                        offset: offset
+                    }).then(function (results) {
+                        buildWrites(results,(offset+25));
+                    }).catch(function(err) {
+                        console.log("error querying transactions: "+err);
+                    });
+                }
+
+                function buildWrites(results,offset) {
+                    if (results.length > 0 && offset <= 25) {
+                        var params = {
+                            RequestItems: {
+                                "bank_transactions": []
+                            }
+                        };
+
+                        results.forEach(function (result) {
+                            var obj = {
+                                PutRequest: {
+                                    Item: {
+                                        summary_id: result.SummaryId.toString(),
+                                        id: result.id.toString(),
+                                        transactionDate: moment(result.transactionDate).format("YYYY-MM-DDTHH:mm:ss[Z]"),
+                                        postDate: moment(result.postDate).format("YYYY-MM-DDTHH:mm:ss[Z]"),
+                                        amount: Number(result.amount),
+                                        payee: result.payee,
+                                        created_at: Number(moment.utc().format("X"))
+                                    }
+                                }
+                            };
+                            if (result.description) {
+                                obj.PutRequest.Item.description = result.description;
+                            }
+                            if (result.checkNumber) {
+                                obj.PutRequest.Item.checkNumber = result.checkNumber;
+                            }
+                            if (result.xfer) {
+                                obj.PutRequest.Item.xfer = result.xfer.toString();
+                            }
+                            if (result.CategoryId) {
+                                obj.PutRequest.Item.category_id = result.CategoryId.toString();
+                            }
+                            if (result.BillId) {
+                                obj.PutRequest.Item.bill_id = result.BillId.toString();
+                            }
+                            if (result.description) {
+                                obj.PutRequest.Item.description = result.description;
+                            }
+
+                            params.RequestItems.bank_transactions.push(obj);
+                        });
+                        sendWrites(params,offset);
+                    } else {
+                        console.log("transaction transfer complete");
+                        resolve();
+                    }
+                }
+                function sendWrites(params,offset) {
+                    var docClient = new AWS.DynamoDB.DocumentClient();
+                    docClient.batchWrite(params, function (err, data) {
+                        if (err) {
+                            console.error("Unable to xfer transaction data. Error JSON:", JSON.stringify(err, null, 2));
+                        } else {
+                            // console.log("Xfer car data succeeded:", JSON.stringify(params, null, 2));
+                            console.log("batch transfer complete");
+                            getTrans(offset);
+                        }
+                    });
+                }
+                getTrans(0);
+            });
+        }
 	}
 };

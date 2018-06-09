@@ -1,11 +1,11 @@
-var AWS = require("aws-sdk");
-var _ = require("underscore");
-var moment = require("moment");
-var uuid = require("uuid/v4");
+const AWS = require("aws-sdk");
+const _ = require("underscore");
+const moment = require("moment");
+const uuid = require("uuid/v4");
 
-function addTimeString(date) {
-    return date+"T"+moment.utc().format('HH:mm:ss')+"Z"
-}
+// function addTimeString(date) {
+//     return date+"T"+moment.utc().format('HH:mm:ss')+"Z"
+// }
 
 module.exports = function(db) {
 	return {
@@ -23,8 +23,8 @@ module.exports = function(db) {
 				// 	}
 				// );
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-                var params = {
+                let docClient = new AWS.DynamoDB.DocumentClient();
+                let params = {
                     TableName: "bank_categories",
                     ScanFilter: {
                         id: {
@@ -63,10 +63,10 @@ module.exports = function(db) {
 				// 	reject(error);
 				// });
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
+                let docClient = new AWS.DynamoDB.DocumentClient();
 
-                var id = uuid();
-                var params = {
+                let id = uuid();
+                let params = {
                     TableName: "bank_categories",
                     Item: {
                         id: id,
@@ -110,9 +110,9 @@ module.exports = function(db) {
 				// 	reject(error);
 				// });
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
+                let docClient = new AWS.DynamoDB.DocumentClient();
 
-                var params = {
+                let params = {
                     TableName: "bank_categories",
 					Key: {
                     	id: data.id
@@ -168,9 +168,9 @@ module.exports = function(db) {
 				// 	reject({code: -1, error: error});
 				// });
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
+                let docClient = new AWS.DynamoDB.DocumentClient();
 
-                var params = {
+                let params = {
                     TableName: "bank_categories",
                     Key: {
                         id: id
@@ -196,7 +196,7 @@ module.exports = function(db) {
 			});
 		}
 		,dataXfer: function() {
-            return new Promise(function(resolve,reject) {
+            return new Promise(function(resolve) {
                 console.log("starting category transfer");
                 function getCategories(offset) {
                     console.log("starting offset: "+offset);
@@ -213,14 +213,14 @@ module.exports = function(db) {
 
                 function buildWrites(results,offset) {
                     if (results.length > 0) {
-                        var params = {
+                        let params = {
                             RequestItems: {
                                 "bank_categories": []
                             }
                         };
 
                         results.forEach(function (result) {
-                            var obj = {
+                            let obj = {
                                 PutRequest: {
                                     Item: {
                                         id: result.id.toString(),
@@ -242,8 +242,8 @@ module.exports = function(db) {
                     }
                 }
                 function sendWrites(params,offset) {
-                    var docClient = new AWS.DynamoDB.DocumentClient();
-                    docClient.batchWrite(params, function (err, data) {
+                    let docClient = new AWS.DynamoDB.DocumentClient();
+                    docClient.batchWrite(params, function (err) {
                         if (err) {
                             console.error("Unable to xfer categories data. Error JSON:", JSON.stringify(err, null, 2));
                         } else {
@@ -253,7 +253,6 @@ module.exports = function(db) {
                         }
                     });
                 }
-
                 getCategories(0);
             });
         }

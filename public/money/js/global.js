@@ -1,42 +1,85 @@
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+d.toUTCString();
-    document.cookie = cname + "=" + cvalue + "; " + expires;
-}
+// Global Variables
+const socket = io("/money");
 
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1);
-        if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
-    }
-    return "";
-}
+// Global Socket.io listeners
+socket.on("refreshAccounts", function() {
+    Cookies.remove(btoa("money_accounts"));
+});
 
-function checkCookie(cname) {
-    var cookie = getCookie(cname);
-    if (cookie != "") {
-        return true;
-    } else {
-        return false;
-    }
-}
+socket.on("refreshBills", function() {
+    Cookies.remove(btoa("money_bills"));
+});
 
-function deleteCookie(cname) {
-    document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-}
+socket.on("refreshCategories", function() {
+    Cookies.remove(btoa("money_categories"));
+});
 
-function logOut() {
-    $.ajax({
-        type: "DELETE"
-        ,url: "/api/v1/money/users/logout"
-        ,data: {
-            token: getCookie("x-Auth")
+// Global Functions
+function gl_getAccounts() {
+    return new Promise(function(resolve, reject) {
+        if (typeof(Cookies.get(btoa("money_accounts"))) === "undefined") {
+            // console.log("refreshing accounts");
+            $.ajax({
+                type: "GET"
+                ,url: "/api/v1/money/accounts"
+            }).success(function(response) {
+                let packed = $.extend(true,[],response);
+                Cookies.set(btoa("money_accounts"),JSONC.pack(packed,true), {expires: 7});
+                resolve(response);
+            }).error(function(jqXHR) {
+                if (jqXHR.status === 404) {
+                    resolve([]);
+                } else {
+                    reject("There was a problem retrieving Accounts.  Please try again.");
+                }
+            });
+        } else {
+            // console.log("retrieving cached accounts");
+            resolve(JSONC.unpack(Cookies.get(btoa("money_accounts")),true));
         }
     });
-    deleteCookie("x-Auth");
-    window.location.replace("/login");
+}
+
+const gl_getBills = () => {
+    return new Promise(function(resolve, reject) {
+        if (typeof(Cookies.get(btoa("money_bills"))) === "undefined") {
+            $.ajax({
+                type: "GET"
+                , url: "/api/v1/money/post/bills/" + $("#accountSelect").val()
+            }).success(function (response) {
+                let packed = $.extend(true, [], response.bills);
+                Cookies.set(btoa("money_bills"), JSONC.pack(packed, true), {expires: 1});
+                resolve(response.bills);
+            }).error(function (jqXHR) {
+                reject(jqXHR);
+            });
+        } else {
+            resolve(JSONC.unpack(Cookies.get(btoa("money_bills")),true));
+        }
+    });
+};
+
+function gl_getCategories() {
+    return new Promise(function(resolve, reject) {
+        if (typeof(Cookies.get(btoa("money_categories"))) === "undefined") {
+            // console.log("refreshing categories");
+            $.ajax({
+                type: "GET"
+                ,url: "/api/v1/money/categories"
+            }).success(function(response) {
+                let packed = $.extend(true,[],response);
+                Cookies.set(btoa("money_categories"),JSONC.pack(packed,true), {expires: 7});
+                resolve(response);
+            }).error(function(jqXHR) {
+                if (jqXHR.status === 404) {
+                    resolve([]);
+                } else {
+                    reject("There was a problem retrieving Categories.  Please try again.");
+                }
+            });
+        } else {
+            // console.log("retrieving cached categories");
+            resolve(JSONC.unpack(Cookies.get(btoa("money_categories")),true));
+        }
+    });
 }

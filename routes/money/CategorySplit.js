@@ -15,4 +15,13 @@ module.exports = function(app, CategorySplit, _, io) {
             res.status(500).send();
         });
     });
+
+    // Data Xfer from MySQL to DynamoDB
+    app.get("/api/v1/money/dataXfer/categorySplit",function(req,res) {
+        CategorySplit.dataXfer().then(function(result) {
+            res.status(200).json(result);
+        }).catch(function(err) {
+            res.status(500).json(err);
+        })
+    });
 };

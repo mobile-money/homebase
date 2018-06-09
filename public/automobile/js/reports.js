@@ -154,16 +154,13 @@ function makeMxCostChart(xAxis, data, avg) {
 }
 
 function populateCars() {
-    $.ajax({
-        type: "GET"
-        ,url: "/api/v1/automobile/car"
-    }).success(function(response) {
+    gl_getCars().then(function(cars) {
         if (!QueryString.hasOwnProperty("CarId")) {
-            if (response.length > 0) {
-                $("#currentCarId").val(response[0].id);
+            if (cars.length > 0) {
+                $("#currentCarId").val(cars[0].id);
             }
         }
-        response.forEach(function(car) {
+        cars.forEach(function(car) {
             var obj = {
                 value: car.id
                 ,text: car.year + " " + car.make + " " + car.model
@@ -171,13 +168,11 @@ function populateCars() {
             if (car.id === Number($("#currentCarId").val())) {
                 obj.selected = true;
             }
-           $("#carSelect").append($('<option>', obj));
+            $("#carSelect").append($('<option>', obj));
         });
         umbrellaFunction();
-        // getLogs();
-        // getCar();
-    }).error(function() { //jqXHR, textStatus, errorThrown
-        $("#infoModalBody").html("There was a problem.  Please try again.");
+    }, function(err) {
+        $("#infoModalBody").html(err);
         $("#infoModal").modal("show");
     });
 }

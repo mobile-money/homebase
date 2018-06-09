@@ -1,6 +1,6 @@
 
 var tickUpdates = {};
-var socket = io();
+// var socket = io();
 
 $(document).ready(function() {
 	$("body").show();
@@ -101,80 +101,85 @@ function accountHighlight(id) {
 }
 
 function getAccounts(id, type) {
-	$.ajax({
-		type: "GET"
-		,url: "/api/v1/money/accounts"
-	})
-	.success(function(response) {
-		var now = moment();
-		$("#accountTable tbody").empty();
-		response.forEach(function(account) {
-			var balance = 0;
-			var row = '<tr id="'+account.id+'"';
-			row += '>'+
-				'<td name="name"><a href="/money/transactions?acct='+account.id+'"><span id="text">'+account.name+'</span>';
-				if (account.default === true) {
-					row += '&nbsp;<i class="glyphicon glyphicon-star text-primary"></i>';
-				}
-				row += '</a></td>';
-				if (account.Summaries.length > 0) {
-					var balanceFound = false;
-					account.Summaries.forEach(function(summary) {
-						if (!balanceFound) {
-							if (summary.start !== null) {
-								if ((moment(summary.start) <= now && moment(summary.end) >= now) || moment(summary.end) <= now) {
-									balance = summary.balance;
-									balanceFound = true;
-								}
-							} else {
-								balance = summary.balance;
-								balanceFound = true;
-							}
-						}
-					});
-				} else if (account.Positions.length > 0) {
-					account.Positions.forEach(function(position) {
-						if (position.ticker.toUpperCase() !== "CASH") {
-							tickUpdates[position.ticker] = {
-								quantity: position.quantity
-								,price: position.currentPrice
-								,account: account.id
-							};
-							if (moment.utc(position.updatedAt).dayOfYear() !== moment.utc().dayOfYear()) {
-								$.ajax({
-									type: "GET"
-									,url: "/api/v1/money/positions/update/"+position.ticker
-								});
-							}
-						}
-						balance += (position.quantity * position.currentPrice);
-					});
-				}
-				row += '<td name="balance">'+balance.toFixed(2)+'</td>'+
-				'<td name="type">'+account.type+'</td>';
-				// if (account.default === true) {
-				// 	row += '<td name="default"><i class="glyphicon glyphicon-ok"></i></td>';
-				// } else {
-				// 	row += '<td name="default"><i class="glyphicon glyphicon-remove"></i></td>';
-				// }
-				row += '<td><button class="btn btn-primary" title="Edit Account" onclick="editAccount(\''+account.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>';
-				if (account.default !== true) {
-					row += '<button class="btn btn-danger" title="Delete Account" onclick="deleteAccount(\''+account.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>';
-				}
-				row += '</td>'+
-			'</tr>';
-			$("#accountTable tbody").append(row);
-		});
-		if (type !== null) {
-			accountHighlight(id);			
-		}
-	})
-	.error(function(jqXHR, textStatus, errorThrown) {
+    $.ajax({
+        type: "GET"
+        ,url: "/api/v1/money/accountsplus"
+    }).success(function(accounts) {
+        // gl_getAccounts().then(function(accounts) {
+        var now = moment();
+        $("#accountTable tbody").empty();
+        accounts.forEach(function (account) {
+            var balance = 0;
+            var row = '<tr id="' + account.id + '"';
+            row += '>' +
+                '<td name="name"><a href="/money/transactions?acct=' + account.id + '"><span id="text">' + account.name + '</span>';
+            if (account.default === true) {
+                row += '&nbsp;<i class="glyphicon glyphicon-star text-primary"></i>';
+            }
+            row += '</a></td>';
+            if (account.Summaries.length > 0) {
+                balance = account.Summaries[0].balance;
+                // var balanceFound = false;
+                // account.Summaries.forEach(function(summary) {
+                // 	if (!balanceFound) {
+                // 		if (summary.start !== null) {
+                // 			if ((moment(summary.start) <= now && moment(summary.end) >= now) || moment(summary.end) <= now) {
+                // 				balance = summary.balance;
+                // 				balanceFound = true;
+                // 			}
+                // 		} else {
+                // 			balance = summary.balance;
+                // 			balanceFound = true;
+                // 		}
+                // 	}
+                // });
+            } else if (account.Positions.length > 0) {
+                account.Positions.forEach(function (position) {
+                    if (position.ticker.toUpperCase() !== "CASH") {
+                        tickUpdates[position.ticker] = {
+                            quantity: position.quantity
+                            , price: position.currentPrice
+                            , account: account.id
+                        };
+                        if (moment.utc(position.updatedAt).dayOfYear() !== moment.utc().dayOfYear()) {
+                            $.ajax({
+                                type: "GET"
+                                , url: "/api/v1/money/positions/update/" + position.ticker
+                            });
+                        }
+                    }
+                    balance += (position.quantity * position.currentPrice);
+                });
+            }
+            row += '<td name="balance">' + balance.toFixed(2) + '</td>' +
+                '<td name="type">' + account.type + '</td>';
+            // if (account.default === true) {
+            // 	row += '<td name="default"><i class="glyphicon glyphicon-ok"></i></td>';
+            // } else {
+            // 	row += '<td name="default"><i class="glyphicon glyphicon-remove"></i></td>';
+            // }
+            row += '<td><button class="btn btn-primary" title="Edit Account" onclick="editAccount(\'' + account.id + '\');"><i class="glyphicon glyphicon-pencil"></i></button>';
+            if (account.default !== true) {
+                row += '<button class="btn btn-danger" title="Delete Account" onclick="deleteAccount(\'' + account.id + '\');"><i class="glyphicon glyphicon-trash"></i></button>';
+            }
+            row += '</td>' +
+                '</tr>';
+            $("#accountTable tbody").append(row);
+        });
+        if (type !== null) {
+            accountHighlight(id);
+        }
+    }).error(function(jqXHR, textStatus, errorThrown) {
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
 		}
 	});
+
+        // },function(err) {
+	// 	$("#infoModalBody").html(err);
+	// 	$("#infoModal").modal("show");
+	// });
 }
 
 function getInactiveAccounts(id, type) {

@@ -20,6 +20,7 @@ module.exports = function(app, Car, _) {
         console.log("params: " + JSON.stringify(req.query));
         Car.get(req.query).then(function(results) {
             console.log("retrieved cars");
+            // res.setHeader('Cache-Control','public, max-age=15778458');
             res.json(results);
         }).catch(function(error) {
             console.log("error retrieving cars; " + error);

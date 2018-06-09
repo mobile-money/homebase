@@ -5,7 +5,8 @@ module.exports = function(app, Category, _, io) {
 		Category.getAll().then(function(results) {
 			if (results.length > 0) {
 				console.log("categories retieved");
-				res.json(results);
+                // res.setHeader('Cache-Control','public, max-age=604800');
+                res.json(results);
 			} else {
 				console.log("no categories found");
 				res.status(404).send();
@@ -24,6 +25,7 @@ module.exports = function(app, Category, _, io) {
 		Category.add(body).then(function(category) {
 			console.log("category added");
 			io.emit("categoryAdded", category);
+			io.emit("refreshCategories");
 			res.status(204).send();
 		},function(error) {
 			console.log("category add error: "+error);
@@ -39,6 +41,7 @@ module.exports = function(app, Category, _, io) {
 		Category.update(body).then(function(category) {
 			console.log("updated category");
 			io.emit("categoryUpdated", category);
+            io.emit("refreshCategories");
 			res.json(category);
 		},function(error) {
 			console.log("category update error: "+error);
@@ -52,6 +55,7 @@ module.exports = function(app, Category, _, io) {
 		Category.delete(req.params.id).then(function() {
 			console.log("category deleted");
 			io.emit("categoryDeleted", req.params.id);
+            io.emit("refreshCategories");
 			res.status(204).send()
 		}).catch(function(error) {
 			if (error.code === 1) {

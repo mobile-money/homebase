@@ -1,7 +1,7 @@
 
 var categoryArray = [];
 var categoryLookup = {};
-var socket = io();
+// var socket = io();
 
 $(document).ready(function() {
 	$("body").show();
@@ -591,53 +591,67 @@ $(document).ready(function() {
 
 	function getCategories() {
 		return new Promise(function(resolve, reject) {
-			$.ajax({
-				type: "GET"
-				,url: "/api/v1/money/categories"
-			})
-			.success(function(categories) {
-				$("#categoryBody").empty();
-				var tableHead = '<table class="table table-striped"><thead><th class="col-md-8"></th><th class="col-md-4"></th></thead>';
-				var expenses = '<tr><td colspan="2"><strong>Expenses</strong></td></tr>';
-				var incomes = '<tr><td colspan="2"><strong>Incomes</strong></td></tr>';
-				categoryArray = categories;
-				for (var i = 0, len = categoryArray.length; i < len; i++) {
-					if (categories[i].expense === true) {
-						expenses += '<tr>'+
-							'<td>'+categories[i].name+'</td>'+
-							'<td>'+
-								'<button class="btn btn-primary btn-xs" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="glyphicon glyphicon-pencil"></i></button>'+
-								'<button class="btn btn-danger btn-xs" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="glyphicon glyphicon-trash"></i></button>'+
-							'</td>'+
-						'</tr>';
-					} else {
-						incomes += '<tr>'+
-							'<td>'+categories[i].name+'</td>'+
-							'<td>'+
-								'<button class="btn btn-primary btn-xs" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="glyphicon glyphicon-pencil"></i></button>'+
-								'<button class="btn btn-danger btn-xs" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="glyphicon glyphicon-trash"></i></button>'+
-							'</td>'+
-						'</tr>';
-					}
-				    categoryLookup[categoryArray[i].id] = categoryArray[i];
-				}
-				var tableEnd = '</table>';
-				var content = tableHead+expenses+incomes+tableEnd;
-				$("#categoryBody").append(content);
-				resolve();
-			})
-			.error(function(jqXHR, textStatus, errorThrown) {
-				$("#categoryBody").empty();
-				categoryArray = [];
-				categoryLookup = {};
-				if (jqXHR.status === 404) {
-					reject();
-				} else {
-					$("#infoModalBody").html("There was a problem.  Please try again.");
-					$("#infoModal").modal("show");
-					reject(jqXHR);
-				}
+			// $.ajax({
+			// 	type: "GET"
+			// 	,url: "/api/v1/money/categories"
+			// })
+			// .success(function(categories) {
+			gl_getCategories().then(function(categories) {
+                $("#categoryBody").empty();
+                var tableHead = '<table class="table table-striped"><thead><th class="col-md-8"></th><th class="col-md-4"></th></thead>';
+                var expenses = '<tr><td colspan="2"><strong>Expenses</strong></td></tr>';
+                var incomes = '<tr><td colspan="2"><strong>Incomes</strong></td></tr>';
+                categoryArray = categories;
+                for (var i = 0, len = categoryArray.length; i < len; i++) {
+                    if (categories[i].expense === true) {
+                        expenses += '<tr>'+
+                            '<td>'+categories[i].name+'</td>'+
+                            '<td>'+
+                            '<button class="btn btn-primary btn-xs" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="glyphicon glyphicon-pencil"></i></button>'+
+                            '<button class="btn btn-danger btn-xs" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="glyphicon glyphicon-trash"></i></button>'+
+                            '</td>'+
+                            '</tr>';
+                    } else {
+                        incomes += '<tr>'+
+                            '<td>'+categories[i].name+'</td>'+
+                            '<td>'+
+                            '<button class="btn btn-primary btn-xs" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="glyphicon glyphicon-pencil"></i></button>'+
+                            '<button class="btn btn-danger btn-xs" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="glyphicon glyphicon-trash"></i></button>'+
+                            '</td>'+
+                            '</tr>';
+                    }
+                    categoryLookup[categoryArray[i].id] = categoryArray[i];
+                }
+                var tableEnd = '</table>';
+                var content = tableHead+expenses+incomes+tableEnd;
+                $("#categoryBody").append(content);
+                resolve();
+			},function(err) {
+                $("#categoryBody").empty();
+                categoryArray = [];
+                categoryLookup = {};
+                if (jqXHR.status === 404) {
+                    reject();
+                } else {
+                    $("#infoModalBody").html(err);
+                    $("#infoModal").modal("show");
+                    reject(jqXHR);
+                }
 			});
+
+			// })
+			// .error(function(jqXHR, textStatus, errorThrown) {
+			// 	$("#categoryBody").empty();
+			// 	categoryArray = [];
+			// 	categoryLookup = {};
+			// 	if (jqXHR.status === 404) {
+			// 		reject();
+			// 	} else {
+			// 		$("#infoModalBody").html("There was a problem.  Please try again.");
+			// 		$("#infoModal").modal("show");
+			// 		reject(jqXHR);
+			// 	}
+			// });
 		});
 	}
 

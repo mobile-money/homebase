@@ -2,8 +2,9 @@
 var accountArray = [];
 var accountNames = {};
 var categoryArray = [];
+var billArray = [];
 var multiCategoriesObj = [];
-var socket = io();
+// var socket = io();
 var transactionLimit = 50;
 
 $(document).ready(function() {
@@ -746,80 +747,82 @@ function editTransaction(id) {
 }
 
 function getAccounts() {
-    $.ajax({
-        type: "GET"
-        ,url: "/api/v1/money/accounts"
-    })
-        .success(function(response) {
-            var jq_accountSelect = $("#accountSelect");
-            $("#addTransaction").prop("disabled", false);
-            accountArray = response;
-            jq_accountSelect.empty();
-            if (response.length === 1) {
-                $("#startXferBtn").prop("disabled", true);
-            }
-            response.forEach(function(account) {
-                accountNames[account.id] = {name: account.name, type: account.type};
-                if (typeof QueryString["acct"] !== "undefined") {
-                    if (account.id === Number(QueryString["acct"])) {
-                        jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
-                    } else {
-                        jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
-                    }
+    gl_getAccounts().then(function(accounts) {
+        // console.log("second");
+        // console.log(accounts);
+        var jq_accountSelect = $("#accountSelect");
+        $("#addTransaction").prop("disabled", false);
+        accountArray = accounts;
+        jq_accountSelect.empty();
+        if (accounts.length === 1) {
+            $("#startXferBtn").prop("disabled", true);
+        }
+        accounts.forEach(function(account) {
+            accountNames[account.id] = {name: account.name, type: account.type};
+            if (typeof QueryString["acct"] !== "undefined") {
+                if (account.id === Number(QueryString["acct"])) {
+                    jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
                 } else {
-                    if (account.default === true) {
-                        jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
-                    } else {
-                        jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
-                    }
+                    jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
                 }
-            });
-            if (accountNames[jq_accountSelect.val()].type === "Investment") {
-                getInvestments(jq_accountSelect.val(), null, null);
             } else {
-                getTransactions(null, null);
-                // getPeriods($("#accountSelect").val());
-            }
-        })
-        .error(function(jqXHR) {
-            if (jqXHR.status === 404) {
-                $("#addTransaction").prop("disabled", true);
-                return false;
-            } else {
-                $("#addTransaction").prop("disabled", true);
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
+                if (account.default === true) {
+                    jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
+                } else {
+                    jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
+                }
             }
         });
+        if (accountNames[jq_accountSelect.val()].type === "Investment") {
+            getInvestments(jq_accountSelect.val(), null, null);
+        } else {
+            getBills().then(function() {
+                getTransactions(null, null);
+            });
+            // getPeriods($("#accountSelect").val());
+        }
+    },function(err) {
+        $("#addTransaction").prop("disabled", true);
+        $("#infoModalBody").html(err);
+        $("#infoModal").modal("show");
+    });
 }
 
 function getBills() {
-	$.ajax({
-		type: "GET"
-		,url: "/api/v1/money/post/bills/"+$("#accountSelect").val()
-	});
+    return new Promise(function(resolve) {
+        gl_getBills().then(function(bills) {
+            billArray = bills;
+            resolve();
+        }).catch(function(err) {
+            console.log("error getting bills: " + err);
+            resolve();
+        });
+        // $.ajax({
+        //     type: "GET"
+        //     ,url: "/api/v1/money/post/bills/"+$("#accountSelect").val()
+        // }).success(function(response) {
+        //     billArray = response.bills;
+        //     resolve();
+        // }).error(function(jqXHR) {
+        //     console.log("error getting bills: " + jqXHR);
+        //     resolve();
+        // });
+    });
 }
 
 function getCategories() {
-    $.ajax({
-        type: "GET"
-        ,url: "/api/v1/money/categories"
-    })
-        .success(function(response) {
-            categoryArray = response;
-            $("#newCategory").html('<option id="defaultCategory" />');
-            response.forEach(function(category) {
-                $("#newCategory").append('<option value="'+category.id+'">'+category.name+'</option>');
-            });
-        })
-        .error(function(jqXHR) {
-            if (jqXHR.status === 404) {
-                return false;
-            } else {
-                $("#infoModalBody").html("There was a problem retrieving Categories.  Please try again.");
-                $("#infoModal").modal("show");
-            }
+    gl_getCategories().then(function(categories) {
+        // console.log("second");
+        // console.log(categories);
+        categoryArray = categories;
+        $("#newCategory").html('<option id="defaultCategory" />');
+        categories.forEach(function(category) {
+            $("#newCategory").append('<option value="'+category.id+'">'+category.name+'</option>');
         });
+    },function(err) {
+        $("#infoModalBody").html(err);
+        $("#infoModal").modal("show");
+    });
 }
 
 function getInvestments(id, tradeId, positionId, type) {
@@ -974,31 +977,36 @@ function getInvestments(id, tradeId, positionId, type) {
         });
 }
 
-function getTransactions(offset, limit, transId) {
+function getTransactions(/*offset, limit, */transId) {
+    // console.log("------GETTING TRANSACTIONS----------");
+    // console.log(categoryArray);
+    // console.log(billArray);
     var $tableElem = $("#transactionTable");
     $("#searchDiv").show();
     clearSearch();
     setupTable();
-    if (offset === null) { offset = 0; }
-    if (limit === null || limit <= transactionLimit) {
-        limit = transactionLimit;
-    }
+    // if (offset === null) { offset = 0; }
+    // if (limit === null || limit <= transactionLimit) {
+    //     limit = transactionLimit;
+    // }
     $.ajax({
         type: "GET"
-        ,url: "/api/v1/money/transactions/account/"+$("#accountSelect").val()+"/"+offset+"/"+limit
-    })
-        .success(function(response) {
-            // console.log(response);
+        ,url: "/api/v1/money/transactions/account/"+$("#accountSelect").val()+"/-1"
+    }).success(function(response) {
+        // console.log(response);
+        if (response.cTrans.length > 0) {
             $tableElem.find("tbody").empty();
             // var balance = Number(response.cTrans[0].Summary.balance);
             var balance = 0;
             var initialBalance = 0;
+            var summId;
             for (var i = 0; i < response.cTrans.length; i++) {
                 if (!response.cTrans[i].future) {
                     if (response.cTrans[i].postDate !== null) {
                         if (response.cTrans[i].hasOwnProperty("Summary")) {
                             balance = Number(response.cTrans[i].Summary.balance);
                             initialBalance = Number(response.cTrans[i].Summary.balance);
+                            summId = response.cTrans[i].Summary.id;
                             break;
                         }
                     }
@@ -1010,6 +1018,7 @@ function getTransactions(offset, limit, transId) {
             // Current Transactions
             var flag = false;
             response.cTrans.forEach(function(result) {
+                // console.log(result);
                 var dp = false;
                 var dateNow = new Date();
                 var row;
@@ -1020,7 +1029,8 @@ function getTransactions(offset, limit, transId) {
                     if (tDateMoment.isAfter(moment(),'days')) {
                         row += ' class="success"';
                     }
-                    row += '><td><input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" /></td>';
+                    row += '><td><input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment(dateNow).startOf('month').subtract(2, 'months').format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" /></td>';
+                    // row += '><td><input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" /></td>';
                 } else {
                     if (flag) {
                         row = '<tr id="'+result.id+'" style="background:#fffff0">';
@@ -1033,59 +1043,63 @@ function getTransactions(offset, limit, transId) {
                     tDateMoment.format("MM/DD/YYYY")+
                     '</td>'+
                     '<td name="payee">';
-                if (result.BillId !== null) {
+                if (result.hasOwnProperty("bill_id")) {
                     row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
-                }
-                if (result.Bill !== null) {
-                    if (result.Bill.automatic) {
-                        row += '&nbsp;<i class="glyphicon glyphicon-flash img-rounded trans-badge" title="Automatic Payment"></i>';
+                    var specBill = _.findWhere(billArray,{id: Number(result.bill_id)});
+                    // console.log(specBill);
+                    if (specBill) {
+                        if (specBill.automatic) {
+                            row += '&nbsp;<i class="glyphicon glyphicon-flash img-rounded trans-badge" title="Automatic Payment"></i>';
+                        }
                     }
                 }
                 row += result.payee+'</td>';
-                if (result.description !== null) {
+                if (result.hasOwnProperty("description")) {
                     row += '<td name="description">';
-                    if (result.xfer !== null) {
+                    if (result.hasOwnProperty("xfer")) {
                         row += "[Transfer] ";
                     }
                     row += result.description+'</td>';
                 } else {
                     row += '<td name="description">';
-                    if (result.xfer !== null) {
+                    if (result.hasOwnProperty("xfer")) {
                         row += "[Transfer]";
                     }
                     row += '</td>';
                 }
-                if (result.checkNumber !== null) {
+                if (result.hasOwnProperty("checkNumber")) {
                     row += '<td name="check">'+result.checkNumber+'</td>';
                 } else {
                     row += '<td name="check"></td>';
                 }
-
-                if (result.amount !== null) {
+                if (result.hasOwnProperty("amount")) {
                     if (result.amount > 0) {
                         row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
                     } else {
                         row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
                     }
                 }
-                if (result.Category !== null) {
-                    row += '<td name="category" id="cat_'+result.id+'" data-toggle="tooltip" data-html="true" data-container="body" data-placement="bottom">'+result.Category.name+'</td>';
-                    if (result.Category.id === 1) {
-                        $.ajax({
-                            type: "GET"
-                            ,url: "/api/v1/money/categorySplit/"+result.id
-                        }).success(function(catSplit) {
-                            // console.log(catSplit);
-                            if (catSplit) {
-                                var titleArr = [];
-                                JSON.parse(catSplit).forEach(function(cat) {
-                                    titleArr.push(cat.name + ": " + cat.value.toFixed(2));
-                                });
-                                // console.log($("#"+result.id+"[name='category']"));
-                                $("#cat_"+result.id).prop("title",titleArr.join("<br />")).tooltip();
-                                // $("#cat_"+result.id);
-                            }
-                        });
+                if (result.hasOwnProperty("category_id")) {
+                    var specCat = _.findWhere(categoryArray,{id: result.category_id});
+                    if (specCat) {
+                        row += '<td name="category" id="cat_'+result.id+'" data-toggle="tooltip" data-html="true" data-container="body" data-placement="bottom">'+specCat.name+'</td>';
+                        if (result.category_id === 1) {
+                            $.ajax({
+                                type: "GET"
+                                ,url: "/api/v1/money/categorySplit/"+result.id
+                            }).success(function(catSplit) {
+                                // console.log(catSplit);
+                                if (catSplit) {
+                                    var titleArr = [];
+                                    JSON.parse(catSplit).forEach(function(cat) {
+                                        titleArr.push(cat.name + ": " + cat.value.toFixed(2));
+                                    });
+                                    // console.log($("#"+result.id+"[name='category']"));
+                                    $("#cat_"+result.id).prop("title",titleArr.join("<br />")).tooltip();
+                                    // $("#cat_"+result.id);
+                                }
+                            });
+                        }
                     }
                 } else {
                     row += '<td name="category"></td>';
@@ -1124,36 +1138,42 @@ function getTransactions(offset, limit, transId) {
                         ,todayHighlight: true
                     }).on("changeDate", function(e) {
                         // postTransaction(Number(e.target.dataset.tid), e.target.value);
-                        sendCommit(Number(e.target.dataset["tid"]), e.target.value)
+                        sendCommit(e.target.dataset["tid"], e.target.value)
                         // console.log({id: Number(e.target.dataset.tid), value: e.target.value});
                     });
                 }
                 balance -= result.amount;
             });
             // console.log(response.cTrans.length);
-            if (response.cTrans.length >= transactionLimit) {
+            // if (response.cTrans.length >= transactionLimit) {
                 var moreRow = '<tr id="moreRow" style="text-align:center;">'+
                     '<td colspan="9">'+
-                    '<a onclick="getMoreTransactions('+balance+','+transactionLimit+','+transactionLimit+');">'+
+                    // '<a id="getMoreLink" onclick="getMoreTransactions('+balance+',"'+summId+'");">'+
+                    '<a id="getMoreLink">'+
                     'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
                     '</a>'+
                     '</td>'+
                     '</tr>';
                 $tableElem.find("tbody").append(moreRow);
-            }
+                $("#getMoreLink").click(function() {
+                    getMoreTransactions(balance,summId);
+                });
+            // }
             if (transId !== null) {
                 transactionHighlight(transId);
             }
-            getBills();
-        })
-        .error(function(jqXHR/*, textStatus, errorThrown*/) {
-            if (jqXHR.status === 404) {
-                return false;
-            } else {
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
-            }
-        });
+            // getBills();
+        } else {
+            console.log("no transactions");
+        }
+    }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+        if (jqXHR.status === 404) {
+            return false;
+        } else {
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        }
+    });
 }
 
 function getMoreInvestments() {
@@ -1173,112 +1193,144 @@ function getMoreInvestments() {
     }
 }
 
-function getMoreTransactions(balance, offset, limit) {
+function getMoreTransactions(balance, summId) {
     // setupTable();
     // if (offset === null) { offset = 0; }
     // if (limit === null) { limit = 10; }
     var $tableElem = $("#transactionTable");
     $.ajax({
         type: "GET"
-        ,url: "/api/v1/money/transactions/more/account/"+$("#accountSelect").val()+"/"+offset+"/"+limit
-    })
-        .success(function(response) {
-            $("#moreRow").remove();
-            // console.log(response);
-            // $("#transactionTable tbody").empty();
-            // var balance = Number(response[0].Summary.balance);
+        ,url: "/api/v1/money/transactions/more/account/"+$("#accountSelect").val()+"/"+summId
+    }).success(function(response) {
+        $("#moreRow").remove();
+        // console.log(response);
+        // $("#transactionTable tbody").empty();
+        // var balance = Number(response[0].Summary.balance);
 
-            var flag = false;
-            response.cTrans.forEach(function(result) {
-                if (!result.hasOwnProperty("future")) {
-                    var row;
-                    if (flag) {
-                        row = '<tr id="'+result.id+'" style="background: #fffff0;"><td>';
-                    } else {
-                        row = '<tr id="'+result.id+'"><td>';
-                    }
-                    
-                    if (result.postDate !== null) {
-                        row += moment.utc(result.postDate).format("MM/DD/YYYY");
-                    }
-                    // '<input id="clr_'+result.id+'" type="checkbox" onclick="clearTransaction('+result.id+');"';
-                    // if (result.cleared === true) {
-                    // 	row += 'checked disabled';
-                    // }
-                    // row += '></input>'+
-                    row += '</td>'+
-                        '<td name="transactionDate">'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'</td>'+
-                        '<td name="payee">'+result.payee+'</td>';
-                    if (result.description !== null) {
-                        row += '<td name="description">';
-                        if (result.xfer !== null) {
-                            row += "[Transfer] ";
-                        }
-                        row += result.description+'</td>';
-                    } else {
-                        row += '<td name="description">';
-                        if (result.xfer !== null) {
-                            row += "[Transfer]";
-                        }
-                        row += '</td>';
-                    }
-                    if (result.checkNumber !== null) {
-                        row += '<td name="check">'+result.checkNumber+'</td>';
-                    } else {
-                        row += '<td name="check"></td>';
-                    }
-
-                    if (result.amount !== null) {
-                        if (result.amount > 0) {
-                            row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
-                        } else {
-                            row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
-                        }
-                    }
-                    if (result.Category !== null) {
-                        row += '<td name="category">'+result.Category.name+'</td>';
-                    } else {
-                        row += '<td name="category"></td>';
-                    }
-                    row += '<td name="balance">'+balance.toFixed(2)+'</td>';
-                    row += '<td>'+
-                        '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\''+result.id+'\');">'+
-                        '<i class="glyphicon glyphicon-pencil"></i>'+
-                        '</button>'+
-                        '</td>'+
-                        '</tr>';
-                    if (result.description !== "gobble gobble") {
-                        $tableElem.find("tbody").append(row);
-                        flag = false;
-                    } else {
-                        flag = true;
-                    }
-                    balance -= result.amount;
+        var flag = false;
+        response.cTrans.forEach(function(result) {
+            if (!result.hasOwnProperty("future")) {
+                var row;
+                if (flag) {
+                    row = '<tr id="'+result.id+'" style="background: #fffff0;"><td>';
+                } else {
+                    row = '<tr id="'+result.id+'"><td>';
                 }
-            });
-            if (response.cTrans.length >= transactionLimit) {
-                var moreRow = '<tr id="moreRow" style="text-align:center;">'+
-                    '<td colspan="9">'+
-                    '<a onclick="getMoreTransactions('+balance+','+(offset+transactionLimit)+','+transactionLimit+');">'+
-                    'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
-                    '</a>'+
+
+                if (result.postDate !== null) {
+                    row += moment.utc(result.postDate).format("MM/DD/YYYY");
+                }
+                // '<input id="clr_'+result.id+'" type="checkbox" onclick="clearTransaction('+result.id+');"';
+                // if (result.cleared === true) {
+                // 	row += 'checked disabled';
+                // }
+                // row += '></input>'+
+                row += '</td>'+
+                    '<td name="transactionDate">'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'</td>'+
+                    '<td name="payee">';
+                if (result.hasOwnProperty("bill_id")) {
+                    row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
+                    var specBill = _.findWhere(billArray,{id: Number(result.bill_id)});
+                    // console.log(specBill);
+                    if (specBill) {
+                        if (specBill.automatic) {
+                            row += '&nbsp;<i class="glyphicon glyphicon-flash img-rounded trans-badge" title="Automatic Payment"></i>';
+                        }
+                    }
+                }
+                row += result.payee+'</td>';
+                if (result.hasOwnProperty("description")) {
+                    row += '<td name="description">';
+                    if (result.hasOwnProperty("xfer")) {
+                        row += "[Transfer] ";
+                    }
+                    row += result.description+'</td>';
+                } else {
+                    row += '<td name="description">';
+                    if (result.hasOwnProperty("xfer")) {
+                        row += "[Transfer]";
+                    }
+                    row += '</td>';
+                }
+                if (result.hasOwnProperty("checkNumber")) {
+                    row += '<td name="check">'+result.checkNumber+'</td>';
+                } else {
+                    row += '<td name="check"></td>';
+                }
+                if (result.amount !== null) {
+                    if (result.amount > 0) {
+                        row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
+                    } else {
+                        row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
+                    }
+                }
+                if (result.hasOwnProperty("category_id")) {
+                    var specCat = _.findWhere(categoryArray,{id: result.category_id});
+                    if (specCat) {
+                        row += '<td name="category" id="cat_'+result.id+'" data-toggle="tooltip" data-html="true" data-container="body" data-placement="bottom">'+specCat.name+'</td>';
+                        if (result.category_id === 1) {
+                            $.ajax({
+                                type: "GET"
+                                ,url: "/api/v1/money/categorySplit/"+result.id
+                            }).success(function(catSplit) {
+                                // console.log(catSplit);
+                                if (catSplit) {
+                                    var titleArr = [];
+                                    JSON.parse(catSplit).forEach(function(cat) {
+                                        titleArr.push(cat.name + ": " + cat.value.toFixed(2));
+                                    });
+                                    // console.log($("#"+result.id+"[name='category']"));
+                                    $("#cat_"+result.id).prop("title",titleArr.join("<br />")).tooltip();
+                                    // $("#cat_"+result.id);
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    row += '<td name="category"></td>';
+                }
+                row += '<td name="balance">'+balance.toFixed(2)+'</td>';
+                row += '<td>'+
+                    '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\''+result.id+'\');">'+
+                    '<i class="glyphicon glyphicon-pencil"></i>'+
+                    '</button>'+
                     '</td>'+
                     '</tr>';
-                $tableElem.find("tbody").append(moreRow);
-            }
-            // if (type !== null) {
-            // 	transactionHighlight(transId);
-            // }
-        })
-        .error(function(jqXHR/*, textStatus, errorThrown*/) {
-            if (jqXHR.status === 404) {
-                $("#moreRow").remove();
-                return false;
-            } else {
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
+                if (result.description !== "gobble gobble") {
+                    $tableElem.find("tbody").append(row);
+                    flag = false;
+                } else {
+                    flag = true;
+                }
+                balance -= result.amount;
             }
         });
+        // if (response.cTrans.length >= transactionLimit) {
+            var moreRow = '<tr id="moreRow" style="text-align:center;">'+
+                '<td colspan="9">'+
+                // '<a id="getMoreLink" onclick="getMoreTransactions('+balance+',"'+response.newSummary+'");">'+
+                '<a id="getMoreLink">'+
+                'Go&nbsp;back&nbsp;1&nbsp;month&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
+                '</a>'+
+                '</td>'+
+                '</tr>';
+            $tableElem.find("tbody").append(moreRow);
+            $("#getMoreLink").click(function() {
+                getMoreTransactions(balance,response.newSummary);
+            });
+        // }
+        // if (type !== null) {
+        // 	transactionHighlight(transId);
+        // }
+    }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+        if (jqXHR.status === 404) {
+            $("#moreRow").remove();
+            return false;
+        } else {
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        }
+    });
 }
 
 function initiateMultiCategory() {
@@ -1353,7 +1405,9 @@ function modifyFTransaction() {
     $(".editFTrans").removeClass("error");
 
     //Get values
-    var et = {};
+    var et = {
+        account: $("#accountSelect").val()
+    };
     var $dateElem = $("#editFTDate");
     var $payeeElem = $("#editFPayee");
     var $descriptionElem = $("#editFDescription");
@@ -1514,12 +1568,13 @@ function newPrice(tick) {
 }
 
 function removeTransaction() {
-    var id = $("#deleteTransactionId").val();
     $("#deleteTransactionModal").modal("hide");
+    var id = $("#deleteTransactionId").val();
+    var aid = $("#accountSelect").val();
     if (typeof id !== "undefined" && id.length > 0) {
         $.ajax({
             type: "DELETE"
-            ,url: "/api/v1/money/futureTransactions/"+id
+            ,url: "/api/v1/money/futureTransactions/"+id+"|"+aid
         })
             .success(function() {
                 return false;
@@ -1550,7 +1605,8 @@ function sendCommit(rid, pdate) {
         type: "PUT"
         ,url: "/api/v1/money/futureTransaction/commit/"+rid
         ,data: {
-            pDate: pdate
+            pDate: pdate,
+            account: $("#accountSelect").val()
         }
     }).success(function(/*response*/) {
         // console.log(response);

@@ -190,33 +190,31 @@ function getLogs() {
     $.ajax({
         type: "GET"
         ,url: "/api/v1/automobile/mx_log/"+$("#currentCarId").val()
-    })
-        .success(function(response) {
-            $("#logTable").find("tbody").empty();
-            response.forEach(function(log) {
-                var row = '<tr id="'+log.id+'">' +
-                    '<td name="service_date">'+moment.utc(log.service_date).format("MMM D, YYYY")+'</td>' +
-                    '<td name="mileage">'+log.mileage+'</td>'+
-                    '<td name="description">'+htmlDecode(log.description)+'</td>' +
-                    '<td name="cost">'+Number(log.cost).toFixed(2)+'</td>' +
-                    '<td name="servicer">'+log.servicer+'</td>' +
-                    '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
-                    '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
-                    '</td>'+
-                    '</tr>';
-                $("#logTable").find("tbody").append(row);
-            });
-        })
-        .error(function(jqXHR) {
-            if (jqXHR.status === 404) {
-                $("#addTransaction").prop("disabled", true);
-                return false;
-            } else {
-                $("#addTransaction").prop("disabled", true);
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
-            }
+    }).success(function(response) {
+        $("#logTable").find("tbody").empty();
+        response.forEach(function(log) {
+            var row = '<tr id="'+log.id+'">' +
+                '<td name="service_date">'+moment.utc(log.service_date).format("MMM D, YYYY")+'</td>' +
+                '<td name="mileage">'+log.mileage+'</td>'+
+                '<td name="description">'+htmlDecode(log.description)+'</td>' +
+                '<td name="cost">'+Number(log.cost).toFixed(2)+'</td>' +
+                '<td name="servicer">'+log.servicer+'</td>' +
+                '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
+                '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
+                '</td>'+
+                '</tr>';
+            $("#logTable").find("tbody").append(row);
         });
+    }).error(function(jqXHR) {
+        if (jqXHR.status === 404) {
+            $("#addTransaction").prop("disabled", true);
+            return false;
+        } else {
+            $("#addTransaction").prop("disabled", true);
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        }
+    });
 }
 
 function htmlDecode(value){
@@ -292,16 +290,13 @@ function modifyLog() {
 }
 
 function populateCars() {
-    $.ajax({
-        type: "GET"
-        ,url: "/api/v1/automobile/car"
-    }).success(function(response) {
+    gl_getCars().then(function(cars) {
         if (!QueryString.hasOwnProperty("CarId")) {
-            if (response.length > 0) {
-                $("#currentCarId").val(response[0].id);
+            if (cars.length > 0) {
+                $("#currentCarId").val(car[0].id);
             }
         }
-        response.forEach(function(car) {
+        cars.forEach(function(car) {
             var obj = {
                 value: car.id
                 ,text: car.year + " " + car.make + " " + car.model
@@ -309,11 +304,11 @@ function populateCars() {
             if (car.id == $("#currentCarId").val()) {
                 obj.selected = true;
             }
-           $("#carSelect").append($('<option>', obj));
+            $("#carSelect").append($('<option>', obj));
         });
         getLogs();
-    }).error(function() { //jqXHR, textStatus, errorThrown
-        $("#infoModalBody").html("There was a problem.  Please try again.");
+    }, function(err) {
+        $("#infoModalBody").html(err);
         $("#infoModal").modal("show");
     });
 }

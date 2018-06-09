@@ -59,6 +59,36 @@ module.exports = function(db) {
                         reject(err);
                     } else {
                         // console.log("Get active accounts succeeded:", JSON.stringify(acctData, null, 2));
+                        acctData.Items = _.sortBy(acctData.Items, "name");
+                        resolve(acctData.Items);
+                    }
+                });
+			});
+		}
+		,getAllPlus: function() {
+			return new Promise(function(resolve, reject) {
+
+                var docClient = new AWS.DynamoDB.DocumentClient();
+                var scanParams = {
+                    TableName: "bank_accounts",
+                    ScanFilter: {
+                        id: {
+                            ComparisonOperator: "NOT_NULL"
+                        },
+                        active: {
+                            ComparisonOperator: "EQ",
+                            AttributeValueList: [
+                                true
+                            ]
+                        }
+                    }
+                };
+                docClient.scan(scanParams, function (err, acctData) {
+                    if (err) {
+                        console.error("Unable to get active accounts. Error JSON:", JSON.stringify(err, null, 2));
+                        reject(err);
+                    } else {
+                        // console.log("Get active accounts succeeded:", JSON.stringify(acctData, null, 2));
                         console.log("Get active accounts succeeded");
                         var count = 0;
                         acctData.Items = _.sortBy(acctData.Items, "name");
@@ -74,7 +104,8 @@ module.exports = function(db) {
 										]
                                     }
                                 },
-                                ScanIndexForward: false
+                                ScanIndexForward: false,
+                                Limit: 1
                             };
 
                             docClient.query(summParams, function (err, summData) {
@@ -83,7 +114,7 @@ module.exports = function(db) {
                                     reject(err);
                                 } else {
                                     // console.log("Get mx logs succeeded:", JSON.stringify(data, null, 2));
-                                    console.log("Get summaries for "+item.name+" succeeded");
+                                    // console.log("Get summaries for "+item.name+" succeeded");
                                     item.Summaries = summData.Items;
                                     item.Positions = []; // Remove this once querying of Positions is implemented
                                     count++;
@@ -162,6 +193,8 @@ module.exports = function(db) {
                                 account_id: acctId,
                                 balance: newAccount.balance,
                                 initial: true,
+                                start: moment.utc("0","X").format("YYYY-MM-DDT[00:00:00Z]"),
+                                end: moment.utc("0","X").format("YYYY-MM-DDT[23:59:59Z]"),
                                 created_at: Number(moment.utc().format("X"))
                             }
 						};

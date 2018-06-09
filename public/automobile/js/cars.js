@@ -48,46 +48,35 @@ $(document).ready(function() {
 
 // FUNCTIONS
 function getCars() {
-	$.ajax({
-		type: "GET"
-		,url: "/api/v1/automobile/car"
-	})
-	.success(function(response) {
-		$("#carTable").find("tbody").empty();
-		response.forEach(function(car) {
-			var row = '<tr id="'+car.id+'">' +
-				'<td name="make">'+car.make+'</td>' +
-				'<td name="model">'+car.model+'</td>'+
-				'<td name="year">'+car.year+'</td>' +
-				'<td name="vin">'+car.vin+'</td>' +
-				'<td name="license_plate">'+car.license_plate+'</td>' +
-				'<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
-				'<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
-				'<td name="current_mileage">'+car.current_mileage+'</td>' +
-				'<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>' +
-				'<td><button class="btn btn-primary" title="Edit Car" onclick="editCar(\''+car.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
-				'<button class="btn btn-danger" title="Delete Car" onclick="deleteCar(\''+car.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
-				'</td>'+
-			'</tr>';
-			$("#carTable").find("tbody").append(row);
-		});
-	})
-	.error(function(jqXHR) { //, textStatus, errorThrown
-		if (jqXHR.status === 500) {
-			$("#infoModalBody").html("There was a problem.  Please try again.");
-			$("#infoModal").modal("show");
-		}
+	gl_getCars().then(function(cars) {
+        $("#carTable").find("tbody").empty();
+        cars.forEach(function(car) {
+            var row = '<tr id="'+car.id+'">' +
+                '<td name="make">'+car.make+'</td>' +
+                '<td name="model">'+car.model+'</td>'+
+                '<td name="year">'+car.year+'</td>' +
+                '<td name="vin">'+car.vin+'</td>' +
+                '<td name="license_plate">'+car.license_plate+'</td>' +
+                '<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
+                '<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
+                '<td name="current_mileage">'+car.current_mileage+'</td>' +
+                '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>' +
+                '<td><button class="btn btn-primary" title="Edit Car" onclick="editCar(\''+car.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
+                '<button class="btn btn-danger" title="Delete Car" onclick="deleteCar(\''+car.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
+                '</td>'+
+                '</tr>';
+            $("#carTable").find("tbody").append(row);
+        });
+	}, function(err) {
+        $("#infoModalBody").html(err);
+        $("#infoModal").modal("show");
 	});
 }
 
 function getInactiveCars() {
-	$.ajax({
-		type: "GET"
-		,url: "/api/v1/automobile/car/inactive"
-	})
-	.success(function(response) {
-		$("#inactiveCarTable").find("tbody").empty();
-		response.forEach(function(car) {
+	gl_getInactiveCars().then(function(cars) {
+        $("#inactiveCarTable").find("tbody").empty();
+        cars.forEach(function(car) {
             var row = '<tr id="'+car.id+'">' +
                 '<td name="make">'+car.make+'</td>' +
                 '<td name="model">'+car.model+'</td>'+
@@ -99,21 +88,18 @@ function getInactiveCars() {
                 '<td name="current_mileage">'+car.current_mileage+'</td>' +
                 '<td name="sold_date">'+moment(car.sold_date).format("MMM D, YYYY")+'</td>' +
                 '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>' +
-				'<td></td>' +
-				'<td>'+
-					'<button class="btn btn-primary" title="Reactivate Car" onclick="reactivateCar(\''+car.id+'\');">'+
-						'<i class="glyphicon glyphicon-pencil"></i>'+
-					'</button>'+
-				'</td>'+
-			'</tr>';
-			$("#inactiveCarTable").find("tbody").append(row);
-		});
-	})
-	.error(function(jqXHR) { //, textStatus, errorThrown
-		if (jqXHR.status === 500) {
-			$("#infoModalBody").html("There was a problem.  Please try again.");
-			$("#infoModal").modal("show");
-		}
+                '<td></td>' +
+                '<td>'+
+                '<button class="btn btn-primary" title="Reactivate Car" onclick="reactivateCar(\''+car.id+'\');">'+
+                '<i class="glyphicon glyphicon-pencil"></i>'+
+                '</button>'+
+                '</td>'+
+                '</tr>';
+            $("#inactiveCarTable").find("tbody").append(row);
+        });
+	}, function(err) {
+		$("#infoModalBody").html(err);
+		$("#infoModal").modal("show");
 	});
 }
 

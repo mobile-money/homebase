@@ -1,7 +1,7 @@
 
 var accountArray = [];
 var accountNames = {};
-var socket = io();
+// var socket = io();
 
 $(document).ready(function() {	
 	$("body").show();
@@ -75,34 +75,44 @@ $(document).ready(function() {
 
 // FUNCTIONS
 	function getAccounts() {
-		$.ajax({
-			type: "GET"
-			,url: "/api/v1/money/accounts"
-		})
-		.success(function(response) {
-			accountArray = response;
-			$("#accountSelect").empty();
-			response.forEach(function(account) {
-				accountNames[account.id] = {name: account.name, type: account.type};
-				if ((account.type === "Credit Card") || (account.type === "Checking") || (account.type === "Savings")) {
-					if (account.default === true) {
-						$("#accountSelect").append('<option value="'+account.id+'" selected>'+account.name+'</option>');
-					} else {
-						$("#accountSelect").append('<option value="'+account.id+'">'+account.name+'</option>');
-					}
-				}
-			});
+		// $.ajax({
+		// 	type: "GET"
+		// 	,url: "/api/v1/money/accounts"
+		// })
+		// .success(function(response) {
+		gl_getAccounts().then(function(response) {
+            accountArray = response;
+            $("#accountSelect").empty();
+            response.forEach(function(account) {
+                accountNames[account.id] = {name: account.name, type: account.type};
+                if ((account.type === "Credit Card") || (account.type === "Checking") || (account.type === "Savings")) {
+                    if (account.default === true) {
+                        $("#accountSelect").append('<option value="'+account.id+'" selected>'+account.name+'</option>');
+                    } else {
+                        $("#accountSelect").append('<option value="'+account.id+'">'+account.name+'</option>');
+                    }
+                }
+            });
 
-			getTable();
-		})
-		.error(function(jqXHR, textStatus, errorThrown) {
-			if (jqXHR.status === 404) {
-				return false;
-			} else {
-				$("#infoModalBody").html("There was a problem.  Please try again.");
-				$("#infoModal").modal("show");			
-			}
+            getTable();
+
+		},function(err) {
+            if (jqXHR.status === 404) {
+                return false;
+            } else {
+                $("#infoModalBody").html(err);
+                $("#infoModal").modal("show");
+            }
 		});
+		// })
+		// .error(function(jqXHR, textStatus, errorThrown) {
+		// 	if (jqXHR.status === 404) {
+		// 		return false;
+		// 	} else {
+		// 		$("#infoModalBody").html("There was a problem.  Please try again.");
+		// 		$("#infoModal").modal("show");
+		// 	}
+		// });
 	}
 
 	function getTable() {

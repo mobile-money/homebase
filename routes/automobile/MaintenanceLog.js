@@ -19,6 +19,7 @@ module.exports = function(app, MaintenanceLog, _) {
         console.log("mx logs requested for car " + carId);
         MaintenanceLog.get(carId).then(function(results) {
             console.log("retrieved mx");
+            res.setHeader('Cache-Control','public, max-age=604800');
             res.json(results);
         }).catch(function(error) {
             console.log("error retrieving mx; " + error);

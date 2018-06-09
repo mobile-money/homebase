@@ -1,48 +1,37 @@
 module.exports = function(app, Transaction, _, io) {
 	// Get all transactions by Account ID
-	app.get("/api/v1/money/transactions/account/:id/:offset/:limit", function(req, res) {
+	app.get("/api/v1/money/transactions/account/:id/:lastSummId", function(req, res) {
 		console.log("transactions requested");
-		Transaction.getByAccountId(req.params.id,req.params.offset,req.params.limit)
-		.then(
-			function(results) {
-				if (results.cTrans.length > 0) {
-					console.log("transactions retrieved");
-					res.json(results);
-				} else {
-					console.log("no transactions found");
-					res.status(404).send();
-				}
+		Transaction.getByAccountId(req.params.id,req.params.lastSummId).then(function(results) {
+			if (results.cTrans.length > 0) {
+				console.log("transactions retrieved");
+                // res.setHeader('Cache-Control','public, max-age=604800');
+				res.json(results);
+			} else {
+				console.log("no transactions found");
+				res.status(404).send();
 			}
-		)
-		.catch(
-			function(error) {
-				console.log("transactions retrieval error: "+error);
-				res.status(500).send();
-			}
-		);
+		}).catch(function(error) {
+			console.log("transactions retrieval error: "+error);
+			res.status(500).send();
+		});
 	});
 
 	// Get more transactions by Account ID
-	app.get("/api/v1/money/transactions/more/account/:id/:offset/:limit", function(req, res) {
+	app.get("/api/v1/money/transactions/more/account/:id/:summId", function(req, res) {
 		console.log("more transactions requested");
-		Transaction.getMoreByAccountId(req.params.id,req.params.offset,req.params.limit)
-		.then(
-			function(results) {
-				if (results.cTrans.length > 0) {
-					console.log("more transactions retrieved");
-					res.json(results);
-				} else {
-					console.log("no more transactions found");
-					res.status(404).send();
-				}
+		Transaction.getMoreByAccountId(req.params.id,req.params.summId).then(function(results) {
+			if (results.cTrans.length > 0) {
+				console.log("more transactions retrieved");
+				res.json(results);
+			} else {
+				console.log("no more transactions found");
+				res.status(404).send();
 			}
-		)
-		.catch(
-			function(error) {
-				console.log("more transactions retrieval error: "+error);
-				res.status(500).send();
-			}
-		);
+		}).catch(function(error) {
+			console.log("more transactions retrieval error: "+error);
+			res.status(500).send();
+		});
 	});
 
 	// Get all transactions by Summary ID
@@ -231,4 +220,13 @@ module.exports = function(app, Transaction, _, io) {
 			res.status(500).send();
 		});
 	});
+
+    // Data Xfer from MySQL to DynamoDB
+    app.get("/api/v1/money/dataXfer/transactions",function(req,res) {
+    	Transaction.dataXfer().then(function(result) {
+            res.status(200).json(result);
+        }).catch(function(err) {
+            res.status(500).json(err);
+        })
+    });
 };

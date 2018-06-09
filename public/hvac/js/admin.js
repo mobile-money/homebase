@@ -1,5 +1,5 @@
 	
-var socket = io();
+// var socket = io();
 var hosts = [];
 var sensors = [];
 var locations = [];
