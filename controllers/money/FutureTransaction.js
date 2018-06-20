@@ -1,4 +1,4 @@
-const AWS = require("aws-sdk");
+// const AWS = require("aws-sdk");
 const _ = require("underscore");
 const moment = require("moment");
 const uuid = require("uuid/v4");
@@ -68,6 +68,7 @@ function createTransaction(docClient, trans, summ_id, pDate) {
 				postDate: addTimeString(moment(pDate,"MM/DD/YYYY").format("YYYY-MM-DD")),
                 transactionDate: trans.transactionDate,
                 payee: trans.payee.trim(),
+                payeeSearch: trans.payee.trim().toLowerCase(),
                 amount: Number(trans.amount),
                 created_at: Number(trans.created_at),
                 updated_at: Number(moment.utc().format("X"))
@@ -76,6 +77,7 @@ function createTransaction(docClient, trans, summ_id, pDate) {
 
         if (trans.hasOwnProperty("description") && trans.description !== "") {
             transParams.Item.description = trans.description.trim();
+            transParams.Item.descriptionSearch = trans.description.trim().toLowerCase();
         }
         if (trans.hasOwnProperty("category_id") && trans.category_id !== "") {
             transParams.Item.category_id = trans.category_id.toString();
@@ -189,7 +191,7 @@ const updateSummaries = (docClient,summary_array, increment_amount) => {
     });
 };
 
-module.exports = function(db/*, Transaction*/) {
+module.exports = function(db,docClient/*, Transaction*/) {
 	return {
 		getByAccountId: function(id) {
 			return new Promise(function(resolve, reject) {
@@ -203,7 +205,7 @@ module.exports = function(db/*, Transaction*/) {
 				// 	reject(error);
 				// });
 
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                // let docClient = new AWS.DynamoDB.DocumentClient();
                 let params = {
                     TableName: "bank_future_transactions",
                     IndexName: "account_id-transactionDate-index",
@@ -270,7 +272,7 @@ module.exports = function(db/*, Transaction*/) {
 					// reject(error);
                 // });
                 //
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                // let docClient = new AWS.DynamoDB.DocumentClient();
 
                 let transId = uuid();
                 let transParams = {
@@ -280,6 +282,7 @@ module.exports = function(db/*, Transaction*/) {
 						account_id: data.account.toString(),
                         transactionDate: addTimeString(moment(data.tDate,"MM/DD/YYYY").format("YYYY-MM-DD")),
                         payee: data.payee.trim(),
+                        payeeSearch: data.payee.trim().toLowerCase(),
                         amount: Number(data.amount),
 						future: true,
 						created_at: Number(moment.utc().format("X"))
@@ -288,6 +291,7 @@ module.exports = function(db/*, Transaction*/) {
 
                 if (data.hasOwnProperty("description") && data.description !== "") {
                 	transParams.Item.description = data.description.trim();
+                	transParams.Item.descriptionSearch = data.description.trim().toLowerCase();
 				}
                 if (data.hasOwnProperty("category") && data.category !== "") {
                 	transParams.Item.category_id = data.category.toString();
@@ -336,7 +340,7 @@ module.exports = function(db/*, Transaction*/) {
 				// });
 
 				// console.log(data);
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                // let docClient = new AWS.DynamoDB.DocumentClient();
 
                 let params = {
                     TableName: "bank_future_transactions",
@@ -358,6 +362,10 @@ module.exports = function(db/*, Transaction*/) {
                         Action: "PUT",
                         Value: data.payee.trim()
                     };
+                    params.AttributeUpdates.payeeSearch = {
+                        Action: "PUT",
+                        Value: data.payee.trim().toLowerCase()
+                    };
                 }
                 if (data.hasOwnProperty("tDate") && data.tDate !== "") {
                     params.AttributeUpdates.transactionDate = {
@@ -370,8 +378,15 @@ module.exports = function(db/*, Transaction*/) {
                         Action: "PUT",
                         Value: data.description.trim()
                     };
+                    params.AttributeUpdates.descriptionSearch = {
+                        Action: "PUT",
+                        Value: data.description.trim().toLowerCase()
+                    };
                 } else {
                     params.AttributeUpdates.description = {
+                        Action: "DELETE"
+                    };
+                    params.AttributeUpdates.descriptionSearch = {
                         Action: "DELETE"
                     };
 				}
@@ -428,7 +443,7 @@ module.exports = function(db/*, Transaction*/) {
 				// });
 
 
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                // let docClient = new AWS.DynamoDB.DocumentClient();
 
                 let params = {
                     TableName: "bank_future_transactions",
@@ -453,7 +468,7 @@ module.exports = function(db/*, Transaction*/) {
 		,commit: function(data) {
 			return new Promise(function(resolve, reject) {
 				// resolve(data);
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                // let docClient = new AWS.DynamoDB.DocumentClient();
                 // get future transaction
                 getFutureTransaction(docClient,data.account,data.id).then(function(ft) {
                     // get the last <=4 summaries with account_id, sorted by end date DESC
@@ -623,9 +638,10 @@ module.exports = function(db/*, Transaction*/) {
 				// });
 			});
 		}
-        ,dataXfer: function() {
+        ,dataXfer: function(start,max) {
             return new Promise(function(resolve) {
                 console.log("starting future transactions transfer");
+                let totalCount = 0;
                 function getFTrans(offset) {
                     console.log("starting offset: "+offset);
                     db.FutureTransaction.findAll({
@@ -640,7 +656,8 @@ module.exports = function(db/*, Transaction*/) {
                 }
 
                 function buildWrites(results,offset) {
-                    if (results.length > 0) {
+                    if (results.length > 0 && offset <= max) {
+                        totalCount += results.length;
                         let params = {
                             RequestItems: {
                                 "bank_future_transactions": []
@@ -656,6 +673,7 @@ module.exports = function(db/*, Transaction*/) {
                                         transactionDate: moment(result.transactionDate).format("YYYY-MM-DDTHH:mm:ss[Z]"),
                                         amount: Number(result.amount),
                                         payee: result.payee,
+                                        payeeSearch: result.payee.toLowerCase(),
                                         future: false,
                                         created_at: Number(moment.utc().format("X"))
                                     }
@@ -675,6 +693,7 @@ module.exports = function(db/*, Transaction*/) {
                             }
                             if (result.description) {
                                 obj.PutRequest.Item.description = result.description;
+                                obj.PutRequest.Item.descriptionSearch = result.description.toLowerCase();
                             }
                             if (result.xfer) {
                                 obj.PutRequest.Item.xfer = result.xfer.toString();
@@ -683,7 +702,7 @@ module.exports = function(db/*, Transaction*/) {
                         });
                         sendWrites(params,offset);
                     } else {
-                        console.log("future transaction transfer complete");
+                        console.log(`future transaction transfer complete. transferred ${totalCount} items`);
                         resolve();
                     }
                 }
@@ -699,7 +718,7 @@ module.exports = function(db/*, Transaction*/) {
                         }
                     });
                 }
-                getFTrans(0);
+                getFTrans(start);
             });
         }
 	}

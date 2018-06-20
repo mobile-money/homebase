@@ -21,7 +21,7 @@ module.exports = function(app, Category, _, io) {
 	// Create category
 	app.post("/api/v1/money/categories", function(req, res) {
 		console.log("category add requested");
-		var body = _.pick(req.body, 'user', 'name', 'expense');
+		let body = _.pick(req.body, 'user', 'name', 'expense');
 		Category.add(body).then(function(category) {
 			console.log("category added");
 			io.emit("categoryAdded", category);
@@ -36,7 +36,7 @@ module.exports = function(app, Category, _, io) {
 	// Update category by ID
 	app.put("/api/v1/money/categories/:id", function(req, res) {
 		console.log("update category requested");
-		var body = _.pick(req.body, 'user', 'name', 'expense');
+		let body = _.pick(req.body, 'user', 'name', 'expense');
 		body.id = req.params.id;
 		Category.update(body).then(function(category) {
 			console.log("updated category");
@@ -69,11 +69,11 @@ module.exports = function(app, Category, _, io) {
 	});
 
     // Data Xfer from MySQL to DynamoDB
-    // app.get("/api/v1/money/dataXfer/categories",function(req,res) {
-    //     Category.dataXfer().then(function(result) {
-    //         res.status(200).json(result);
-    //     }).catch(function(err) {
-    //         res.status(500).json(err);
-    //     })
-    // });
+    app.get("/api/v1/money/dataXfer/categories/:start/:max",function(req,res) {
+        Category.dataXfer(Number(req.params.start),Number(req.params.max)).then(function(result) {
+            res.status(200).json(result);
+        }).catch(function(err) {
+            res.status(500).json(err);
+        })
+    });
 };

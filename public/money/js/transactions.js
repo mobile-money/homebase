@@ -760,7 +760,7 @@ function getAccounts() {
         accounts.forEach(function(account) {
             accountNames[account.id] = {name: account.name, type: account.type};
             if (typeof QueryString["acct"] !== "undefined") {
-                if (account.id === Number(QueryString["acct"])) {
+                if (account.id === QueryString["acct"]) {
                     jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
                 } else {
                     jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
@@ -831,150 +831,148 @@ function getInvestments(id, tradeId, positionId, type) {
     $.ajax({
         type: "GET"
         ,url: "/api/v1/money/investments/"+id
-    })
-        .success(function(response, textStatus, jqXHR) {
-            var $positionSectionElem = $("#positionSection");
-            var $tableElem = $("#transactionTable");
-            $positionSectionElem.empty();
-            $tableElem.find("tbody").empty();
-            if (jqXHR.status !== 204) {
-                if (response.trades.length > 0) {
-                    var costs = {};
-                    response.trades.forEach(function(trade, index) {
-                        if (trade.description !== "Employer Match") {
-                            if (costs.hasOwnProperty(trade.ticker)) {
-                                costs[trade.ticker] = costs[trade.ticker] + (Number(trade.quantity) * Number(trade.price));
-                            } else {
-                                costs[trade.ticker] = (Number(trade.quantity) * Number(trade.price));
-                            }
-                        }
-                        var row = '<tr class="transRow" id="trade_'+trade.id+'"';
-                        if (index >= transactionLimit) { row += ' style="display:none;"'; }
-                        row += '>'+
-                            '<td>'+moment.utc(trade.transactionDate).format("MM/DD/YYYY")+'</td>';
-                        row += '<td>'+trade.ticker+'</td>';
-                        if (trade.description !== null) {
-                            row += '<td>'+trade.description+'</td>';
+    }).success(function(response, textStatus, jqXHR) {
+        let $positionSectionElem = $("#positionSection");
+        let $tableElem = $("#transactionTable");
+        let costs = {};
+        $positionSectionElem.empty();
+        $tableElem.find("tbody").empty();
+        if (jqXHR.status !== 204) {
+            if (response.trades.length > 0) {
+                response.trades.forEach(function(trade, index) {
+                    if (trade.description !== "Employer Match") {
+                        if (costs.hasOwnProperty(trade.ticker)) {
+                            costs[trade.ticker] = costs[trade.ticker] + (Number(trade.quantity) * Number(trade.price));
                         } else {
-                            row += '<td></td>';
+                            costs[trade.ticker] = (Number(trade.quantity) * Number(trade.price));
                         }
-                        row += '<td>'+trade.quantity.toFixed(3)+'</td>'+
-                            '<td>'+trade.price.toFixed(3)+'</td>'+
-                            '<td>'+(Number(trade.quantity) * Number(trade.price)).toFixed(2)+'</td>'+
-                            '</tr>';
-                        $tableElem.find("tbody").append(row);
-                    });
-                    if ($(".transRow:visible").length !== $(".transRow").length) {
-                        var moreRow = '<tr id="moreRow" style="text-align:center;">'+
-                            '<td colspan="6">'+
-                            '<a onclick="getMoreInvestments();">'+
-                            'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
-                            '</a>'+
-                            '</td>'+
-                            '</tr>';
                     }
+                    let row = '<tr class="transRow" id="trade_'+trade.id+'"';
+                    if (index >= transactionLimit) { row += ' style="display:none;"'; }
+                    row += '>'+
+                        '<td>'+moment.utc(trade.transactionDate).format("MM/DD/YYYY")+'</td>';
+                    row += '<td>'+trade.ticker+'</td>';
+                    if (trade.description !== null) {
+                        row += '<td>'+trade.description+'</td>';
+                    } else {
+                        row += '<td></td>';
+                    }
+                    row += '<td>'+trade.quantity.toFixed(3)+'</td>'+
+                        '<td>'+trade.price.toFixed(3)+'</td>'+
+                        '<td>'+(Number(trade.quantity) * Number(trade.price)).toFixed(2)+'</td>'+
+                        '</tr>';
+                    $tableElem.find("tbody").append(row);
+                });
+                if ($(".transRow:visible").length !== $(".transRow").length) {
+                    let moreRow = '<tr id="moreRow" style="text-align:center;">'+
+                        '<td colspan="6">'+
+                        '<a onclick="getMoreInvestments();">'+
+                        'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
+                        '</a>'+
+                        '</td>'+
+                        '</tr>';
                     $tableElem.find("tbody").append(moreRow);
-                    if (type !== null) {
-                        tradeHighlight(tradeId, "trade");
-                    }
                 }
-                if (response.positions.length > 0) {
-                    var totalBasis = 0;
-                    var totalValue = 0;
-                    var table = '<div class="well"><table class="table table-condensed">'+
-                        '<thead>'+
-                        '<tr>'+
-                        '<th>Ticker</th>'+
-                        '<th>Name</th>'+
-                        '<th>Quantity</th>'+
-                        '<th>Current Price</th>'+
-                        '<th>Basis</th>'+
-                        '<th>Value</th>'+
-                        '<th>+/- $</th>'+
-                        '<th>+/- %</th>'+
-                        '</tr>'+
-                        '</thead>'+
-                        '<tbody>';
-                    response.positions.forEach(function(position) {
-                        if (position.quantity > 0) {
-                            if (position.ticker.toUpperCase() !== "CASH") {
-                                if (moment.utc(position.updatedAt).dayOfYear() !== moment.utc().dayOfYear()) {
-                                    $.ajax({
-                                        type: "GET"
-                                        , url: "/api/v1/money/positions/update/" + position.ticker
-                                    });
-                                }
+                if (type !== null) {
+                    tradeHighlight(tradeId, "trade");
+                }
+            }
+            if (response.positions.length > 0) {
+                let totalBasis = 0;
+                let totalValue = 0;
+                let table = '<div class="well"><table class="table table-condensed">'+
+                    '<thead>'+
+                    '<tr>'+
+                    '<th>Ticker</th>'+
+                    '<th>Name</th>'+
+                    '<th>Quantity</th>'+
+                    '<th>Current Price</th>'+
+                    '<th>Basis</th>'+
+                    '<th>Value</th>'+
+                    '<th>+/- $</th>'+
+                    '<th>+/- %</th>'+
+                    '</tr>'+
+                    '</thead>'+
+                    '<tbody>';
+                response.positions.forEach(function(position) {
+                    if (position.quantity > 0) {
+                        if (position.ticker.toUpperCase() !== "CASH") {
+                            if (moment.utc(position.updatedAt).dayOfYear() !== moment.utc().dayOfYear()) {
+                                $.ajax({
+                                    type: "GET"
+                                    , url: "/api/v1/money/positions/update/" + position.ticker
+                                });
                             }
-                            var value = (Number(position.quantity) * Number(position.currentPrice));
-                            var cost = costs[position.ticker];
-                            var dollarChange = value - cost;
-                            var percentChange = (dollarChange / cost) * 100;
-                            totalBasis += cost;
-                            totalValue += value;
-                            var row = '<tr id="position_' + position.id + '" class="' + position.ticker.toUpperCase() + ' positionRow"';
-                            row += '>' +
-                                '<td name="ticker">' + position.ticker + '</td>' +
-                                '<td name="name">' + position.name + '</td>' +
-                                '<td name="quantity">' + position.quantity + '</td>' +
-                                '<td name="price"><span onClick="newPrice(\''+position.ticker+'\')">' + position.currentPrice + '</span></td>';
-                            if (typeof(cost) !== "undefined") {
-                                row += '<td name="basis">' + cost.toFixed(2) + '</td>';
-                            }
-                            row += '<td name="value">' + value.toFixed(2) + '</td>' +
-                                '<td name="dChange"';
-                            if (dollarChange > 0) {
-                                row += ' style="color:green;"'
-                            } else if (dollarChange < 0) {
-                                row += ' style="color:red;"'
-                            }
-                            row += '>' + dollarChange.toFixed(2) + '</td>' +
-                                '<td name="pChange"';
-                            if (percentChange > 0) {
-                                row += ' style="color:green;"'
-                            } else if (percentChange < 0) {
-                                row += ' style="color:red;"'
-                            }
-                            row += '>' + percentChange.toFixed(2) + '</td>' +
-                                '</tr>';
-                            table += row;
                         }
-                    });
-                    table += '<tr>'+
-                        '<td colspan="4"></td>'+
-                        '<td id="totalBasis" style="font-weight: bold;">'+totalBasis.toFixed(2)+'</td>'+
-                        '<td id="totalValue" style="font-weight: bold;">'+totalValue.toFixed(2)+'</td>'+
-                        '<td id="totalDChange" style="font-weight: bold;';
-                    var totalDollarChange = totalValue - totalBasis;
-                    if (totalDollarChange > 0) {
-                        table += 'color:green;'
-                    } else if (totalDollarChange < 0) {
-                        table += 'color:red;'
+                        let value = (Number(position.quantity) * Number(position.currentPrice));
+                        let cost = costs[position.ticker];
+                        let dollarChange = value - cost;
+                        let percentChange = (dollarChange / cost) * 100;
+                        totalBasis += cost;
+                        totalValue += value;
+                        let row = '<tr id="position_' + position.id + '" class="' + position.ticker.toUpperCase() + ' positionRow"';
+                        row += '>' +
+                            '<td name="ticker">' + position.ticker + '</td>' +
+                            '<td name="name">' + position.name + '</td>' +
+                            '<td name="quantity">' + position.quantity + '</td>' +
+                            '<td name="price"><span onClick="newPrice(\''+position.ticker+'\')">' + position.currentPrice + '</span></td>';
+                        if (typeof(cost) !== "undefined") {
+                            row += '<td name="basis">' + cost.toFixed(2) + '</td>';
+                        }
+                        row += '<td name="value">' + value.toFixed(2) + '</td>' +
+                            '<td name="dChange"';
+                        if (dollarChange > 0) {
+                            row += ' style="color:green;"'
+                        } else if (dollarChange < 0) {
+                            row += ' style="color:red;"'
+                        }
+                        row += '>' + dollarChange.toFixed(2) + '</td>' +
+                            '<td name="pChange"';
+                        if (percentChange > 0) {
+                            row += ' style="color:green;"'
+                        } else if (percentChange < 0) {
+                            row += ' style="color:red;"'
+                        }
+                        row += '>' + percentChange.toFixed(2) + '</td>' +
+                            '</tr>';
+                        table += row;
                     }
-                    table += '">'+totalDollarChange.toFixed(2)+'</td>'+
-                        '<td id="totalPChange" style="font-weight: bold;';
-                    var totalPercentChange = (totalDollarChange / totalBasis) * 100;
-                    if (totalPercentChange > 0) {
-                        table += 'color:green;'
-                    } else if (totalPercentChange < 0) {
-                        table += 'color:red;'
-                    }
-                    table += '">'+totalPercentChange.toFixed(2)+'</td>'+
-                        '</tr></tbody></table></div>';
-                    $positionSectionElem.html(table);
-                    if (type !== null) {
-                        tradeHighlight(positionId, "position");
-                    }
+                });
+                table += '<tr>'+
+                    '<td colspan="4"></td>'+
+                    '<td id="totalBasis" style="font-weight: bold;">'+totalBasis.toFixed(2)+'</td>'+
+                    '<td id="totalValue" style="font-weight: bold;">'+totalValue.toFixed(2)+'</td>'+
+                    '<td id="totalDChange" style="font-weight: bold;';
+                let totalDollarChange = totalValue - totalBasis;
+                if (totalDollarChange > 0) {
+                    table += 'color:green;'
+                } else if (totalDollarChange < 0) {
+                    table += 'color:red;'
+                }
+                table += '">'+totalDollarChange.toFixed(2)+'</td>'+
+                    '<td id="totalPChange" style="font-weight: bold;';
+                let totalPercentChange = (totalDollarChange / totalBasis) * 100;
+                if (totalPercentChange > 0) {
+                    table += 'color:green;'
+                } else if (totalPercentChange < 0) {
+                    table += 'color:red;'
+                }
+                table += '">'+totalPercentChange.toFixed(2)+'</td>'+
+                    '</tr></tbody></table></div>';
+                $positionSectionElem.html(table);
+                if (type !== null) {
+                    tradeHighlight(positionId, "position");
                 }
             }
-        })
-        .error(function(jqXHR/*, textStatus, errorThrown*/) {
-            if (jqXHR.status === 404) {
-                return false;
-            } else {
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
-            }
-        });
+        }
+    }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+        if (jqXHR.status === 404) {
+            return false;
+        } else {
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        }
+    });
 }
 
 function getTransactions(/*offset, limit, */transId) {

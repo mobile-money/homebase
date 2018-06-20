@@ -1,7 +1,8 @@
-var AWS = require("aws-sdk");
-var _ = require("underscore");
-var moment = require("moment");
-var uuid = require("uuid/v4");
+// const AWS = require("aws-sdk");
+// const docClient = new AWS.DynamoDB.DocumentClient();
+const _ = require("underscore");
+const moment = require("moment");
+const uuid = require("uuid/v4");
 
 function addTimeString(date) {
     return date+"T"+moment.utc().format('HH:mm:ss')+"Z"
@@ -20,19 +21,19 @@ function addTimeString(date) {
 //     return obj;
 // }
 
-module.exports = function(db) {
+module.exports = function(db,docClient) {
     return {
         insert: function(car) {
             return new Promise(function(resolve, reject) {
-                // db.Car.create(car).then(function(result) {
-                //     resolve(result);
-                // }).catch(function(error) {
-                //     reject(error);
-                // });
+                /* FIXME: LEGACY
+                db.Car.create(car).then(function(result) {
+                    resolve(result);
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-
-                var params = {
+                let params = {
                     TableName: "automobile_cars",
                     Item: {
                         id: uuid(),
@@ -63,23 +64,23 @@ module.exports = function(db) {
         ,get: function(params) {
             // params.active = true;
             return new Promise(function(resolve, reject) {
-                // db.Car.findAll({
-                //     where: params
-                //     // where: {
-                //     //     active: true
-                //     // }
-                //     ,order: [[ 'make', 'ASC' ]]
-                // }).then(function(results) {
-                //     resolve(results);
-                // }).catch(function(error) {
-                //     reject(error);
-                // });
+                /* FIXME: LEGACY
+                db.Car.findAll({
+                    where: params
+                    // where: {
+                    //     active: true
+                    // }
+                    ,order: [[ 'make', 'ASC' ]]
+                }).then(function(results) {
+                    resolve(results);
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
+
                 // console.log(params);
-                var docClient = new AWS.DynamoDB.DocumentClient();
                 if (!params.hasOwnProperty("id")) {
-
-
-                    var scanParams = {
+                    let scanParams = {
                         TableName: "automobile_cars",
                         ScanFilter: {
                             id: {
@@ -103,7 +104,7 @@ module.exports = function(db) {
                         }
                     });
                 } else {
-                    var getParams = {
+                    let getParams = {
                         TableName: "automobile_cars",
                         Key: {
                             id: params.id
@@ -123,35 +124,35 @@ module.exports = function(db) {
         }
         ,update: function(carId, data) {
             return new Promise(function(resolve, reject) {
-                // db.Car.findOne({
-                //     where: {
-                //         id: carId
-                //     }
-                // }).then(function(car) {
-                //     if (car !== null) {
-                //         if (data.make) { car.make = data.make; }
-                //         if (data.model) { car.model = data.model; }
-                //         if (data.year) { car.year = data.year; }
-                //         if (data.vin) { car.vin = data.vin; }
-                //         if (data.license_plate) { car.license_plate = data.license_plate; }
-                //         if (data.purchase_date) { car.purchase_date = data.purchase_date; }
-                //         if (data.purchase_mileage) { car.purchase_mileage = data.purchase_mileage; }
-                //         if (data.current_mileage) { car.current_mileage = data.current_mileage; }
-                //         car.save().then(function(result) {
-                //             resolve(result);
-                //         }).catch(function(error) {
-                //             reject(error);
-                //         });
-                //     } else {
-                //         reject("car not found");
-                //     }
-                // }).catch(function(error) {
-                //     reject(error);
-                // });
+                /* FIXME: LEGACY
+                db.Car.findOne({
+                    where: {
+                        id: carId
+                    }
+                }).then(function(car) {
+                    if (car !== null) {
+                        if (data.make) { car.make = data.make; }
+                        if (data.model) { car.model = data.model; }
+                        if (data.year) { car.year = data.year; }
+                        if (data.vin) { car.vin = data.vin; }
+                        if (data.license_plate) { car.license_plate = data.license_plate; }
+                        if (data.purchase_date) { car.purchase_date = data.purchase_date; }
+                        if (data.purchase_mileage) { car.purchase_mileage = data.purchase_mileage; }
+                        if (data.current_mileage) { car.current_mileage = data.current_mileage; }
+                        car.save().then(function(result) {
+                            resolve(result);
+                        }).catch(function(error) {
+                            reject(error);
+                        });
+                    } else {
+                        reject("car not found");
+                    }
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-
-                var params = {
+                let params = {
                     TableName: "automobile_cars",
                     Key: {
                         id: carId
@@ -192,29 +193,30 @@ module.exports = function(db) {
         }
         ,delete: function(carId) {
             return new Promise(function(resolve, reject) {
-                // db.Car.findOne({
-                //     where: {
-                //         id: carId
-                //     }
-                // }).then(function(car) {
-                //     if (car !== null) {
-                //         car.active = false;
-                //         car.sold_date = moment().format('YYYY-MM-DD');
-                //         car.save().then(function(result) {
-                //         // car.destroy().then(function(result) {
-                //             resolve(result);
-                //         }).catch(function(error) {
-                //             reject(error);
-                //         });
-                //     } else {
-                //         reject("car not found");
-                //     }
-                // }).catch(function(error) {
-                //     reject(error);
-                // });
-                var docClient = new AWS.DynamoDB.DocumentClient();
+                /* FIXME: LEGACY
+                db.Car.findOne({
+                    where: {
+                        id: carId
+                    }
+                }).then(function(car) {
+                    if (car !== null) {
+                        car.active = false;
+                        car.sold_date = moment().format('YYYY-MM-DD');
+                        car.save().then(function(result) {
+                        // car.destroy().then(function(result) {
+                            resolve(result);
+                        }).catch(function(error) {
+                            reject(error);
+                        });
+                    } else {
+                        reject("car not found");
+                    }
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
 
-                var params = {
+                let params = {
                     TableName: "automobile_cars",
                     Key: {
                         id: carId
@@ -249,21 +251,20 @@ module.exports = function(db) {
         }
         ,getInactive: function() {
             return new Promise(function(resolve, reject) {
-            //     db.Car.findAll({
-            //         where: {
-            //             active: false
-            //         }
-            //         ,order: [['make', 'ASC']]
-            //     }).then(function(results) {
-            //         resolve(results);
-            //     }).catch(function(error) {
-            //         reject(error);
-            //     });
-            // });
+                /* FIXME: LEGACY
+                db.Car.findAll({
+                    where: {
+                        active: false
+                    }
+                    ,order: [['make', 'ASC']]
+                }).then(function(results) {
+                    resolve(results);
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-
-                var params = {
+                let params = {
                     TableName: "automobile_cars",
                     ScanFilter: {
                         id: {
@@ -291,27 +292,27 @@ module.exports = function(db) {
         }
         ,reactivate: function(id) {
             return new Promise(function(resolve, reject) {
-                // db.Car.update({
-                //         active: true
-                //         ,sold_date: null
-                //     }
-                //     ,{
-                //         where: {
-                //             id: id
-                //         }
-                //     }).then(function(result) {
-                //     if (result[0] === 1) {
-                //         resolve();
-                //     } else {
-                //         reject("There was a problem reactivating the car");
-                //     }
-                // }).catch(function(error) {
-                //     reject(error);
-                // });
+                /* FIXME: LEGACY
+                db.Car.update({
+                        active: true
+                        ,sold_date: null
+                    }
+                    ,{
+                        where: {
+                            id: id
+                        }
+                    }).then(function(result) {
+                    if (result[0] === 1) {
+                        resolve();
+                    } else {
+                        reject("There was a problem reactivating the car");
+                    }
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-
-                var params = {
+                let params = {
                     TableName: "automobile_cars",
                     Key: {
                         id: id
@@ -342,21 +343,20 @@ module.exports = function(db) {
                 });
             });
         }
-        ,dataXfer: function() {
+        ,dataXfer: function(start,max) {
             return new Promise(function(resolve,reject) {
                 db.Car.findAll({
-                    order: [[ 'make', 'ASC' ]]
+                    order: [[ 'make', 'ASC' ]],
+                    limit: max
                 }).then(function(results) {
-                    var docClient = new AWS.DynamoDB.DocumentClient();
-
-                    var params = {
+                    let params = {
                         RequestItems: {
                             "automobile_cars": []
                         }
                     };
 
                     results.forEach(function(result) {
-                        var obj = {
+                        let obj = {
                             PutRequest: {
                                 Item: {
                                     id: result.id.toString(),
@@ -378,12 +378,12 @@ module.exports = function(db) {
                         }
                         params.RequestItems.automobile_cars.push(obj);
                     });
-                    docClient.batchWrite(params, function(err, data) {
+                    docClient.batchWrite(params, function(err,data) {
                         if (err) {
                             console.error("Unable to xfer car data. Error JSON:", JSON.stringify(err, null, 2));
                             reject(err);
                         } else {
-                            console.log("Xfer car data succeeded:", JSON.stringify(params, null, 2));
+                            console.log("Xfer car data succeeded:", JSON.stringify(data, null, 2));
                             resolve(params);
                         }
                     });

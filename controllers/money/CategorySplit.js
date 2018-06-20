@@ -1,9 +1,9 @@
-var AWS = require("aws-sdk");
-var _ = require("underscore");
-var moment = require("moment");
-var uuid = require("uuid/v4");
+// var AWS = require("aws-sdk");
+// const _ = require("underscore");
+const moment = require("moment");
+// const uuid = require("uuid/v4");
 
-module.exports = function(db) {
+module.exports = function(db,docClient) {
     return {
         getByTransactionId: function(id) {
             return new Promise(function(resolve, reject) {
@@ -17,8 +17,8 @@ module.exports = function(db) {
                 //     });
                 // });
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-                var transParams = {
+                // var docClient = new AWS.DynamoDB.DocumentClient();
+                let transParams = {
                     TableName: "bank_category_splits",
                     Key: {
                         transaction_id: id
@@ -35,9 +35,10 @@ module.exports = function(db) {
                 });
             });
         }
-        ,dataXfer: function() {
-            return new Promise(function(resolve,reject) {
+        ,dataXfer: function(start,max) {
+            return new Promise(function(resolve) {
                 console.log("starting category splits transfer");
+                let totalCount = 0;
                 function getTrans(offset) {
                     console.log("starting offset: "+offset);
                     db.CategorySplit.findAll({
@@ -52,15 +53,16 @@ module.exports = function(db) {
                 }
 
                 function buildWrites(results,offset) {
-                    if (results.length > 0) {
-                        var params = {
+                    if (results.length > 0 && offset <= max) {
+                        totalCount += results.length;
+                        let params = {
                             RequestItems: {
                                 "bank_category_splits": []
                             }
                         };
 
                         results.forEach(function (result) {
-                            var obj = {
+                            let obj = {
                                 PutRequest: {
                                     Item: {
                                         transaction_id: result.transaction.toString(),
@@ -74,13 +76,13 @@ module.exports = function(db) {
                         });
                         sendWrites(params,offset);
                     } else {
-                        console.log("category splits transfer complete");
+                        console.log(`category splits transfer complete. transferred ${totalCount} items`);
                         resolve();
                     }
                 }
                 function sendWrites(params,offset) {
-                    var docClient = new AWS.DynamoDB.DocumentClient();
-                    docClient.batchWrite(params, function (err, data) {
+                    // var docClient = new AWS.DynamoDB.DocumentClient();
+                    docClient.batchWrite(params, function (err/*, data*/) {
                         if (err) {
                             console.error("Unable to xfer category splits data. Error JSON:", JSON.stringify(err, null, 2));
                         } else {
@@ -90,7 +92,7 @@ module.exports = function(db) {
                         }
                     });
                 }
-                getTrans(0);
+                getTrans(start);
             });
         }
     };

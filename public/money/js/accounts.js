@@ -107,6 +107,7 @@ function getAccounts(id, type) {
     }).success(function(accounts) {
         // gl_getAccounts().then(function(accounts) {
         var now = moment();
+        console.log(accounts);
         $("#accountTable tbody").empty();
         accounts.forEach(function (account) {
             var balance = 0;

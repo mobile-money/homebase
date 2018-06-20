@@ -1,13 +1,13 @@
-var AWS = require("aws-sdk");
-var _ = require("underscore");
-var moment = require("moment");
-var uuid = require("uuid/v4");
+// var AWS = require("aws-sdk");
+const _ = require("underscore");
+const moment = require("moment");
+const uuid = require("uuid/v4");
 
-function addTimeString(date) {
-    return date+"T"+moment.utc().format('HH:mm:ss')+"Z"
-}
+// function addTimeString(date) {
+//     return date+"T"+moment.utc().format('HH:mm:ss')+"Z"
+// }
 
-module.exports = function(db) {
+module.exports = function(db,docClient) {
 	return {
 		getAll: function() {
 			return new Promise(function(resolve, reject) {
@@ -19,8 +19,8 @@ module.exports = function(db) {
 				// 		reject(error);
 				// 	});
 
-				var docClient = new AWS.DynamoDB.DocumentClient();
-				var params = {
+				// var docClient = new AWS.DynamoDB.DocumentClient();
+				let params = {
 					TableName: "bank_budgets",
 					ScanFilter: {
 						id: {
@@ -52,8 +52,8 @@ module.exports = function(db) {
 				// 	reject(error);
 				// });
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-                var params = {
+                // var docClient = new AWS.DynamoDB.DocumentClient();
+                let params = {
                     TableName: "bank_budgets",
                     Key: {
                         id: id
@@ -83,10 +83,10 @@ module.exports = function(db) {
 				// 	reject(error);
 				// });
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
+                // var docClient = new AWS.DynamoDB.DocumentClient();
 
-                var id = uuid();
-                var params = {
+                let id = uuid();
+                let params = {
                     TableName: "bank_budgets",
                     Item: {
                         id: id,
@@ -128,9 +128,9 @@ module.exports = function(db) {
 				// 	reject({code: -1, error: error});
 				// });
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
+                // var docClient = new AWS.DynamoDB.DocumentClient();
 
-                var params = {
+                let params = {
                     TableName: "bank_budgets",
                     Key: {
                         id: data.id
@@ -179,12 +179,12 @@ module.exports = function(db) {
 				// 	reject({code: -1, error: error});
 				// });
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
+                // var docClient = new AWS.DynamoDB.DocumentClient();
 
-                var params = {
+                let params = {
                     TableName: "bank_budgets",
                     Key: {
-                        id: data.id
+                        id: id
                     },
                     AttributeUpdates: {
                         deleted_at: {
@@ -296,9 +296,9 @@ module.exports = function(db) {
 				// 	reject(error);
 				// });
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
+                // var docClient = new AWS.DynamoDB.DocumentClient();
 
-                var scanParams = {
+                let scanParams = {
                     TableName: "bank_budgets",
                     ScanFilter: {
                         favorite: {
@@ -318,7 +318,7 @@ module.exports = function(db) {
                         console.log("Get favorite budget succeeded:", JSON.stringify(scanData, null, 2));
                         if (scanData.Items.length > 0) {
                         	// Need to unfavorite previous favorite
-                            var unfavoriteParams = {
+                            let unfavoriteParams = {
                                 TableName: "bank_budgets",
                                 Key: {
                                     id: scanData.Items[0].id
@@ -342,7 +342,7 @@ module.exports = function(db) {
                                 } else {
                                     console.log("Update unfavorite budget succeeded:", JSON.stringify(unfavoriteData, null, 2));
                                     // Now, update the new favorite
-                                    var favoriteParams = {
+                                    let favoriteParams = {
                                         TableName: "bank_budgets",
                                         Key: {
                                             id: id
@@ -371,7 +371,7 @@ module.exports = function(db) {
                                 }
                             });
 						} else {
-                            var favoriteParams = {
+                            let favoriteParams = {
                                 TableName: "bank_budgets",
                                 Key: {
                                     id: id.toString()
@@ -402,9 +402,10 @@ module.exports = function(db) {
                 });
 			});
 		}
-        ,dataXfer: function() {
-            return new Promise(function(resolve,reject) {
+        ,dataXfer: function(start,max) {
+            return new Promise(function(resolve) {
                 console.log("starting budget transfer");
+                let totalCount = 0;
                 function getBudgets(offset) {
                     console.log("starting offset: "+offset);
                     db.Budget.findAll({
@@ -419,15 +420,16 @@ module.exports = function(db) {
                 }
 
                 function buildWrites(results,offset) {
-                    if (results.length > 0) {
-                        var params = {
+                    if (results.length > 0 && offset <= max) {
+                        totalCount += results.length;
+                        let params = {
                             RequestItems: {
                                 "bank_budgets": []
                             }
                         };
 
                         results.forEach(function (result) {
-                            var obj = {
+                            let obj = {
                                 PutRequest: {
                                     Item: {
                                         id: result.id.toString(),
@@ -450,19 +452,19 @@ module.exports = function(db) {
                     }
                 }
                 function sendWrites(params,offset) {
-                    var docClient = new AWS.DynamoDB.DocumentClient();
-                    docClient.batchWrite(params, function (err, data) {
+                    // var docClient = new AWS.DynamoDB.DocumentClient();
+                    docClient.batchWrite(params, function (err/*, data*/) {
                         if (err) {
                             console.error("Unable to xfer budgets data. Error JSON:", JSON.stringify(err, null, 2));
                         } else {
                             // console.log("Xfer car data succeeded:", JSON.stringify(params, null, 2));
-                            console.log("batch transfer complete");
+                            console.log(`batch transfer complete. transferred ${totalCount} items`);
                             getBudgets(offset);
                         }
                     });
                 }
 
-                getBudgets(0);
+                getBudgets(start);
             });
         }
 	};

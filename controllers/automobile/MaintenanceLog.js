@@ -1,35 +1,36 @@
-var AWS = require("aws-sdk");
-var _ = require("underscore");
-var moment = require("moment");
-var uuid = require("uuid/v4");
+// const AWS = require("aws-sdk");
+const _ = require("underscore");
+const moment = require("moment");
+const uuid = require("uuid/v4");
 
 function addTimeString(date) {
     return date+"T"+moment.utc().format('HH:mm:ss')+"Z"
 }
 
-module.exports = function(db) {
+module.exports = function(db,docClient) {
+    // const docClient = new AWS.DynamoDB.DocumentClient();
     return {
         insert: function(mx) {
             return new Promise(function(resolve, reject) {
-                // db.MaintenanceLog.create(mx).then(function(result) {
-                //     db.Car.findById(mx.CarId).then(function(car) {
-                //         if (car !== null) {
-                //             car.current_mileage = mx.mileage;
-                //             car.save().then(function() {
-                //                 resolve(result);
-                //             });
-                //         } else {
-                //             console.log("car " + mx.CarId + " not found to update mileage");
-                //             resolve(result);
-                //         }
-                //     });
-                // }).catch(function(error) {
-                //     reject(error);
-                // });
+                /* FIXME: LEGACY
+                db.MaintenanceLog.create(mx).then(function(result) {
+                    db.Car.findById(mx.CarId).then(function(car) {
+                        if (car !== null) {
+                            car.current_mileage = mx.mileage;
+                            car.save().then(function() {
+                                resolve(result);
+                            });
+                        } else {
+                            console.log("car " + mx.CarId + " not found to update mileage");
+                            resolve(result);
+                        }
+                    });
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-
-                var logParams = {
+                let logParams = {
                     TableName: "automobile_mx_logs",
                     Item: {
                         car_id: mx.CarId,
@@ -48,7 +49,7 @@ module.exports = function(db) {
                         reject(err);
                     } else {
                         console.log("Insert mx log succeeded:", JSON.stringify(logData, null, 2));
-                        var updateParams = {
+                        let updateParams = {
                             TableName: "automobile_cars",
                             Key: {
                                 id: mx.CarId
@@ -62,7 +63,7 @@ module.exports = function(db) {
                                 ':x': Number(mx.mileage)
                             }
                         };
-                        docClient.update(updateParams, function(err, updateData) {
+                        docClient.update(updateParams, function(err/*, updateData*/) {
                             if (err) {
                                 if (err.message === "The conditional request failed") {
                                     console.log("current mileage update not needed");
@@ -82,20 +83,20 @@ module.exports = function(db) {
         }
         ,get: function(carId) {
             return new Promise(function(resolve, reject) {
-                // db.MaintenanceLog.findAll({
-                //     where: {
-                //         CarId: carId
-                //     }
-                //     ,order: [[ 'service_date', 'DESC' ]]
-                // }).then(function(results) {
-                //     resolve(results);
-                // }).catch(function(error) {
-                //     reject(error);
-                // });
+                /* FIXME: LEGACY
+                db.MaintenanceLog.findAll({
+                    where: {
+                        CarId: carId
+                    }
+                    ,order: [[ 'service_date', 'DESC' ]]
+                }).then(function(results) {
+                    resolve(results);
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-
-                var params = {
+                let params = {
                     TableName: "automobile_mx_logs",
                     IndexName: "car_id-service_date-index",
                     KeyConditions: {
@@ -128,42 +129,42 @@ module.exports = function(db) {
         }
         ,update: function(mxId, data) {
             return new Promise(function(resolve, reject) {
-                // db.MaintenanceLog.findById(mxId).then(function(mx) {
-                //     if (mx !== null) {
-                //         if (data.service_date) { mx.service_date = data.service_date; }
-                //         if (data.mileage) { mx.mileage = data.mileage; }
-                //         if (data.description) { mx.description = data.description; }
-                //         if (data.cost) { mx.cost = data.cost; }
-                //         if (data.servicer) { mx.servicer = data.servicer; }
-                //         if (data.CarId) { mx.CarId = data.CarId; }
-                //         mx.save().then(function(result) {
-                //             db.Car.findById(mx.CarId).then(function(car) {
-                //                 if (car !== null) {
-                //                     if (mx.mileage > car.current_mileage) {
-                //                         car.current_mileage = mx.mileage;
-                //                         car.save().then(function() {
-                //                             resolve(result);
-                //                         });
-                //                     } else {
-                //                         resolve(result);
-                //                     }
-                //                 } else {
-                //                     resolve(result);
-                //                 }
-                //             });
-                //         }).catch(function(error) {
-                //             reject(error);
-                //         });
-                //     } else {
-                //         reject("maintenance not found");
-                //     }
-                // }).catch(function(error) {
-                //     reject(error);
-                // });
+                /* FIXME: LEGACY
+                db.MaintenanceLog.findById(mxId).then(function(mx) {
+                    if (mx !== null) {
+                        if (data.service_date) { mx.service_date = data.service_date; }
+                        if (data.mileage) { mx.mileage = data.mileage; }
+                        if (data.description) { mx.description = data.description; }
+                        if (data.cost) { mx.cost = data.cost; }
+                        if (data.servicer) { mx.servicer = data.servicer; }
+                        if (data.CarId) { mx.CarId = data.CarId; }
+                        mx.save().then(function(result) {
+                            db.Car.findById(mx.CarId).then(function(car) {
+                                if (car !== null) {
+                                    if (mx.mileage > car.current_mileage) {
+                                        car.current_mileage = mx.mileage;
+                                        car.save().then(function() {
+                                            resolve(result);
+                                        });
+                                    } else {
+                                        resolve(result);
+                                    }
+                                } else {
+                                    resolve(result);
+                                }
+                            });
+                        }).catch(function(error) {
+                            reject(error);
+                        });
+                    } else {
+                        reject("maintenance not found");
+                    }
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
 
-                var docClient = new AWS.DynamoDB.DocumentClient();
-
-                var logParams = {
+                let logParams = {
                     TableName: "automobile_mx_logs",
                     Key: {
                         car_id: data.CarId,
@@ -204,7 +205,7 @@ module.exports = function(db) {
                         reject(err);
                     } else {
                         console.log("Update mx log succeeded:", JSON.stringify(logData, null, 2));
-                        var updateParams = {
+                        let updateParams = {
                             TableName: "automobile_cars",
                             Key: {
                                 id: data.CarId
@@ -218,7 +219,7 @@ module.exports = function(db) {
                                 ':x': Number(data.mileage)
                             }
                         };
-                        docClient.update(updateParams, function(err, updateData) {
+                        docClient.update(updateParams, function(err/*, updateData*/) {
                             if (err) {
                                 if (err.message === "The conditional request failed") {
                                     console.log("current mileage update not needed");
@@ -238,55 +239,55 @@ module.exports = function(db) {
         }
         ,delete: function(mxId,carId) {
             return new Promise(function(resolve, reject) {
-                // db.MaintenanceLog.findById(mxId).then(function(mx) {
-                //     if (mx !== null) {
-                //         db.Car.findById(mx.CarId).then(function(car) {
-                //             if (car !== null) {
-                //                 if (car.current_mileage === mx.mileage) {
-                //                     db.MaintenanceLog.findOne({
-                //                         where: {
-                //                             CarId: mx.CarId
-                //                             ,id: {
-                //                                 $ne: mx.id
-                //                             }
-                //                         }
-                //                         ,order: [["service_date","DESC"]]
-                //                     }).then(function(lastMx) {
-                //                         if (lastMx !== null) {
-                //                             car.current_mileage = lastMx.mileage;
-                //                         } else {
-                //                             car.current_mileage = car.purchase_mileage;
-                //                         }
-                //                         car.save().then(function() {
-                //                             mx.destroy().then(function(result) {
-                //                                 resolve(result);
-                //                             }).catch(function(error) {
-                //                                 reject(error);
-                //                             });
-                //                         });
-                //                     });
-                //                 } else {
-                //                     mx.destroy().then(function(result) {
-                //                         resolve(result);
-                //                     }).catch(function(error) {
-                //                         reject(error);
-                //                     });
-                //                 }
-                //             } else {
-                //                 reject("maintenance car not found");
-                //             }
-                //         });
-                //     } else {
-                //         reject("maintenance not found");
-                //     }
-                // }).catch(function(error) {
-                //     reject(error);
-                // });
+                /* FIXME: LEGACY
+                db.MaintenanceLog.findById(mxId).then(function(mx) {
+                    if (mx !== null) {
+                        db.Car.findById(mx.CarId).then(function(car) {
+                            if (car !== null) {
+                                if (car.current_mileage === mx.mileage) {
+                                    db.MaintenanceLog.findOne({
+                                        where: {
+                                            CarId: mx.CarId
+                                            ,id: {
+                                                $ne: mx.id
+                                            }
+                                        }
+                                        ,order: [["service_date","DESC"]]
+                                    }).then(function(lastMx) {
+                                        if (lastMx !== null) {
+                                            car.current_mileage = lastMx.mileage;
+                                        } else {
+                                            car.current_mileage = car.purchase_mileage;
+                                        }
+                                        car.save().then(function() {
+                                            mx.destroy().then(function(result) {
+                                                resolve(result);
+                                            }).catch(function(error) {
+                                                reject(error);
+                                            });
+                                        });
+                                    });
+                                } else {
+                                    mx.destroy().then(function(result) {
+                                        resolve(result);
+                                    }).catch(function(error) {
+                                        reject(error);
+                                    });
+                                }
+                            } else {
+                                reject("maintenance car not found");
+                            }
+                        });
+                    } else {
+                        reject("maintenance not found");
+                    }
+                }).catch(function(error) {
+                    reject(error);
+                });
+                */
 
-
-                var docClient = new AWS.DynamoDB.DocumentClient();
                 // Update log to add deleted_at
-                var logParams = {
+                let logParams = {
                     TableName: "automobile_mx_logs",
                     Key: {
                         car_id: carId,
@@ -308,7 +309,7 @@ module.exports = function(db) {
                         console.log("Delete mx log succeeded:", JSON.stringify(logData, null, 2));
                         // resolve(logData.Attributes);
                         // Get car to see if current mileage needs to be updated
-                        var carParams = {
+                        let carParams = {
                             TableName: "automobile_cars",
                             Key: {
                                 id: carId
@@ -320,7 +321,7 @@ module.exports = function(db) {
                                 reject(err);
                             } else {
                                 if (Number(logData.Attributes.mileage) === Number(carData.Item.current_mileage)) {
-                                    var oldLogParams = {
+                                    let oldLogParams = {
                                         TableName: "automobile_mx_logs",
                                         IndexName: "car_id-service_date-index",
                                         KeyConditions: {
@@ -344,7 +345,7 @@ module.exports = function(db) {
                                             reject(err);
                                         } else {
                                             console.log("Get mx logs succeeded");
-                                            var updateParams = {
+                                            let updateParams = {
                                                 TableName: "automobile_cars",
                                                 Key: {
                                                     id: carId
@@ -356,7 +357,7 @@ module.exports = function(db) {
                                                     }
                                                 }
                                             };
-                                            docClient.update(updateParams, function(err, updateData) {
+                                            docClient.update(updateParams, function(err/*, updateData*/) {
                                                 if (err) {
                                                     console.error("Unable to update car. Error JSON:", JSON.stringify(err, null, 2));
                                                     reject(err);
@@ -377,9 +378,10 @@ module.exports = function(db) {
                 });
             });
         }
-        ,dataXfer: function() {
-            return new Promise(function(resolve,reject) {
+        ,dataXfer: function(start, max) {
+            return new Promise(function(resolve) {
                 console.log("starting mx log transfer");
+                let totalCount = 0;
                 function getLogs(offset) {
                     console.log("starting offset: "+offset);
                     db.MaintenanceLog.findAll({
@@ -394,15 +396,16 @@ module.exports = function(db) {
                 }
 
                 function buildWrites(results,offset) {
-                    if (results.length > 0) {
-                        var params = {
+                    if (results.length > 0 && offset <= max) {
+                        totalCount += results.length;
+                        let params = {
                             RequestItems: {
                                 "automobile_mx_logs": []
                             }
                         };
 
                         results.forEach(function (result) {
-                            var obj = {
+                            let obj = {
                                 PutRequest: {
                                     Item: {
                                         id: result.id.toString(),
@@ -420,24 +423,24 @@ module.exports = function(db) {
                         });
                         sendWrites(params,offset);
                     } else {
-                        console.log("mx logs transfer complete");
+                        console.log(`mx logs transfer complete. transferred ${totalCount} items`);
                         resolve();
                     }
                 }
                 function sendWrites(params,offset) {
-                    var docClient = new AWS.DynamoDB.DocumentClient();
                     docClient.batchWrite(params, function (err, data) {
                         if (err) {
                             console.error("Unable to xfer mx log data. Error JSON:", JSON.stringify(err, null, 2));
                         } else {
                             // console.log("Xfer car data succeeded:", JSON.stringify(params, null, 2));
                             console.log("batch transfer complete");
+                            // console.log(data);
                             getLogs(offset);
                         }
                     });
                 }
 
-                getLogs(0);
+                getLogs(start);
             });
         }
     };

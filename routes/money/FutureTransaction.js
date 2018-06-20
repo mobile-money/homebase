@@ -25,7 +25,7 @@ module.exports = function(app, FutureTransaction, _, io) {
 	// Insert future transaction
 	app.post("/api/v1/money/futureTransactions", function(req, res) {
 		console.log("future transaction add requested");
-		var body = _.pick(req.body, 'account', 'tDate', 'payee', 'description', 'check', 'amount', 'category', 'xfer', 'bill', 'multiCat');
+		let body = _.pick(req.body, 'account', 'tDate', 'payee', 'description', 'check', 'amount', 'category', 'xfer', 'bill', 'multiCat');
 		// console.log(body);
 		FutureTransaction.add(body).then(function(obj) {
 			console.log("future transaction added");
@@ -48,32 +48,25 @@ module.exports = function(app, FutureTransaction, _, io) {
 	// Update future transaction by ID
 	app.put("/api/v1/money/futureTransactions/:id", function(req, res) {
 		console.log("modify future transaction requested");
-		var body = _.pick(req.body, 'account', 'tDate', 'payee', 'description', 'check', 'amount', 'category');
+		let body = _.pick(req.body, 'account', 'tDate', 'payee', 'description', 'check', 'amount', 'category');
 		body.id = req.params.id;
-		FutureTransaction.update(body)
-		.then(
-			function(result) {
-				console.log("future transaction modified");
-				io.emit("transactionChanged", "f_"+result.id);
-				res.status(200).send();
-			}
-			,function() {
-				console.log("future transaction not found");
-				res.status(404).send();
-			}
-		)
-		.catch(
-			function(error) {
-				console.log("future transaction modification error: "+error);
-				res.status(500).send();
-			}
-		);
+		FutureTransaction.update(body).then(function(result) {
+			console.log("future transaction modified");
+			io.emit("transactionChanged", "f_"+result.id);
+			res.status(200).send();
+		},function() {
+			console.log("future transaction not found");
+			res.status(404).send();
+		}).catch(function(error) {
+			console.log("future transaction modification error: "+error);
+			res.status(500).send();
+		});
 	});
 
 	// Delete future transaction by ID
 	app.delete("/api/v1/money/futureTransactions/:id", function(req, res) {
 		console.log("delete future transaction requested");
-		var idsSplit = req.params.id.split("|");
+		let idsSplit = req.params.id.split("|");
 		FutureTransaction.delete(idsSplit[0],idsSplit[1]).then(function() {
 			console.log("future transaction deleted");
 			io.emit("transactionDeleted", "f_"+idsSplit[0]);
@@ -90,7 +83,7 @@ module.exports = function(app, FutureTransaction, _, io) {
 	// Commit future transaction
 	app.put("/api/v1/money/futureTransaction/commit/:id", function(req, res) {
 		console.log("commit future transaction requested");
-		var body = _.pick(req.body, 'pDate', 'account');
+		let body = _.pick(req.body, 'pDate', 'account');
 		body.id = req.params.id;
 		FutureTransaction.commit(body).then(function(newTransaction) {
 			console.log("future transaction committed");
@@ -143,8 +136,8 @@ module.exports = function(app, FutureTransaction, _, io) {
 	// });
 
     // Data Xfer from MySQL to DynamoDB
-    app.get("/api/v1/money/dataXfer/futureTransactions",function(req,res) {
-        FutureTransaction.dataXfer().then(function(result) {
+    app.get("/api/v1/money/dataXfer/futureTransactions/:start/:max",function(req,res) {
+        FutureTransaction.dataXfer(Number(req.params.start),Number(req.params.max)).then(function(result) {
             res.status(200).json(result);
         }).catch(function(err) {
             res.status(500).json(err);

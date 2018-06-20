@@ -1,4 +1,4 @@
-const AWS = require("aws-sdk");
+// const AWS = require("aws-sdk");
 const _ = require("underscore");
 const moment = require("moment");
 const uuid = require("uuid/v4");
@@ -7,7 +7,7 @@ const uuid = require("uuid/v4");
 //     return date+"T"+moment.utc().format('HH:mm:ss')+"Z"
 // }
 
-module.exports = function(db) {
+module.exports = function(db,docClient) {
 	return {
 		getAll: function() {
 			return new Promise(function(resolve, reject) {
@@ -23,7 +23,7 @@ module.exports = function(db) {
 				// 	}
 				// );
 
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                // let docClient = new AWS.DynamoDB.DocumentClient();
                 let params = {
                     TableName: "bank_categories",
                     ScanFilter: {
@@ -63,7 +63,7 @@ module.exports = function(db) {
 				// 	reject(error);
 				// });
 
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                // let docClient = new AWS.DynamoDB.DocumentClient();
 
                 let id = uuid();
                 let params = {
@@ -110,7 +110,7 @@ module.exports = function(db) {
 				// 	reject(error);
 				// });
 
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                // let docClient = new AWS.DynamoDB.DocumentClient();
 
                 let params = {
                     TableName: "bank_categories",
@@ -168,7 +168,7 @@ module.exports = function(db) {
 				// 	reject({code: -1, error: error});
 				// });
 
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                // let docClient = new AWS.DynamoDB.DocumentClient();
 
                 let params = {
                     TableName: "bank_categories",
@@ -195,9 +195,10 @@ module.exports = function(db) {
                 });
 			});
 		}
-		,dataXfer: function() {
+		,dataXfer: function(start,max) {
             return new Promise(function(resolve) {
                 console.log("starting category transfer");
+                let totalCount = 0;
                 function getCategories(offset) {
                     console.log("starting offset: "+offset);
                     db.Category.findAll({
@@ -212,7 +213,8 @@ module.exports = function(db) {
                 }
 
                 function buildWrites(results,offset) {
-                    if (results.length > 0) {
+                    if (results.length > 0 && offset <= max) {
+                        totalCount += results.length;
                         let params = {
                             RequestItems: {
                                 "bank_categories": []
@@ -237,7 +239,7 @@ module.exports = function(db) {
                         });
                         sendWrites(params,offset);
                     } else {
-                        console.log("category transfer complete");
+                        console.log(`category transfer complete. transferred ${totalCount} items`);
                         resolve();
                     }
                 }
@@ -253,7 +255,7 @@ module.exports = function(db) {
                         }
                     });
                 }
-                getCategories(0);
+                getCategories(start);
             });
         }
 	};

@@ -6,6 +6,13 @@ const io = require("socket.io")(http);
 const bodyParser = require("body-parser");
 const _ = require("underscore");
 const aws_config = require("./config/aws.js");
+const AWS = require("aws-sdk");
+AWS.config.update({
+    region: "us-east-2",
+    accessKeyId: aws_config.dynamodb.api_key,
+    secretAccessKey: aws_config.dynamodb.secret_key
+});
+const docClient = new AWS.DynamoDB.DocumentClient();
 const db_hvac = require("./config/db_hvac.js");
 const db_money = require("./config/db_money.js");
 const db_automobile = require("./config/db_automobile.js");
@@ -27,20 +34,20 @@ const System_Run = require("./controllers/hvac/System_Run.js")(db_hvac);
 const Option = require("./controllers/hvac/Option.js")(db_hvac);
 const Forecast = require("./controllers/hvac/Forecast.js")(db_hvac);
 // MONEY
-const User = require("./controllers/money/User.js")(db_money);
-const Account = require("./controllers/money/Account.js")(db_money);
-const Summary = require("./controllers/money/Summary.js")(db_money);
-const Category = require("./controllers/money/Category.js")(db_money);
-const Transaction = require("./controllers/money/Transaction.js")(db_money);
-const FutureTransaction = require("./controllers/money/FutureTransaction.js")(db_money, Transaction);
-const Bill = require("./controllers/money/Bill.js")(db_money);
-const Budget = require("./controllers/money/Budget.js")(db_money);
-const Trade = require("./controllers/money/Trade.js")(db_money);
-const Position = require("./controllers/money/Position.js")(db_money);
-const CategorySplit = require("./controllers/money/CategorySplit.js")(db_money);
+const User = require("./controllers/money/User.js")(db_money,docClient);
+const Account = require("./controllers/money/Account.js")(db_money,docClient);
+const Summary = require("./controllers/money/Summary.js")(db_money,docClient);
+const Category = require("./controllers/money/Category.js")(db_money,docClient);
+const Transaction = require("./controllers/money/Transaction.js")(db_money,docClient);
+const FutureTransaction = require("./controllers/money/FutureTransaction.js")(db_money, Transaction,docClient);
+const Bill = require("./controllers/money/Bill.js")(db_money,docClient);
+const Budget = require("./controllers/money/Budget.js")(db_money,docClient);
+const Trade = require("./controllers/money/Trade.js")(db_money,docClient);
+const Position = require("./controllers/money/Position.js")(db_money,docClient);
+const CategorySplit = require("./controllers/money/CategorySplit.js")(db_money,docClient);
 // AUTOMOBILE
-const Car = require("./controllers/automobile/Car.js")(db_automobile);
-const MaintenanceLog = require("./controllers/automobile/MaintenanceLog.js")(db_automobile);
+const Car = require("./controllers/automobile/Car.js")(db_automobile,docClient);
+const MaintenanceLog = require("./controllers/automobile/MaintenanceLog.js")(db_automobile,docClient);
 
 // Start socket.io
 // io.on("connection", function(/*socket*/) {
@@ -74,7 +81,7 @@ require("./routes/hvac/Forecast.js")(app, Forecast, _, io_hvac);
 // MONEY
 require("./routes/money/User.js")(app, User, _);
 require("./routes/money/Account.js")(app, Account, _, io_money);
-require("./routes/money/Summary.js")(app, Summary, _);
+require("./routes/money/Summary.js")(app, Summary);
 require("./routes/money/Transaction.js")(app, Transaction, _, io_money);
 require("./routes/money/FutureTransaction.js")(app, FutureTransaction, _, io_money);
 require("./routes/money/Bill.js")(app, Bill, _, io_money);
@@ -82,13 +89,13 @@ require("./routes/money/Category.js")(app, Category, _, io_money);
 require("./routes/money/Budget.js")(app, Budget, _, io_money);
 require("./routes/money/Trade.js")(app, Trade, _, io_money);
 require("./routes/money/Position.js")(app, Position, _, io_money);
-require("./routes/money/Flow.js")(app, Transaction, _, io_money);
-require("./routes/money/CategorySplit.js")(app, CategorySplit, _, io_money);
+require("./routes/money/Flow.js")(app, Transaction);
+require("./routes/money/CategorySplit.js")(app, CategorySplit);
 // AUTOMOBILE
 require("./routes/automobile/Car.js")(app, Car, _);
 require("./routes/automobile/MaintenanceLog.js")(app, MaintenanceLog, _);
 // TESTING
-require("./routes/Test.js")(app, aws_config);
+// require("./routes/Test.js")(app, aws_config);
 
 app.get("/", function(req, res) {
 	res.redirect("/homebase");

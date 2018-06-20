@@ -1,5 +1,5 @@
 // Global Variables
-var socket = io("/auto");
+const socket = io("/auto");
 
 // Global Functions
 function gl_getCars() {
@@ -9,7 +9,7 @@ function gl_getCars() {
                 type: "GET"
                 ,url: "/api/v1/automobile/car"
             }).success(function(response) {
-                var packed = $.extend(true,[],response);
+                let packed = $.extend(true,[],response);
                 Cookies.set(btoa("automobile_cars"),JSONC.pack(packed,true), {expires: 7});
                 resolve(response);
             }).error(function(jqXHR) {
@@ -34,7 +34,7 @@ function gl_getInactiveCars() {
                 type: "GET"
                 ,url: "/api/v1/automobile/car/inactive"
             }).success(function(response) {
-                var packed = $.extend(true,[],response);
+                let packed = $.extend(true,[],response);
                 Cookies.set(btoa("automobile_inactive_cars"),JSONC.pack(packed,true), {expires: 7});
                 resolve(response);
             }).error(function(jqXHR) {

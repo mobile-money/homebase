@@ -77,11 +77,11 @@ module.exports = function(app, Bill, _, io) {
 	});
 
     // Data Xfer from MySQL to DynamoDB
-    // app.get("/api/v1/money/dataXfer/bills",function(req,res) {
-    //     Bill.dataXfer().then(function(result) {
-    //         res.status(200).json(result);
-    //     }).catch(function(err) {
-    //         res.status(500).json(err);
-    //     })
-    // });
+    app.get("/api/v1/money/dataXfer/bills/:start/:max",function(req,res) {
+        Bill.dataXfer(Number(req.params.start),Number(req.params.max)).then(function(result) {
+            res.status(200).json(result);
+        }).catch(function(err) {
+            res.status(500).json(err);
+        })
+    });
 };

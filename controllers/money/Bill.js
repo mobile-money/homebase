@@ -1,5 +1,6 @@
 const request = require('request');
-const AWS = require("aws-sdk");
+// const AWS = require("aws-sdk");
+// const docClient = new AWS.DynamoDB.DocumentClient();
 const _ = require("underscore");
 const moment = require("moment");
 const uuid = require("uuid/v4");
@@ -8,10 +9,9 @@ const uuid = require("uuid/v4");
 //     return date+"T"+moment.utc().format('HH:mm:ss')+"Z"
 // }
 
-const bulkUpdateBills = (bill_array) => {
+const bulkUpdateBills = (bill_array,docClient) => {
     const Promise = require("bluebird");
 	AWS.config.setPromisesDependency(Promise);
-    let docClient = new AWS.DynamoDB.DocumentClient();
 
 	let chunked_bills = _.chunk(bill_array,25);
 
@@ -43,21 +43,21 @@ const bulkUpdateBills = (bill_array) => {
     });
 };
 
-module.exports = function(db) {
+module.exports = function(db,docClient) {
 	return {
 		getAll: function() {
 			return new Promise(function(resolve, reject) {
-				// db.Bill.findAll({
-				// 	order: [['payee', 'ASC']]
-				// 	,include: [{model: db.Account}, {model: db.Category}]
-				// }).then(function(results) {
-				// 	resolve(results);
-				// }).catch(function(error) {
-				// 	reject(error);
-				// });
+			    /* FIXME: LEGACY
+				db.Bill.findAll({
+					order: [['payee', 'ASC']]
+					,include: [{model: db.Account}, {model: db.Category}]
+				}).then(function(results) {
+					resolve(results);
+				}).catch(function(error) {
+					reject(error);
+				});
+				*/
 
-
-                let docClient = new AWS.DynamoDB.DocumentClient();
                 let params = {
                     TableName: "bank_bills",
                     ScanFilter: {
@@ -84,48 +84,47 @@ module.exports = function(db) {
 		}
 		,create: function(newBill) {
 			return new Promise(function(resolve, reject) {
-				console.log(newBill);
-				// var obj = {
-				// 	payee: newBill.payee.trim()
-				// 	,startDate: moment.utc(newBill.startDate, "MM/DD/YYYY")
-				// 	,frequency: newBill.frequency
-				// 	,every: newBill.every
-				// 	,amount: newBill.amount
-				// 	,automatic: newBill.automatic
-				// 	,AccountId: newBill.account
-				// 	,CategoryId: newBill.category
-				// }
-				// if (newBill.hasOwnProperty("description")) {
-				// 	obj.description = newBill.description.trim();
-				// }
-				// if (newBill.onThe !== null) {
-				// 	obj.onThe = newBill.onThe;
-				// 	if (Number(newBill.onThe) > 31) {
-				// 		obj.onThe = 31;
-				// 	}
-				// }
-				// db.Bill.create(obj).then(function(bill) {
-				// 	resolve(bill);
-				// }).catch(function(error) {
-				// 	reject(error);
-				// });
-
-
-
-                let docClient = new AWS.DynamoDB.DocumentClient();
+                /* FIXME: LEGACY
+                function legacy() {
+                    return new Promise(function() {
+                        var obj = {
+                            payee: newBill.payee.trim()
+                            ,startDate: moment.utc(newBill.startDate, "MM/DD/YYYY")
+                            ,frequency: newBill.frequency
+                            ,every: newBill.every
+                            ,amount: newBill.amount
+                            ,automatic: newBill.automatic
+                            ,AccountId: newBill.account
+                            ,CategoryId: newBill.category
+                        };
+                        if (newBill.hasOwnProperty("description")) {
+                            obj.description = newBill.description.trim();
+                        }
+                        if (newBill.onThe !== null) {
+                            obj.onThe = newBill.onThe;
+                            if (Number(newBill.onThe) > 31) {
+                                obj.onThe = 31;
+                            }
+                        }
+                        db.Bill.create(obj).then(function(bill) {
+                            resolve(bill);
+                        });
+                    });
+                }
+                */
 
                 let id = uuid();
                 let params = {
                     TableName: "bank_bills",
                     Item: {
-                    	account_id: newBill.account.toString(),
+                        account_id: newBill.account.toString(),
                         id: id,
                         payee: newBill.payee.trim(),
                         startDate: moment.utc(newBill.startDate,"MM/DD/YYYY").format("YYYY-MM-DD"),
-						frequency: newBill.frequency,
-						every: Number(newBill.every),
-						amount: Number(newBill.amount),
-						automatic: false,
+                        frequency: newBill.frequency,
+                        every: Number(newBill.every),
+                        amount: Number(newBill.amount),
+                        automatic: false,
                         created_at: Number(moment.utc().format("X"))
                     }
                 };
@@ -133,18 +132,18 @@ module.exports = function(db) {
                     params.Item.automatic = true;
                 }
                 if (newBill.hasOwnProperty("category")) {
-					params.Item.category_id = newBill.category.toString();
-				}
-				if (newBill.hasOwnProperty("description")) {
-                	params.Item.description = newBill.description.trim();
-				}
-				if (newBill.hasOwnProperty("onThe")) {
-                	if (Number(newBill.onThe) > 31) {
-                		params.Item.onThe = 31;
-					} else {
-                		params.Item.onThe = Number(newBill.onThe);
-					}
-				}
+                    params.Item.category_id = newBill.category.toString();
+                }
+                if (newBill.hasOwnProperty("description")) {
+                    params.Item.description = newBill.description.trim();
+                }
+                if (newBill.hasOwnProperty("onThe")) {
+                    if (Number(newBill.onThe) > 31) {
+                        params.Item.onThe = 31;
+                    } else {
+                        params.Item.onThe = Number(newBill.onThe);
+                    }
+                }
 
                 docClient.put(params, function(err/*, data*/) {
                     if (err) {
@@ -159,26 +158,29 @@ module.exports = function(db) {
 		}
 		,delete: function(data) {
 			return new Promise(function(resolve, reject) {
-				// db.Bill.destroy({
-				// 	where: { id: id }
-				// }).then(function(rows) {
-				// 	if (rows === 1) {
-				// 		resolve();
-				// 	} else {
-				// 		reject();
-				// 	}
-				// }).catch(function(error) {
-				// 	reject(error);
-				// });
-
-
-                let docClient = new AWS.DynamoDB.DocumentClient();
+			    /* FIXME: LEGACY
+			    function legacy() {
+			        return new Promise(function(resolve,reject) {
+                        db.Bill.destroy({
+                            where: { id: id }
+                        }).then(function(rows) {
+                            if (rows === 1) {
+                                resolve();
+                            } else {
+                                reject();
+                            }
+                        }).catch(function(error) {
+                            reject(error);
+                        });
+                    });
+                }
+                */
 
                 let params = {
                     TableName: "bank_bills",
                     Key: {
                         id: data.id,
-						account_id: data.account_id
+                        account_id: data.account_id
                     },
                     AttributeUpdates: {
                         deleted_at: {
@@ -202,72 +204,75 @@ module.exports = function(db) {
 		}
 		,update: function(data) {
 			return new Promise(function(resolve, reject) {
-				// db.Bill.findById(data.id).then(function(result) {
-				// 	if (result !== null) {
-				// 		result.payee = data.payee.trim();
-				// 		result.startDate = data.startDate;
-				// 		result.frequency = data.frequency;
-				// 		result.every = data.every;
-				// 		result.amount = data.amount;
-				// 		result.automatic = data.automatic;
-				// 		result.AccountId = data.account;
-				// 		if (data.hasOwnProperty("category")) {
-				// 			result.CategoryId = data.category;
-				// 		} else {
-				// 			result.CategoryId = null;
-				// 		}
-				// 		if (data.hasOwnProperty("description")) {
-				// 			result.description = data.description.trim();
-				// 		} else {
-				// 			result.description = null;
-				// 		}
-				// 		if (data.onThe !== null) {
-				// 			result.onThe = data.onThe;
-				// 			if (Number(data.onThe) > 31) {
-				// 				result.onThe = 31;
-				// 			}
-				// 		}
-				// 		result.save().then(function(result) {
-				// 			result.reload();
-				// 			resolve(result);
-				// 		});
-				// 	} else {
-				// 		reject();
-				// 	}
-				// }).catch(function(error) {
-				// 	reject(error);
-				// });
+			    /* FIXME: LEGEACY
+                function legacy() {
+                    return new Promise(function(resolve,reject) {
+                        db.Bill.findById(data.id).then(function(result) {
+                            if (result !== null) {
+                                result.payee = data.payee.trim();
+                                result.startDate = data.startDate;
+                                result.frequency = data.frequency;
+                                result.every = data.every;
+                                result.amount = data.amount;
+                                result.automatic = data.automatic;
+                                result.AccountId = data.account;
+                                if (data.hasOwnProperty("category")) {
+                                    result.CategoryId = data.category;
+                                } else {
+                                    result.CategoryId = null;
+                                }
+                                if (data.hasOwnProperty("description")) {
+                                    result.description = data.description.trim();
+                                } else {
+                                    result.description = null;
+                                }
+                                if (data.onThe !== null) {
+                                    result.onThe = data.onThe;
+                                    if (Number(data.onThe) > 31) {
+                                        result.onThe = 31;
+                                    }
+                                }
+                                result.save().then(function(result) {
+                                    result.reload();
+                                    resolve(result);
+                                });
+                            } else {
+                                reject();
+                            }
+                        }).catch(function(error) {
+                            reject(error);
+                        });
+                    });
+                }
+                */
 
-				console.log(data);
-
-                let docClient = new AWS.DynamoDB.DocumentClient();
                 let params = {
                     TableName: "bank_bills",
                     Key: {
                         id: data.id.toString(),
-						account_id: data.account.toString()
+                        account_id: data.account.toString()
                     },
                     AttributeUpdates: {
                         payee: {
                             Action: "PUT",
                             Value: data.payee.trim()
                         },
-						startDate: {
-                        	Action: "PUT",
-							Value: moment(data.startDate, "MM/DD/YYYY").format("YYYY-MM-DD")
-						},
-						amount: {
-                        	Action: "PUT",
-							Value: Number(data.amount)
-						},
-						frequency: {
-                        	Action: "PUT",
-							Value: data.frequency
-						},
-						every: {
-                        	Action: "PUT",
-							Value: Number(data.every)
-						},
+                        startDate: {
+                            Action: "PUT",
+                            Value: moment(data.startDate, "MM/DD/YYYY").format("YYYY-MM-DD")
+                        },
+                        amount: {
+                            Action: "PUT",
+                            Value: Number(data.amount)
+                        },
+                        frequency: {
+                            Action: "PUT",
+                            Value: data.frequency
+                        },
+                        every: {
+                            Action: "PUT",
+                            Value: Number(data.every)
+                        },
                         updated_at: {
                             Action: "PUT",
                             Value: Number(moment.utc().format("X"))
@@ -277,28 +282,28 @@ module.exports = function(db) {
                 };
 
                 if (data.hasOwnProperty("description") && data.description !== "") {
-                	params.AttributeUpdates.description = {
+                    params.AttributeUpdates.description = {
                         Action: "PUT",
-						Value: data.description.trim()
+                        Value: data.description.trim()
                     };
-				} else {
+                } else {
                     params.AttributeUpdates.description = {
                         Action: "DELETE"
                     };
-				}
+                }
 
                 if (data.hasOwnProperty("category")) {
-                	params.AttributeUpdates.category_id = {
+                    params.AttributeUpdates.category_id = {
                         Action: "PUT",
-						Value: data.category.toString()
+                        Value: data.category.toString()
                     };
-				} else {
+                } else {
                     params.AttributeUpdates.category_id = {
                         Action: "DELETE"
                     };
-				}
+                }
 
-				if (data.hasOwnProperty("onThe")) {
+                if (data.hasOwnProperty("onThe")) {
                     if (Number(data.onThe) > 31) {
                         params.AttributeUpdates.onThe = {
                             Action: "PUT",
@@ -310,11 +315,11 @@ module.exports = function(db) {
                             Value: Number(data.onThe)
                         };
                     }
-				} else {
+                } else {
                     params.AttributeUpdates.onThe = {
                         Action: "DELETE"
                     };
-				}
+                }
 
                 if (data.automatic === "true") {
                     params.AttributeUpdates.automatic = {
@@ -341,11 +346,101 @@ module.exports = function(db) {
 		}
 		,postNew: function(/*id*/) {
 			return new Promise(function(resolve, reject) {
-				// only add bills up to 30 days in advance
+			    /* FIXME: LEGACY
+                function legacy() {
+                    return new Promise(function(resolve,reject) {
+                        db.Bill.findAll({
+                            // where: { AccountId: id }
+                        }).then(function(bills) {
+                            var newTrans = [];
+                            bills.forEach(function(bill) {
+                                var needToUpdate = false;
+                                var toAdd = {
+                                    payee: bill.payee
+                                    ,description: bill.description
+                                    ,amount: bill.amount
+                                    ,AccountId: bill.AccountId
+                                    ,CategoryId: bill.CategoryId
+                                    ,BillId: bill.id
+                                    ,dates: []
+                                };
+                                var indexDate = moment.utc(bill.startDate);
+                                if (bill.lastAdded !== null) {
+                                    indexDate = moment.utc(bill.lastAdded);
+                                }
+                                if (bill.frequency === "M") {
+                                    if (bill.onThe === -1 || bill.onThe > indexDate.endOf("month").date()) {
+                                        indexDate.endOf("month");
+                                    } else {
+                                        indexDate.date(bill.onThe);
+                                    }
+                                    while (indexDate <= endDate) {
+                                        if (indexDate.format("MM/DD/YYYY") !== moment.utc(bill.lastAdded).format("MM/DD/YYYY")) {
+                                            needToUpdate = true;
+                                            toAdd.dates.push(indexDate.format("MM/DD/YYYY"));
+                                        }
+                                        indexDate.add(bill.every, "M");
+                                        if (bill.onThe === -1 || bill.onThe > indexDate.endOf("month").date()) {
+                                            indexDate.endOf("month");
+                                        } else {
+                                            indexDate.date(bill.onThe);
+                                        }
+                                    }
+                                } else {
+                                    while (indexDate <= endDate) {
+                                        if (indexDate.format("MM/DD/YYYY") !== moment.utc(bill.lastAdded).format("MM/DD/YYYY")) {
+                                            needToUpdate = true;
+                                            toAdd.dates.push(indexDate.format("MM/DD/YYYY"));
+                                        }
+                                        indexDate.add(bill.every, bill.frequency);
+                                    }
+                                }
+                                if (needToUpdate) {
+                                    newTrans.push(toAdd);
+                                }
+                            });
+
+                            newTrans.forEach(function(trans) {
+                                if (trans.dates.length > 0) {
+                                    var lastDate;
+                                    for (var i = 0; i < trans.dates.length; i++) {
+                                        lastDate = trans.dates[i];
+                                        var body = {
+                                            account: trans.AccountId
+                                            ,description: trans.description
+                                            ,tDate: trans.dates[i]
+                                            ,payee: trans.payee
+                                            ,amount: trans.amount
+                                            ,bill: trans.BillId
+                                            ,category: trans.CategoryId
+                                        };
+                                        request.post("http://localhost:3000/api/v1/money/futureTransactions", {
+                                            json: true
+                                            ,body: body
+                                        }, function(error, response, body) {
+                                            if (error) {
+                                                console.log(error);
+                                            }
+                                        });
+                                    }
+                                    db.Bill.update({lastAdded: lastDate}, {
+                                        where: {id: trans.BillId}
+                                    });
+                                }
+                            });
+                            resolve({new_trans: newTrans, bills: bills});
+                        }).catch(function(error) {
+                            reject(error);
+                        });
+                    });
+                }
+                */
+
+                // only add bills up to 30 days in advance
                 let endDate = moment.utc().add(30, 'd');
                 let billsToUpdate = [];
                 // get all bills
-				this.getAll().then(function(bills) {
+                this.getAll().then(function(bills) {
                     let newTrans = [];
                     bills.forEach(function(bill) {
                         let needToUpdate = false;
@@ -366,7 +461,7 @@ module.exports = function(db) {
                         }
                         // this inly applies to monthly bills
                         if (bill.frequency === "M") {
-                        	// make sure that indexDate is either set to the onThe parameter or the valid end of the month
+                            // make sure that indexDate is either set to the onThe parameter or the valid end of the month
                             if (bill.onThe === -1 || bill.onThe > indexDate.endOf("month").date()) {
                                 indexDate.endOf("month");
                             } else {
@@ -374,8 +469,8 @@ module.exports = function(db) {
                             }
                             // cycle through each day of the bill frequency between the indexDate and the next 30 days
                             while (indexDate <= endDate) {
-                            	// if indexDate is different than the current lastAdded date, mark this transaction as needToUpdate,
-								// add this indexDate to the date array, and add the bill to the billsToUpdate array
+                                // if indexDate is different than the current lastAdded date, mark this transaction as needToUpdate,
+                                // add this indexDate to the date array, and add the bill to the billsToUpdate array
                                 if (indexDate.format("MM/DD/YYYY") !== moment.utc(bill.lastAdded).format("MM/DD/YYYY")) {
                                     needToUpdate = true;
                                     billsToUpdate.push(bill);
@@ -427,110 +522,28 @@ module.exports = function(db) {
                                     if (error) {
                                         console.error(error);
                                     } else {
-                                    	console.log(`added transaction for ${trans.payee} added per bill ${trans.bill_id}`);
-									}
+                                        console.log(`added transaction for ${trans.payee} added per bill ${trans.bill_id}`);
+                                    }
                                 });
                             }
                         }
                     });
                     billsToUpdate = _.uniq(billsToUpdate,true);
-                    bulkUpdateBills(billsToUpdate).then(function() {
-						billsToUpdate.forEach(function(bill) {
+                    bulkUpdateBills(billsToUpdate,docClient).then(function() {
+                        billsToUpdate.forEach(function(bill) {
 
-						});
-					});
+                        });
+                    });
                     resolve({new_trans: newTrans, bills: bills});
-				}).catch(function(err) {
-					reject(err);
-				});
-				// db.Bill.findAll({
-				// 	// where: { AccountId: id }
-				// }).then(function(bills) {
-				// 	var newTrans = [];
-				// 	bills.forEach(function(bill) {
-				// 		var needToUpdate = false;
-				// 		var toAdd = {
-				// 			payee: bill.payee
-				// 			,description: bill.description
-				// 			,amount: bill.amount
-				// 			,AccountId: bill.AccountId
-				// 			,CategoryId: bill.CategoryId
-				// 			,BillId: bill.id
-				// 			,dates: []
-				// 		};
-				// 		var indexDate = moment.utc(bill.startDate);
-				// 		if (bill.lastAdded !== null) {
-				// 			indexDate = moment.utc(bill.lastAdded);
-				// 		}
-				// 		if (bill.frequency === "M") {
-				// 			if (bill.onThe === -1 || bill.onThe > indexDate.endOf("month").date()) {
-				// 				indexDate.endOf("month");
-				// 			} else {
-				// 				indexDate.date(bill.onThe);
-				// 			}
-				// 			while (indexDate <= endDate) {
-				// 				if (indexDate.format("MM/DD/YYYY") !== moment.utc(bill.lastAdded).format("MM/DD/YYYY")) {
-				// 					needToUpdate = true;
-				// 					toAdd.dates.push(indexDate.format("MM/DD/YYYY"));
-				// 				}
-				// 				indexDate.add(bill.every, "M");
-				// 				if (bill.onThe === -1 || bill.onThe > indexDate.endOf("month").date()) {
-				// 					indexDate.endOf("month");
-				// 				} else {
-				// 					indexDate.date(bill.onThe);
-				// 				}
-				// 			}
-				// 		} else {
-				// 			while (indexDate <= endDate) {
-				// 				if (indexDate.format("MM/DD/YYYY") !== moment.utc(bill.lastAdded).format("MM/DD/YYYY")) {
-				// 					needToUpdate = true;
-				// 					toAdd.dates.push(indexDate.format("MM/DD/YYYY"));
-				// 				}
-				// 				indexDate.add(bill.every, bill.frequency);
-				// 			}
-				// 		}
-				// 		if (needToUpdate) {
-                 //            newTrans.push(toAdd);
-				// 		}
-				// 	});
-                //
-				// 	newTrans.forEach(function(trans) {
-				// 		if (trans.dates.length > 0) {
-				// 			var lastDate;
-				// 			for (var i = 0; i < trans.dates.length; i++) {
-				// 				lastDate = trans.dates[i];
-				// 				var body = {
-				// 					account: trans.AccountId
-				// 					,description: trans.description
-				// 					,tDate: trans.dates[i]
-				// 					,payee: trans.payee
-				// 					,amount: trans.amount
-				// 					,bill: trans.BillId
-				// 					,category: trans.CategoryId
-				// 				};
-				// 				request.post("http://localhost:3000/api/v1/money/futureTransactions", {
-				// 					json: true
-				// 					,body: body
-				// 				}, function(error, response, body) {
-				// 					if (error) {
-				// 						console.log(error);
-				// 					}
-				// 				});
-				// 			}
-				// 			db.Bill.update({lastAdded: lastDate}, {
-				// 				where: {id: trans.BillId}
-				// 			});
-				// 		}
-				// 	});
-				// 	resolve({new_trans: newTrans, bills: bills});
-				// }).catch(function(error) {
-				// 	reject(error);
-				// });
+                }).catch(function(err) {
+                    reject(err);
+                });
 			});
 		}
-        ,dataXfer: function() {
+        ,dataXfer: function(start,max) {
             return new Promise(function(resolve) {
                 console.log("starting bill transfer");
+                let totalCount = 0;
                 function getBills(offset) {
                     console.log("starting offset: "+offset);
                     db.Bill.findAll({
@@ -545,7 +558,8 @@ module.exports = function(db) {
                 }
 
                 function buildWrites(results,offset) {
-                    if (results.length > 0) {
+                    if (results.length > 0 && offset <= max) {
+                        totalCount += results.length;
                         let params = {
                             RequestItems: {
                                 "bank_bills": []
@@ -585,12 +599,11 @@ module.exports = function(db) {
                         });
                         sendWrites(params,offset);
                     } else {
-                        console.log("bill transfer complete");
+                        console.log(`bill transfer complete. transferred ${totalCount} items`);
                         resolve();
                     }
                 }
                 function sendWrites(params,offset) {
-                    let docClient = new AWS.DynamoDB.DocumentClient();
                     docClient.batchWrite(params, function (err) {
                         if (err) {
                             console.error("Unable to xfer bills data. Error JSON:", JSON.stringify(err, null, 2));
@@ -601,7 +614,7 @@ module.exports = function(db) {
                         }
                     });
                 }
-                getBills(0);
+                getBills(start);
             });
         }
     };

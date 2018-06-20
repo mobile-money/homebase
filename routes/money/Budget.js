@@ -2,7 +2,7 @@ module.exports = function(app, Budget, _, io) {
 	// Create budget
 	app.post("/api/v1/money/budgets", function(req, res) {
 		console.log("budget add requested");
-		var body = _.pick(req.body, 'name', 'amounts');
+		let body = _.pick(req.body, 'name', 'amounts');
 		Budget.add(body).then(function(budget) {
 			console.log("budget added");
 			io.emit("budgetAdded", budget);
@@ -74,7 +74,7 @@ module.exports = function(app, Budget, _, io) {
 	// Update Budget by ID
 	app.put("/api/v1/money/budgets/:id", function(req,res) {
 		console.log("update budget requested");
-		var body = _.pick(req.body, 'name', 'amounts');
+		let body = _.pick(req.body, 'name', 'amounts');
 		body.id = req.params.id;
 		Budget.update(body).then(function(budget) {
 			console.log("budget updated");
@@ -110,11 +110,11 @@ module.exports = function(app, Budget, _, io) {
 	});
 
     // Data Xfer from MySQL to DynamoDB
-    // app.get("/api/v1/money/dataXfer/budgets",function(req,res) {
-    //     Budget.dataXfer().then(function(result) {
-    //         res.status(200).json(result);
-    //     }).catch(function(err) {
-    //         res.status(500).json(err);
-    //     })
-    // });
+    app.get("/api/v1/money/dataXfer/budgets/:start/:max",function(req,res) {
+        Budget.dataXfer(Number(req.params.start),Number(req.params.max)).then(function(result) {
+            res.status(200).json(result);
+        }).catch(function(err) {
+            res.status(500).json(err);
+        })
+    });
 };

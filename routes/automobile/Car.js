@@ -1,8 +1,8 @@
 module.exports = function(app, Car, _) {
     // Insert car
     app.post("/api/v1/automobile/car", function(req, res) {
-        var keys = ["active","current_mileage","license_plate","make","model","purchase_date","purchase_mileage","vin","year","sold_date"];
-        var car = _.pick(req.body,keys);
+        let keys = ["active","current_mileage","license_plate","make","model","purchase_date","purchase_mileage","vin","year","sold_date"];
+        let car = _.pick(req.body,keys);
         console.log("inserting car");
         console.log(car);
         Car.insert(car).then(function(result) {
@@ -30,9 +30,9 @@ module.exports = function(app, Car, _) {
 
     // Update car
     app.put("/api/v1/automobile/car/:id", function(req, res) {
-        var carId = req.params.id;
+        let carId = req.params.id;
         if (carId === "reactivate") {
-            var body = _.pick(req.body, 'id');
+            let body = _.pick(req.body, 'id');
             console.log("reactivate car "+body.id+" requested");
             Car.reactivate(body.id).then(function() {
                 res.status(200).send();
@@ -41,8 +41,8 @@ module.exports = function(app, Car, _) {
                 res.status(500).send();
             });
         } else {
-            var keys = ["active","current_mileage","license_plate","make","model","purchase_date","purchase_mileage","vin","year","sold_date"];
-            var car = _.pick(req.body,keys);
+            let keys = ["active","current_mileage","license_plate","make","model","purchase_date","purchase_mileage","vin","year","sold_date"];
+            let car = _.pick(req.body,keys);
             // var car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage');
             console.log("car " + carId + " update requested");
             console.log(car);
@@ -58,7 +58,7 @@ module.exports = function(app, Car, _) {
 
     // Delete car
     app.delete("/api/v1/automobile/car/:id", function(req, res) {
-        var carId = req.params.id;
+        let carId = req.params.id;
         console.log("car " + carId + " delete requested");
         Car.delete(carId).then(function(results) {
             console.log("car " + carId + "deleted");
@@ -86,7 +86,7 @@ module.exports = function(app, Car, _) {
     });
 
     app.put("/api/v1/automobile/car/reactivate", function(req, res) {
-        var body = _.pick(req.body, 'id');
+        let body = _.pick(req.body, 'id');
         console.log("reactivate car "+body.id+" requested");
         Car.reactivate(body.id).then(function() {
             res.status(200).send();
@@ -96,12 +96,12 @@ module.exports = function(app, Car, _) {
         });
     });
 
-    // // Data Xfer from MySQL to DynamoDB
-    // app.get("/api/v1/automobile/car/dataXfer",function(req,res) {
-    //     Car.dataXfer().then(function(result) {
-    //         res.status(200).json(result);
-    //     }).catch(function(err) {
-    //         res.status(500).json(err);
-    //     })
-    // });
+    // Data Xfer from MySQL to DynamoDB
+    app.get("/api/v1/automobile/car/dataXfer/:start/:max",function(req,res) {
+        Car.dataXfer(Number(req.params.start),Number(req.params.max)).then(function(result) {
+            res.status(200).json(result);
+        }).catch(function(err) {
+            res.status(500).json(err);
+        })
+    });
 };

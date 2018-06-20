@@ -41,7 +41,7 @@ module.exports = function(app, Account, _, io) {
 	// Insert Account
 	app.post("/api/v1/money/accounts", function(req, res) {
 		console.log("create account requested");
-		var body = _.pick(req.body, 'name', 'balance', 'type', 'default');
+		let body = _.pick(req.body, 'name', 'balance', 'type', 'default');
 		Account.create(body).then(function(account) {
 			console.log("account created");
 			io.emit("accountAdded", account.id);
@@ -56,7 +56,7 @@ module.exports = function(app, Account, _, io) {
 	// Update account
 	app.put("/api/v1/money/accounts", function(req, res) {
 		console.log("modify account requested");
-		var body = _.pick(req.body, 'name', 'type', 'default', 'id');
+		let body = _.pick(req.body, 'name', 'type', 'default', 'id');
 		Account.update(body).then(function(result) {
 			console.log("account modified");
 			io.emit("accountChanged", result.id);
@@ -75,7 +75,7 @@ module.exports = function(app, Account, _, io) {
 	// Make account inactive
 	app.delete("/api/v1/money/accounts", function(req, res) {
 		console.log("delete account requested");
-		var body = _.pick(req.body, 'id');
+		let body = _.pick(req.body, 'id');
 		Account.delete(body.id).then(function() {
 			console.log("account deleted");
 			io.emit("accountDeleted", body.id);
@@ -130,7 +130,7 @@ module.exports = function(app, Account, _, io) {
 
 	// Reactivate account
 	app.put("/api/v1/money/accounts/reactivate", function(req, res) {
-		var body = _.pick(req.body, 'id');
+		let body = _.pick(req.body, 'id');
 		console.log("reactivate account "+body.id+"requested");
 		Account.reactivate(body.id).then(function() {
             io.emit("refreshAccounts");
@@ -142,11 +142,11 @@ module.exports = function(app, Account, _, io) {
 	});
 
     // Data Xfer from MySQL to DynamoDB
-    // app.get("/api/v1/money/dataXfer/accounts",function(req,res) {
-    //     Account.dataXfer().then(function(result) {
-    //         res.status(200).json(result);
-    //     }).catch(function(err) {
-    //         res.status(500).json(err);
-    //     })
-    // });
+    app.get("/api/v1/money/dataXfer/accounts/:start/:max",function(req,res) {
+        Account.dataXfer(Number(req.params.start),Number(req.params.max)).then(function(result) {
+            res.status(200).json(result);
+        }).catch(function(err) {
+            res.status(500).json(err);
+        })
+    });
 };
