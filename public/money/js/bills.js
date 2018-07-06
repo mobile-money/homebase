@@ -1,6 +1,6 @@
 'use strict';
 
-var socket = io();
+// var socket = io();
 
 $(document).ready(function() {
 	$("body").show();

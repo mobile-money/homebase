@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>Reports - Automobile</title>
+		<title>Reports - Health</title>
 
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
@@ -16,8 +16,7 @@
 		<link rel="icon" href="../shared/img/favicon.ico" type="image/x-icon">
 	</head>
 	<body style="display:none;">
-		<input type="hidden" id="currentCarId" />
-		<div id="test"></div>
+		<input type="hidden" id="currentPersonId" />
 
 		<nav class="navbar navbar-default">
 		  <div class="container-fluid">
@@ -35,17 +34,17 @@
 		    </div>
 
 		    <!-- Collect the nav links, forms, and other content for toggling -->
-		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-		      <ul class="nav navbar-nav">
-				  <li><a href="/automobile/cars">Cars</a></li>
-				  <li><a href="/automobile/mx_log">Maintenance Log</a></li>
-				  <li class="active"><a href="/automobile/reports">Reports <span class="sr-only">(current)</span></a></li>
-		      </ul>
-<!-- 			    <div class="pull-right">
-			    	<div id="username"></div>
-			    	<button class="btn-xs btn-danger" id="logout">Log Out</button>
-			    </div>
- -->		    </div><!-- /.navbar-collapse -->
+			  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				  <ul class="nav navbar-nav">
+					  <li><a href="/health/people">People</a></li>
+					  <li><a href="/health/visit">Visits</a></li>
+					  <li class="active"><a href="/health/reports">Reports <span class="sr-only">(current)</span></a></li>
+				  </ul>
+				  <!--<div class="pull-right">
+					  <div id="username"></div>
+					  <button class="btn-xs btn-danger" id="logout">Log Out</button>
+				  </div>-->
+			  </div><!-- /.navbar-collapse -->
 
 		  </div><!-- /.container-fluid -->
 		</nav>
@@ -54,34 +53,24 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-md-3 col-sm-4">
-					<select id="carSelect" class="form-control"></select>
+					<select id="personSelect" class="form-control"></select>
 				</div>
 			</div>
 			<br />
 			<div class="row">
 				<div class="col-xs-10 col-xs-offset-1 well">
 					<div class="col-xs-3">
-						<h4>Mileage</h4>
-						Miles Driven: <span id="milesDrive"></span><br/>
-						Miles per Year: <span id="milesPerYear"></span>
+						<h4>Health Costs</h4>
+						Total Health Cost: $<span id="totalCost"></span><br/>
+						Health Cost per Year: $<span id="costPerYear"></span>
 					</div>
-					<div class="col-xs-8 col-xs-offset-1" id="mileageChart"></div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-xs-10 col-xs-offset-1 well">
-					<div class="col-xs-3">
-						<h4>Maintenance Costs</h4>
-						Total Maintenance Cost: $<span id="totalMaintenance"></span><br/>
-						Maintenance Cost per Year: $<span id="maintenancePerYear"></span>
-					</div>
-					<div class="col-xs-8 col-xs-offset-1" id="mxCostChart"></div>
+					<div class="col-xs-8 col-xs-offset-1" id="healthCostChart"></div>
 				</div>
 			</div>
 		</div>
 		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
 		<script type="text/javascript" src="../shared/js/jquery.color-2.1.2.min.js"></script>
-		<!--<script type="text/javascript" src="../shared/js/socket.io-2.1.1.js"></script>-->
+		<script type="text/javascript" src="../shared/js/socket.io-2.1.1.js"></script>
 		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
 		<script type="text/javascript" src="../shared/js/underscore-1.8.3.js"></script>
 		<!-- Latest compiled and minified JavaScript -->
