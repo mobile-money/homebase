@@ -1,3 +1,5 @@
+const socket = io("/hvac");
+
 var systemCookies = [
 	"temperatureScale"
 	,"defaultLocation"

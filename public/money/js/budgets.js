@@ -1,7 +1,7 @@
 
 var categoryArray = [];
 var categoryLookup = {};
-var socket = io();
+// var socket = io();
 
 $(document).ready(function() {
 	$("body").show();

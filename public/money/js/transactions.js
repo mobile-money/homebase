@@ -3,7 +3,7 @@ var accountArray = [];
 var accountNames = {};
 var categoryArray = [];
 var multiCategoriesObj = [];
-var socket = io();
+// var socket = io();
 var transactionLimit = 50;
 
 $(document).ready(function() {
