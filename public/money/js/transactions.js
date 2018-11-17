@@ -1,10 +1,10 @@
 
-var accountArray = [];
-var accountNames = {};
-var categoryArray = [];
-var multiCategoriesObj = [];
+let accountArray = [];
+let accountNames = {};
+let categoryArray = [];
+let multiCategoriesObj = [];
 // var socket = io();
-var transactionLimit = 50;
+let transactionLimit = 50;
 
 $(document).ready(function() {
 	$("body").show();
@@ -22,7 +22,7 @@ $(document).ready(function() {
 	// getTransactions(null, null);
 });
 
-var QueryString = function () {
+const QueryString = function () {
   // This function is anonymous, is executed immediately and 
   // the return value is assigned to QueryString!
   var query_string = {};
@@ -71,15 +71,15 @@ $("#cancelMultiCategoryButton").click(function() {
     $("#multiCategoryModal").modal("hide");
 });
 
-$("#commitFTransactionButton").click(function() {
-    sendCommit();
-});
-
-$("#commitFutureTransactionModal").on("hidden.bs.modal", function() {
-    $("#commitFTransactionId").val("");
-    $("#commitModalBody").empty();
-    // $("#newPayee").focus();
-});
+// $("#commitFTransactionButton").click(function() {
+//     sendCommit();
+// });
+//
+// $("#commitFutureTransactionModal").on("hidden.bs.modal", function() {
+//     $("#commitFTransactionId").val("");
+//     $("#commitModalBody").empty();
+//     // $("#newPayee").focus();
+// });
 
 $("#completeMultiCategoryButton").click(function() {
     var cnt = 0;
@@ -462,6 +462,9 @@ socket.on("summaryAdded", function(newSummary) {
 
 // FUNCTIONS //
 function addTransaction() {
+    $("#addTransaction").prop("disabled",true);
+    $("#addButtonPlus").hide();
+    $("#addButtonLoad").show();
     //Clear existing errors
     $(".newTrans").removeClass("error");
     var errors = 0;
@@ -670,15 +673,15 @@ function addTransaction() {
                 ,url: "/api/v1/money/trades"
                 ,data: nt
             })
-                .success(function(/*response*/) {
-                    resetAddTransaction();
-                    return false;
-                })
-                .error(function(/*jqXHR, textStatus, errorThrown*/) {
-                    $("#infoModalBody").html("There was a problem adding the trade.  Please try again.");
-                    $("#infoModal").modal("show");
-                    return false;
-                });
+            .success(function(/*response*/) {
+                resetAddTransaction();
+                return false;
+            })
+            .error(function(/*jqXHR, textStatus, errorThrown*/) {
+                $("#infoModalBody").html("There was a problem adding the trade.  Please try again.");
+                $("#infoModal").modal("show");
+                return false;
+            });
         }
     }
     return false;
@@ -975,6 +978,7 @@ function getInvestments(id, tradeId, positionId, type) {
 }
 
 function getTransactions(offset, limit, transId) {
+    $("#page-load").show();
     var $tableElem = $("#transactionTable");
     $("#searchDiv").show();
     clearSearch();
@@ -987,173 +991,178 @@ function getTransactions(offset, limit, transId) {
         type: "GET"
         ,url: "/api/v1/money/transactions/account/"+$("#accountSelect").val()+"/"+offset+"/"+limit
     })
-        .success(function(response) {
-            // console.log(response);
-            $tableElem.find("tbody").empty();
-            // var balance = Number(response.cTrans[0].Summary.balance);
-            var balance = 0;
-            var initialBalance = 0;
-            for (var i = 0; i < response.cTrans.length; i++) {
-                if (!response.cTrans[i].future) {
-                    if (response.cTrans[i].postDate !== null) {
-                        if (response.cTrans[i].hasOwnProperty("Summary")) {
-                            balance = Number(response.cTrans[i].Summary.balance);
-                            initialBalance = Number(response.cTrans[i].Summary.balance);
-                            break;
-                        }
+    .success(function(response) {
+        // console.log(response);
+        $tableElem.find("tbody").empty();
+        // var balance = Number(response.cTrans[0].Summary.balance);
+        var balance = 0;
+        var initialBalance = 0;
+        for (var i = 0; i < response.cTrans.length; i++) {
+            if (!response.cTrans[i].future) {
+                if (response.cTrans[i].postDate !== null) {
+                    if (response.cTrans[i].hasOwnProperty("Summary")) {
+                        balance = Number(response.cTrans[i].Summary.balance);
+                        initialBalance = Number(response.cTrans[i].Summary.balance);
+                        break;
                     }
                 }
             }
-            // console.log(initialBalance);
-            balance += Number(response.adjust);
+        }
+        // console.log(initialBalance);
+        balance += Number(response.adjust);
 
-            // Current Transactions
-            var flag = false;
-            response.cTrans.forEach(function(result) {
-                var dp = false;
-                var dateNow = new Date();
-                var row;
-                var tDateMoment = moment.utc(result.transactionDate);
-                if (result.hasOwnProperty("future")) {
-                    dp = true;
-                    row = '<tr id="f_'+result.id+'"';
-                    if (tDateMoment.isAfter(moment(),'days')) {
-                        row += ' class="success"';
-                    }
-                    row += '><td><input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" /></td>';
+        // Current Transactions
+        var flag = false;
+        response.cTrans.forEach(function(result) {
+            var dp = false;
+            var dateNow = new Date();
+            var row;
+            var tDateMoment = moment.utc(result.transactionDate);
+            if (result.hasOwnProperty("future")) {
+                dp = true;
+                row = '<tr id="f_'+result.id+'"';
+                if (tDateMoment.isAfter(moment(),'days')) {
+                    row += ' class="success"';
+                }
+                row += '><td>' +
+                    '<input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" />' +
+                    '<img id="load_'+result.id+'" class="loader-center loader-small" src="../shared/img/loading.gif" style="display:none;" />' +
+                    '</td>';
+            } else {
+                if (flag) {
+                    row = '<tr id="'+result.id+'" style="background:#fffff0">';
                 } else {
-                    if (flag) {
-                        row = '<tr id="'+result.id+'" style="background:#fffff0">';
-                    } else {
-                        row = '<tr id="'+result.id+'">';
-                    }
-                    row += '<td>'+moment.utc(result.postDate).format("MM/DD/YYYY")+'</td>';
+                    row = '<tr id="'+result.id+'">';
                 }
-                row += '<td name="transactionDate">'+
-                    tDateMoment.format("MM/DD/YYYY")+
-                    '</td>'+
-                    '<td name="payee">';
-                if (result.BillId !== null) {
-                    row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
+                row += '<td>'+moment.utc(result.postDate).format("MM/DD/YYYY")+'</td>';
+            }
+            row += '<td name="transactionDate">'+
+                tDateMoment.format("MM/DD/YYYY")+
+                '</td>'+
+                '<td name="payee">';
+            if (result.BillId !== null) {
+                row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
+            }
+            if (result.Bill !== null) {
+                if (result.Bill.automatic) {
+                    row += '&nbsp;<i class="glyphicon glyphicon-flash img-rounded trans-badge" title="Automatic Payment"></i>';
                 }
-                if (result.Bill !== null) {
-                    if (result.Bill.automatic) {
-                        row += '&nbsp;<i class="glyphicon glyphicon-flash img-rounded trans-badge" title="Automatic Payment"></i>';
-                    }
+            }
+            row += result.payee+'</td>';
+            if (result.description !== null) {
+                row += '<td name="description">';
+                if (result.xfer !== null) {
+                    row += "[Transfer] ";
                 }
-                row += result.payee+'</td>';
-                if (result.description !== null) {
-                    row += '<td name="description">';
-                    if (result.xfer !== null) {
-                        row += "[Transfer] ";
-                    }
-                    row += result.description+'</td>';
-                } else {
-                    row += '<td name="description">';
-                    if (result.xfer !== null) {
-                        row += "[Transfer]";
-                    }
-                    row += '</td>';
+                row += result.description+'</td>';
+            } else {
+                row += '<td name="description">';
+                if (result.xfer !== null) {
+                    row += "[Transfer]";
                 }
-                if (result.checkNumber !== null) {
-                    row += '<td name="check">'+result.checkNumber+'</td>';
-                } else {
-                    row += '<td name="check"></td>';
-                }
+                row += '</td>';
+            }
+            if (result.checkNumber !== null) {
+                row += '<td name="check">'+result.checkNumber+'</td>';
+            } else {
+                row += '<td name="check"></td>';
+            }
 
-                if (result.amount !== null) {
-                    if (result.amount > 0) {
-                        row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
-                    } else {
-                        row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
-                    }
-                }
-                if (result.Category !== null) {
-                    row += '<td name="category" id="cat_'+result.id+'" data-toggle="tooltip" data-html="true" data-container="body" data-placement="bottom">'+result.Category.name+'</td>';
-                    if (result.Category.id === 1) {
-                        $.ajax({
-                            type: "GET"
-                            ,url: "/api/v1/money/categorySplit/"+result.id
-                        }).success(function(catSplit) {
-                            // console.log(catSplit);
-                            if (catSplit) {
-                                var titleArr = [];
-                                JSON.parse(catSplit).forEach(function(cat) {
-                                    titleArr.push(cat.name + ": " + cat.value.toFixed(2));
-                                });
-                                // console.log($("#"+result.id+"[name='category']"));
-                                $("#cat_"+result.id).prop("title",titleArr.join("<br />")).tooltip();
-                                // $("#cat_"+result.id);
-                            }
-                        });
-                    }
+            if (result.amount !== null) {
+                if (result.amount > 0) {
+                    row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
                 } else {
-                    row += '<td name="category"></td>';
+                    row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
                 }
-                row += '<td name="balance">'+balance.toFixed(2)+'</td>';
-                if (result.hasOwnProperty("future")) {
-                    row += '<td>'+
-                        '<button class="btn btn-primary btn-xs" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
-                        '<i class="glyphicon glyphicon-pencil"></i>'+
-                        '</button>'+
-                        // '<button class="btn btn-success btn-xs" title="Commit Transaction" onclick="commitFTransaction(\''+result.id+'\');">'+
-                        // 	'<i class="glyphicon glyphicon-plus"></i>'+
-                        // '</button>'+
-                        '<button class="btn btn-danger btn-xs" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
-                        '<i class="glyphicon glyphicon-remove"></i>'+
-                        '</button>'+
-                        '</td>';
-                } else {
-                    row += '<td>' +
-                        '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\'' + result.id + '\');">' +
-                        '<i class="glyphicon glyphicon-pencil"></i>' +
-                        '</button>' +
-                        '</td>';
-                }
-                row += '</tr>';
-                if (result.description !== "gobble gobble") {
-                    $("#transactionTable").find("tbody").append(row);
-                    flag = false;
-                } else {
-                    flag = true;
-                }
-                if (dp) {
-                    $("#post_"+result.id).datepicker({
-                        format: 'mm/dd/yyyy'
-                        ,autoclose: true
-                        ,todayHighlight: true
-                    }).on("changeDate", function(e) {
-                        // postTransaction(Number(e.target.dataset.tid), e.target.value);
-                        sendCommit(Number(e.target.dataset["tid"]), e.target.value)
-                        // console.log({id: Number(e.target.dataset.tid), value: e.target.value});
+            }
+            if (result.Category !== null) {
+                row += '<td name="category" id="cat_'+result.id+'" data-toggle="tooltip" data-html="true" data-container="body" data-placement="bottom">'+result.Category.name+'</td>';
+                if (result.Category.id === 1) {
+                    $.ajax({
+                        type: "GET"
+                        ,url: "/api/v1/money/categorySplit/"+result.id
+                    }).success(function(catSplit) {
+                        // console.log(catSplit);
+                        if (catSplit) {
+                            var titleArr = [];
+                            JSON.parse(catSplit).forEach(function(cat) {
+                                titleArr.push(cat.name + ": " + cat.value.toFixed(2));
+                            });
+                            // console.log($("#"+result.id+"[name='category']"));
+                            $("#cat_"+result.id).prop("title",titleArr.join("<br />")).tooltip();
+                            // $("#cat_"+result.id);
+                        }
                     });
                 }
-                balance -= result.amount;
-            });
-            // console.log(response.cTrans.length);
-            if (response.cTrans.length >= transactionLimit) {
-                var moreRow = '<tr id="moreRow" style="text-align:center;">'+
-                    '<td colspan="9">'+
-                    '<a onclick="getMoreTransactions('+balance+','+transactionLimit+','+transactionLimit+');">'+
-                    'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
-                    '</a>'+
-                    '</td>'+
-                    '</tr>';
-                $tableElem.find("tbody").append(moreRow);
-            }
-            if (transId !== null) {
-                transactionHighlight(transId);
-            }
-            getBills();
-        })
-        .error(function(jqXHR/*, textStatus, errorThrown*/) {
-            if (jqXHR.status === 404) {
-                return false;
             } else {
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
+                row += '<td name="category"></td>';
             }
+            row += '<td name="balance">'+balance.toFixed(2)+'</td>';
+            if (result.hasOwnProperty("future")) {
+                row += '<td>'+
+                    '<button class="btn btn-primary btn-xs" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
+                    '<i class="glyphicon glyphicon-pencil"></i>'+
+                    '</button>'+
+                    // '<button class="btn btn-success btn-xs" title="Commit Transaction" onclick="commitFTransaction(\''+result.id+'\');">'+
+                    // 	'<i class="glyphicon glyphicon-plus"></i>'+
+                    // '</button>'+
+                    '<button class="btn btn-danger btn-xs" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
+                    '<i class="glyphicon glyphicon-remove"></i>'+
+                    '</button>'+
+                    '</td>';
+            } else {
+                row += '<td>' +
+                    '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\'' + result.id + '\');">' +
+                    '<i class="glyphicon glyphicon-pencil"></i>' +
+                    '</button>' +
+                    '</td>';
+            }
+            row += '</tr>';
+            if (result.description !== "gobble gobble") {
+                $("#transactionTable").find("tbody").append(row);
+                flag = false;
+            } else {
+                flag = true;
+            }
+            if (dp) {
+                $("#post_"+result.id).datepicker({
+                    format: 'mm/dd/yyyy'
+                    ,autoclose: true
+                    ,todayHighlight: true
+                }).on("changeDate", function(e) {
+                    // postTransaction(Number(e.target.dataset.tid), e.target.value);
+                    sendCommit(Number(e.target.dataset["tid"]), e.target.value)
+                    // console.log({id: Number(e.target.dataset.tid), value: e.target.value});
+                });
+            }
+            balance -= result.amount;
         });
+        // console.log(response.cTrans.length);
+        if (response.cTrans.length >= transactionLimit) {
+            var moreRow = '<tr id="moreRow" style="text-align:center;">'+
+                '<td colspan="9">'+
+                '<a onclick="getMoreTransactions('+balance+','+transactionLimit+','+transactionLimit+');">'+
+                'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
+                '</a>'+
+                '</td>'+
+                '</tr>';
+            $tableElem.find("tbody").append(moreRow);
+        }
+        if (transId !== null) {
+            transactionHighlight(transId);
+        }
+        $("#page-load").hide();
+        getBills();
+    })
+    .error(function(jqXHR/*, textStatus, errorThrown*/) {
+        $("#page-load").hide();
+        if (jqXHR.status === 404) {
+            return false;
+        } else {
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        }
+    });
 }
 
 function getMoreInvestments() {
@@ -1543,9 +1552,14 @@ function resetAddTransaction() {
     $("#xferAccountId").val("");
     $("#startXferBtn").removeClass("btn-primary active").addClass("btn-default");
     $("#noXferBtn").removeClass("btn-default").addClass("active btn-primary");
+    $("#addTransaction").prop("disabled",false);
+    $("#addButtonLoad").hide();
+    $("#addButtonPlus").show();
 }
 
 function sendCommit(rid, pdate) {
+    $("#post_"+rid).hide();
+    $("#load_"+rid).show();
     $.ajax({
         type: "PUT"
         ,url: "/api/v1/money/futureTransaction/commit/"+rid

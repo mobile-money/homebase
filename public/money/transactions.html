@@ -16,7 +16,7 @@
 		<link rel="icon" href="../shared/img/favicon.ico" type="image/x-icon">
 	</head>
 	<body style="display:none;">
-		<div id="test"></div>
+		<div id="page-load" class="loader loader-main" style="display:none;"><img src="../shared/img/loading.gif" /></div>
 		<!--Start Info Modal-->
 		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
@@ -110,6 +110,7 @@
 		</div>
 		<!--End Edit Future Transaction Modal-->
 		<!--Start Commit Future Transaction Modal-->
+<!--
 		<div class="modal fade" id="commitFutureTransactionModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
@@ -126,6 +127,7 @@
 				</div>
 			</div>
 		</div>
+-->
 		<!--End Commit Future Transaction Modal-->
 		<!--Start Delete Transaction Modal-->
 		<div class="modal fade" id="deleteTransactionModal" tabindex="-1" role="dialog">
@@ -208,7 +210,6 @@
 		</div>
 		<!--End New Price Modal-->
 
-
 		<nav class="navbar navbar-default">
 		  <div class="container-fluid">
 		    <!-- Brand and toggle get grouped for better mobile display -->
@@ -241,7 +242,6 @@
 
 		  </div><!-- /.container-fluid -->
 		</nav>
-
 
 		<div class="container-fluid">
 			<div class="row">
@@ -315,7 +315,8 @@
 								</td>
 								<td id="addButtonCell">
 									<button class="btn btn-success btn-sm" title="Add Transaction" data-toggle="modal" data-target="#addTransactionModal" id="addTransaction">
-										<i class="glyphicon glyphicon-plus"></i>
+										<i id="addButtonPlus" class="glyphicon glyphicon-plus"></i>
+										<img id="addButtonLoad" class="loader loader-small" src="../shared/img/loading.gif" style="display: none;" />
 									</button>
 								</td>
 							</tr>

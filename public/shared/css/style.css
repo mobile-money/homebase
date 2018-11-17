@@ -71,6 +71,30 @@ body.live-view {
     border: #000;
 }
 
+.loader-center {
+	margin: auto;
+	display: block;
+	transform: rotate(90deg);
+}
+
+.loader-main {
+	position: fixed;
+	z-index: 999;
+	height: 2em;
+	width: 2em;
+	overflow: show;
+	margin: auto;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+}
+
+.loader-small {
+	height: 1em;
+	width: 1em;
+}
+
 #locSelect {
 	font-size: 1.3em;
 }
