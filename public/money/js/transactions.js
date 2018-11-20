@@ -462,7 +462,7 @@ socket.on("summaryAdded", function(newSummary) {
 
 // FUNCTIONS //
 function addTransaction() {
-    $("#addTransaction").prop("disabled",true);
+    $(".newTrans").prop("disabled",true);
     $("#addButtonPlus").hide();
     $("#addButtonLoad").show();
     //Clear existing errors
@@ -755,7 +755,7 @@ function getAccounts() {
     })
         .success(function(response) {
             var jq_accountSelect = $("#accountSelect");
-            $("#addTransaction").prop("disabled", false);
+            $(".newTrans").prop("disabled", false);
             accountArray = response;
             jq_accountSelect.empty();
             if (response.length === 1) {
@@ -786,10 +786,10 @@ function getAccounts() {
         })
         .error(function(jqXHR) {
             if (jqXHR.status === 404) {
-                $("#addTransaction").prop("disabled", true);
+                $(".newTrans").prop("disabled", true);
                 return false;
             } else {
-                $("#addTransaction").prop("disabled", true);
+                $(".newTrans").prop("disabled", true);
                 $("#infoModalBody").html("There was a problem.  Please try again.");
                 $("#infoModal").modal("show");
             }
@@ -1552,7 +1552,7 @@ function resetAddTransaction() {
     $("#xferAccountId").val("");
     $("#startXferBtn").removeClass("btn-primary active").addClass("btn-default");
     $("#noXferBtn").removeClass("btn-default").addClass("active btn-primary");
-    $("#addTransaction").prop("disabled",false);
+    $(".newTrans").prop("disabled",false);
     $("#addButtonLoad").hide();
     $("#addButtonPlus").show();
 }
