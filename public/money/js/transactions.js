@@ -82,14 +82,14 @@ $("#cancelMultiCategoryButton").click(function() {
 // });
 
 $("#completeMultiCategoryButton").click(function() {
-    var cnt = 0;
-    var lastId = -1;
+    let cnt = 0;
+    let lastId = -1;
 	$(".multiCatValue").each(function(i,e) {
         if (e["valueAsNumber"]) {
-        	var idSplit = e.id.split("_");
-            var val = e["valueAsNumber"];
-        	var cat = _.where(categoryArray,{id: Number(idSplit[1])});
-        	console.log(cat.length);
+        	let idSplit = e.id.split("_");
+            let val = e["valueAsNumber"];
+        	let cat = _.where(categoryArray,{id: Number(idSplit[1])});
+        	// console.log(cat.length);
         	if (cat.length > 0) {
         	    if (cat[0].expense) {
         	        val = val * -1;
@@ -120,6 +120,22 @@ $("#deleteTransactionButton").click(function() {
 
 $("#deleteTransactionModal").on("hidden.bs.modal", function() {
     // $("#newPayee").focus();
+});
+
+$("#editCategory").change(function() {
+    if ($("#editCategory").val() === "1") {
+        initiateMultiCategory($("#editDeposit").val(),$("#editWithdrawl").val());
+    } else {
+        multiCategoriesObj = [];
+    }
+});
+
+$("#editFCategory").change(function() {
+    if ($("#editFCategory").val() === "1") {
+        initiateMultiCategory($("#editFDeposit").val(),$("#editFWithdrawl").val());
+    } else {
+        multiCategoriesObj = [];
+    }
 });
 
 $("#editFTransactionButton").click(function() {
@@ -162,7 +178,7 @@ $("#infoModal").on("hidden.bs.modal", function() {
 
 $("#newCategory").change(function() {
 	if ($("#newCategory").val() === "1") {
-		initiateMultiCategory();
+		initiateMultiCategory($("#newDeposit").val(),$("#newWithdrawl").val());
 	} else {
 		multiCategoriesObj = [];
 	}
@@ -467,17 +483,17 @@ function addTransaction() {
     $("#addButtonLoad").show();
     //Clear existing errors
     $(".newTrans").removeClass("error");
-    var errors = 0;
-    var $accountElem = $("#accountSelect");
-    var $xferAccountElem = $("#xferAccountId");
-    var $dateElem = $("#newTDate");
-    var $payeeElem = $("#newPayee");
-    var $descriptionElem = $("#newDescription");
-    var $checkElem = $("#newCheck");
-    var $depositElem = $("#newDeposit");
-    var $withdrawlElem = $("#newWithdrawl");
-    var $categoryElem = $("#newCategory");
-    var nt = {};
+    let errors = 0;
+    let $accountElem = $("#accountSelect");
+    let $xferAccountElem = $("#xferAccountId");
+    let $dateElem = $("#newTDate");
+    let $payeeElem = $("#newPayee");
+    let $descriptionElem = $("#newDescription");
+    let $checkElem = $("#newCheck");
+    let $depositElem = $("#newDeposit");
+    let $withdrawlElem = $("#newWithdrawl");
+    let $categoryElem = $("#newCategory");
+    let nt = {};
     if (accountNames[$accountElem.val()].type !== "Investment") {
         //Get values
         nt = {
@@ -568,7 +584,7 @@ function addTransaction() {
             }).success(function(/*response*/) {
                 // Sumbit xfer transaction, if applicable
                 if ($xferAccountElem.val() !== "") {
-                    var xt = {
+                    let xt = {
                         account: $xferAccountElem.val()
                         ,tDate: nt.tDate
                         ,payee: accountNames[nt.account].name
@@ -708,12 +724,12 @@ function editFTransaction(id) {
     $("#editFCheck").val($("#f_"+id+" td[name=check]").html());
     $("#editFDeposit").val($("#f_"+id+" td[name=plus]").html());
     $("#editFWithdrawl").val($("#f_"+id+" td[name=minus]").html());
-    var $catElem = $("#editFCategory");
-    var catLabel = $("#f_"+id+" td[name=category]").html();
+    let $catElem = $("#editFCategory");
+    let catLabel = $("#f_"+id+" td[name=category]").html();
     $catElem.prop("disabled",false);
     $catElem.append("<option />");
-    for (var i = 0; i < categoryArray.length; i++) {
-        var html = '<option value="'+categoryArray[i].id+'"';
+    for (let i = 0; i < categoryArray.length; i++) {
+        let html = '<option value="'+categoryArray[i].id+'"';
         if (catLabel === categoryArray[i].name) {
             html += " selected";
         }
@@ -722,6 +738,8 @@ function editFTransaction(id) {
     }
     if (catLabel === "-Multiple-") {
         $catElem.prop("disabled",true);
+    } else {
+        $catElem.prop("disabled",false);
     }
     $("#editFutureTransactionModal").modal("show");
 }
@@ -730,12 +748,14 @@ function editTransaction(id) {
     $("#editTransactionId").val(id);
     $("#editPayee").val($("#"+id+" td[name=payee]").text().trim());
     $("#editDescription").val($("#"+id+" td[name=description]").text().trim());
+    $("#editDeposit").val($("#"+id+" td[name=plus]").html());
+    $("#editWithdrawl").val($("#"+id+" td[name=minus]").html());
     $("#editCheck").val($("#"+id+" td[name=check]").html());
-    var $catElem = $("#editCategory");
-    var $catLabel = $("#"+id+" td[name=category]");
+    let $catElem = $("#editCategory");
+    let $catLabel = $("#"+id+" td[name=category]");
     $catElem.append("<option />");
-    for (var i = 0; i < categoryArray.length; i++) {
-        var html = '<option value="'+categoryArray[i].id+'"';
+    for (let i = 0; i < categoryArray.length; i++) {
+        let html = '<option value="'+categoryArray[i].id+'"';
         if ($catLabel.html() === categoryArray[i].name) {
             html += " selected";
         }
@@ -744,6 +764,8 @@ function editTransaction(id) {
     }
     if ($catLabel.html() === "-Multiple-") {
         $catElem.prop("disabled",true);
+    } else {
+        $catElem.prop("disabled",false);
     }
     $("#editTransactionModal").modal("show");
 }
@@ -1290,23 +1312,28 @@ function getMoreTransactions(balance, offset, limit) {
         });
 }
 
-function initiateMultiCategory() {
-    var amount = 0.00;
-    var filteredList = _.filter(categoryArray, function(obj) { return Number(obj.id) !== 1; });
-    var midpoint = Math.ceil(((filteredList.length - 1)/2));
-    var $depositElem = $("#newDeposit");
-    if ($depositElem.val() !== "") {
-    	amount = Number($depositElem.val());
-	} else if ($("#newWithdrawl").val() !== "") {
-    	amount = Number($("#newWithdrawl").val());
+function initiateMultiCategory(deposit,withdrawal) {
+    let amount = 0.00;
+    let filteredList = _.filter(categoryArray, function(obj) { return Number(obj.id) !== 1; });
+    let midpoint = Math.ceil(((filteredList.length - 1)/2));
+    // let $depositElem = $("#newDeposit");
+    // if ($depositElem.val() !== "") {
+    // 	amount = Number($depositElem.val());
+	// } else if ($("#newWithdrawl").val() !== "") {
+    // 	amount = Number($("#newWithdrawl").val());
+	// }
+    if (deposit !== "") {
+    	amount = Number(deposit);
+	} else if (withdrawal !== "") {
+    	amount = Number(withdrawal);
 	}
-	var body = '<table><thead><tr><th style="padding: 5px;">Unassigned Amount</th><th id="transAmount" style="padding: 5px;">'+amount.toFixed(2)+'</th>'+
+	let body = '<table><thead><tr><th style="padding: 5px;">Unassigned Amount</th><th id="transAmount" style="padding: 5px;">'+amount.toFixed(2)+'</th>'+
         '<th style="padding: 5px;">Discount</th><th style="padding: 5px;"><div class="input-group">'+
         '<input type="number" class="form-control" min="0" max="100" step="1" id="multiCatDiscount" />'+
         '<span class="input-group-addon">%</span></div></th></tr></thead><tbody>';
-    for (var i=0; i<midpoint; i++) {
-        var left = i;
-        var right = i+midpoint;
+    for (let i=0; i<midpoint; i++) {
+        let left = i;
+        let right = i+midpoint;
         body += '<tr>'+
             '<td style="padding: 5px;">' + filteredList[left].name + '</td><td style="padding: 5px;">'+
             '<input type="number" class="form-control currency multiCatValue" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" id="multiCat_' + filteredList[left].id + '_'+ filteredList[left].name +'" />'+
@@ -1322,7 +1349,7 @@ function initiateMultiCategory() {
     $("#multiCategoryModalBody").html(body);
     $(".multiCatValue").change(function() {calc();});
     $("#multiCatDiscount").change(function() {
-        var val = $("#multiCatDiscount");
+        let val = $("#multiCatDiscount");
         if (!val.val() || Number(val.val()) < 0) {
             val.val(0);
         } else if (Number(val.val()) > 100) {
@@ -1332,18 +1359,18 @@ function initiateMultiCategory() {
     });
 
     function calc() {
-        var $amountElem = $("#transAmount");
+        let $amountElem = $("#transAmount");
         $amountElem.removeClass("error");
-        var $completeButtonElem = $("#completeMultiCategoryButton");
+        let $completeButtonElem = $("#completeMultiCategoryButton");
         $completeButtonElem.prop("disabled",false);
-        var discount = (100 - $("#multiCatDiscount").val()) * 0.01;
-        var assignedAmount = 0;
+        let discount = (100 - $("#multiCatDiscount").val()) * 0.01;
+        let assignedAmount = 0;
         $(".multiCatValue").each(function(i,elem) {
             if (elem["valueAsNumber"]) {
                 assignedAmount += elem["valueAsNumber"];
             }
         });
-        var newAmount = amount - (assignedAmount * discount);
+        let newAmount = amount - (assignedAmount * discount);
         $amountElem.html(newAmount.toFixed(2));
         if (newAmount < 0) {
             $amountElem.addClass("error");
@@ -1362,14 +1389,15 @@ function modifyFTransaction() {
     $(".editFTrans").removeClass("error");
 
     //Get values
-    var et = {};
-    var $dateElem = $("#editFTDate");
-    var $payeeElem = $("#editFPayee");
-    var $descriptionElem = $("#editFDescription");
-    var $checkElem = $("#editFCheck");
-    var $depositElem = $("#editFDeposit");
-    var $withdrawlElem = $("#editFWithdrawl");
-    var $categoryElem = $("#editFCategory");
+    let et = {};
+    let $dateElem = $("#editFTDate");
+    let $payeeElem = $("#editFPayee");
+    let $descriptionElem = $("#editFDescription");
+    let $checkElem = $("#editFCheck");
+    let $depositElem = $("#editFDeposit");
+    let $withdrawlElem = $("#editFWithdrawl");
+    let $categoryElem = $("#editFCategory");
+
     if ($dateElem.val() !== "") {
         et.tDate = $dateElem.val();
     }
@@ -1388,8 +1416,14 @@ function modifyFTransaction() {
     if ($withdrawlElem.val() !== "") {
         et.withdrawl = $withdrawlElem.val();
     }
+    // if ($categoryElem.val() !== "") {
+    //     et.category = $categoryElem.val();
+    // }
     if ($categoryElem.val() !== "") {
         et.category = $categoryElem.val();
+        if ($categoryElem.val() === "1") {
+            et.multiCat = JSON.stringify(multiCategoriesObj);
+        }
     }
 
     // //Validation
@@ -1458,18 +1492,18 @@ function modifyFTransaction() {
 }
 
 function modifyTransaction() {
-    var id = $("#editTransactionId").val();
-    var $payeeElem = $("#editPayee");
-    var $descriptionElem = $("#editDescription");
-    var $checkElem = $("#editCheck");
-    var $categoryElem = $("#editCategory");
+    let id = $("#editTransactionId").val();
+    let $payeeElem = $("#editPayee");
+    let $descriptionElem = $("#editDescription");
+    let $checkElem = $("#editCheck");
+    let $categoryElem = $("#editCategory");
 
     //Clear existing errors
-    var errors = 0;
+    let errors = 0;
     $(".editTrans").removeClass("error");
 
     //Get values
-    var et = {};
+    let et = {};
     if ($payeeElem.val() !== "") {
         et.payee = $payeeElem.val().trim();
     }
@@ -1479,8 +1513,14 @@ function modifyTransaction() {
     if ($checkElem.val() !== "") {
         et.check = $checkElem.val();
     }
+    // if ($categoryElem.val() !== "") {
+    //     et.category = $categoryElem.val();
+    // }
     if ($categoryElem.val() !== "") {
         et.category = $categoryElem.val();
+        if ($categoryElem.val() === "1") {
+            et.multiCat = JSON.stringify(multiCategoriesObj);
+        }
     }
 
     // //Validation

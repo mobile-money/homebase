@@ -74,7 +74,19 @@ module.exports = function(db, Transaction) {
 						transaction.CategoryId = data.category;
 						transaction.save().then(function (transaction) {
 							transaction.reload();
-							resolve(transaction);
+							if (data.hasOwnProperty("multiCat")) {
+								db.CategorySplit.create({
+									transaction: data.id
+									,payload: data.multiCat
+								}).then(function(split) {
+									resolve(transaction);
+								},function(splitError) {
+									console.log("error creating category split: " + splitError);
+								});
+							} else {
+								resolve(transaction);
+							}
+							// resolve(transaction);
 						});
 					} else {
 						reject();
