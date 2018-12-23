@@ -1,7 +1,18 @@
 const PORT = 3000;
+const fs = require("fs");
 const express = require("express");
 const app = express();
 const http = require("http").Server(app);
+const options = {
+	key: fs.readFileSync('encryption/server.key'),
+	cert: fs.readFileSync('encryption/litzhome_com.crt'),
+	ca: [
+		fs.readFileSync('encryption/COMODORSAAddTrustCA.crt'),
+		fs.readFileSync('encryption/COMODORSADomainValidationSecureServerCA.crt'),
+		fs.readFileSync('encryption/AddTrustExternalCARoot.crt')
+	]
+};
+const https = require("https").Server(options, app);
 const io = require("socket.io")(http);
 const bodyParser = require("body-parser");
 const _ = require("underscore");
@@ -13,6 +24,13 @@ const db_health = require("./config/db_health.js");
 app.use(express.static(__dirname + "/public", {extensions: ['html']}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(function(req,res,next) {
+// 	if (req.secure) {
+// 		next();
+// 	} else {
+// 		res.redirect('https://' + req.headers.host + req.url);
+// 	}
+// });
 
 // // CONTROLLERS // //
 // HVAC
@@ -115,9 +133,11 @@ db_hvac.sequelize.sync({
 			db_health.sequelize.sync({
 				// force: true
 			}).then(function() {
-                http.listen(PORT, function() {
-                    console.log("Server started on port: " + PORT);
-                });
+				https.listen(PORT, function() {
+					// http.listen(PORT, function () {
+						console.log("Server started on port: " + PORT);
+					// });
+				});
 			});
 		});
 	});
