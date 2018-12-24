@@ -1,4 +1,5 @@
-const PORT = 3000;
+const PORT = 3001;
+const SPORT = 3000;
 const fs = require("fs");
 const express = require("express");
 const app = express();
@@ -13,7 +14,7 @@ const options = {
 	]
 };
 const https = require("https").Server(options, app);
-const io = require("socket.io")(http);
+const io = require("socket.io")(https);
 const bodyParser = require("body-parser");
 const _ = require("underscore");
 const db_hvac = require("./config/db_hvac.js");
@@ -24,13 +25,7 @@ const db_health = require("./config/db_health.js");
 app.use(express.static(__dirname + "/public", {extensions: ['html']}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(function(req,res,next) {
-// 	if (req.secure) {
-// 		next();
-// 	} else {
-// 		res.redirect('https://' + req.headers.host + req.url);
-// 	}
-// });
+
 
 // // CONTROLLERS // //
 // HVAC
@@ -133,10 +128,17 @@ db_hvac.sequelize.sync({
 			db_health.sequelize.sync({
 				// force: true
 			}).then(function() {
-				https.listen(PORT, function() {
-					// http.listen(PORT, function () {
-						console.log("Server started on port: " + PORT);
-					// });
+				https.listen(SPORT, function() {
+					http.listen(PORT, function () {
+						console.log("Server started on secure port: " + SPORT + ", and unsecure port: " + PORT);
+						app.use(function(req,res,next) {
+							if (req.secure) {
+								next();
+							} else {
+								res.redirect('https://' + req.headers.host + req.url);
+							}
+						});
+					});
 				});
 			});
 		});
