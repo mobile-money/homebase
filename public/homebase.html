@@ -2,13 +2,15 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>Home Base</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+`		<title>Home Base</title>
 
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="shared/css/bootstrap.min.css">
 
 		<!-- Optional theme -->
 		<link rel="stylesheet" href="shared/css/bootstrap-theme.min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
 		<link rel="stylesheet" href="shared/css/style.css">
 		<link rel="shortcut icon" href="shared/img/favicon.ico" type="image/x-icon">
@@ -16,47 +18,69 @@
 	</head>
 	<body>
 
+	<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
 
-		<div class="container-fluid">
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav ml-auto">
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						Hello, <span id="user_name"></span>
+						<span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+						<li><a href="/admin/groups">Groups</a></li>
+						<li><a href="#" onClick="logOut();">Log Out</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div><!-- /.navbar collapse -->
+	</nav>
+
+
+	<div class="container-fluid">
 			<div class="row">
-				<div class="col-xs-12">
+				<div class="col-md-10">
 					<h1>
 						<img src="shared/img/brand.png" style="width:100px;" />
 						Home Base
 					</h1>
 				</div>
 			</div>
-			<div class="row centered">
-				<div class="col-xs-7 col-xs-offset-3">
-					<div class="col-xs-6" style="padding-bottom: 10px;">
-						<a href="/hvac/live" class="btn btn-lg btn-default" style="width:100%;">
-							<span class="glyphicon glyphicon-fire text-danger"></span>
-							<br /><span class="text-danger">HVAC</span>
-						</a>
-					</div>
-					<div class="col-xs-6" style="padding-bottom: 10px;">
-						<a href="/money/accounts" class="btn btn-lg btn-default" style="width:100%;">
-							<span class="glyphicon glyphicon-usd text-success"></span>
-							<br /><span class="text-success">Money</span>
-						</a>
-					</div>
-					<div class="col-xs-6" style="padding-bottom: 10px;">
-						<a href="/automobile/cars" class="btn btn-lg btn-default" style="width:100%;">
-							<span class="glyphicon glyphicon-road text-primary"></span>
-							<br /><span class="text-primary">Cars</span>
-						</a>
-					</div>
-					<div class="col-xs-6" style="padding-bottom: 10px;">
-						<a href="/health/people" class="btn btn-lg btn-default" style="width:100%;">
-							<span class="glyphicon glyphicon-plus-sign text-warning"></span>
-							<br /><span class="text-warning">Health</span>
-						</a>
-					</div>
+			<div class="row justify-content-center">
+				<div class="col-md-4" style="padding-bottom: 10px;">
+					<a href="/money/accounts" class="btn btn-lg btn-success" style="width:100%;">
+						<span class="fa fa-usd"></span>
+						<br />Money
+					</a>
+				</div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-md-4" style="padding-bottom: 10px;">
+					<a href="/automobile/cars" class="btn btn-lg btn-primary" style="width:100%;">
+						<span class="fa fa-road"></span>
+						<br />Cars
+					</a>
+				</div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-md-4" style="padding-bottom: 10px;">
+					<a href="/health/people" class="btn btn-lg btn-danger" style="width:100%;">
+						<span class="fa fa-medkit"></span>
+						<br />Health
+					</a>
 				</div>
 			</div>
 		</div>
-		<!-- <script type="text/javascript" src="/shared/js/jquery-2.2.0.min.js"></script>
-		<script type="text/javascript" src="/shared/js/jquery.color-2.1.2.min.js"></script>
+		<script type="text/javascript" src="shared/js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="shared/js/global.js"></script>
+		<script type="text/javascript" src="shared/js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+			$("#user_name").html(getCookie('x-FirstName'));
+		</script>
+		<!-- <script type="text/javascript" src="/shared/js/jquery.color-2.1.2.min.js"></script>
 		<script type="text/javascript" src="/shared/js/socket.io-1.4.5.js"></script>
 		<script type="text/javascript" src="/shared/js/bootstrap.min.js"></script>
 		<script type="text/javascript" src="/shared/js/bootstrap-timepicker.min.js"></script>

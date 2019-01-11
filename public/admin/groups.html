@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>Groups</title>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+		<link rel="stylesheet" href="../shared/css/style.css">
+		<link rel="shortcut icon" href="../shared/img/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="../shared/img/favicon.ico" type="image/x-icon">
+	</head>
+	<body style="display:none;">
+		<!--Start Info Modal-->
+		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div id="infoModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-info" data-dismiss="modal" aria-label="OK" title="OK">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Info Modal-->
+		<!--Start Add Group Modal-->
+		<div class="modal fade" id="addGroupModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Create a New Group</h4>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<label>Group Name</label>
+							<input id="newName" class="form-control" type="text" placeholder="Group Name" maxlength="48" />
+						</div>
+						<div class="form-group">
+							<label>Members</label>
+							<select multiple id="newMembers" class="form-control"></select>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-success" title="Create Group" id="addGroupButton"><i class="fa fa-plus"></i></button>
+						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Create Group">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Add Group Modal-->
+		<!--Start Edit Group Modal-->
+		<div class="modal fade" id="editGroupModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Edit Group</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="editGroupId" />
+						<div class="form-group">
+							<label>Group Name</label>
+							<input id="editName" class="form-control" type="text" placeholder="Group Name" maxlength="48" />
+						</div>
+						<div class="form-group">
+							<label>Members</label>
+							<select multiple id="editMembers" class="form-control"></select>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-danger" title="Delete Group" id="deleteGrpButton"><i class="fa fa-trash"></i></button>
+						<button class="btn btn-primary" title="Edit Group" id="editGroupButton"><i class="fa fa-pencil"></i></button>
+						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Group">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Edit Group Modal-->
+		<!--Start Delete Group Modal-->
+		<div class="modal fade" id="deleteGroupModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Delete Group</h4>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="deleteGroupId" />
+						<div id="deleteModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-danger" title="Delete Group" id="deleteGroupButton"><i class="fa fa-trash"></i></button>
+						<button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Group">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Delete Group Modal-->
+
+		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+			<a class="navbar-brand" href="/homebase">
+				<img src="../shared/img/brand.png" style="height:1em;" />
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item"><a class="nav-link" href="/money/accounts">Accounts</a></li>
+					<li class="nav-item"><a class="nav-link" href="/automobile/cars">Cars</a></li>
+					<li class="nav-item"><a class="nav-link" href="/health/people">People</a></li>
+				</ul>
+				<ul class="navbar-nav ml-auto">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							Hello, <span id="user_name"></span>
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+							<li><a href="/admin/groups" >Groups</a></li>
+							<li><a href="#" onClick="logOut();">Log Out</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div><!-- /.navbar-collapse -->
+		</nav>
+
+		<div class="container-fluid">
+			<div class="col-sm-12">
+				<div class="card" style="margin-top:20px;">
+					<table id="groupTable" class="table table-striped table-sm">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Owner</th>
+								<th>Members</th>
+								<th>Accessible Accounts</th>
+								<th>Accessible Cars</th>
+								<th>Accessible People</th>
+								<th><button class="btn btn-success" title="Add Group" data-toggle="modal" data-target="#addGroupModal"><i class="fa fa-plus"></i></button></th>
+							</tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="../shared/js/jquery.color-2.1.2.min.js"></script>
+		<!--<script type="text/javascript" src="../shared/js/socket.io-2.1.1.js"></script>-->
+		<!-- Latest compiled and minified JavaScript -->
+		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../shared/js/underscore-1.8.3.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>
+		<script type="text/javascript" src="js/groups.js"></script>
+	</body>
+</html>

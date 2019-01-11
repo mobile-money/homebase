@@ -1,4 +1,4 @@
-var cryptojs = require("crypto-js");
+const cryptojs = require("crypto-js");
 
 module.exports = function(sequelize, DataTypes) {
 	return sequelize.define("Token", {
@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
 				len: [1]
 			}
 			,set: function(value) {
-				var hash = cryptojs.MD5(value).toString();
+				let hash = cryptojs.MD5(value).toString();
 
 				this.setDataValue("token", value);
 				this.setDataValue("tokenHash", hash);

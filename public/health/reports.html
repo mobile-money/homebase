@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<title>Reports - Health</title>
 
 		<!-- Latest compiled and minified CSS -->
@@ -9,6 +10,7 @@
 
 		<!-- Optional theme -->
 		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
 		<link rel="stylesheet" href="../shared/css/bootstrap-datepicker3.standalone.min.css">
 		<link rel="stylesheet" href="../shared/css/style.css">
@@ -18,35 +20,32 @@
 	<body style="display:none;">
 		<input type="hidden" id="currentPersonId" />
 
-		<nav class="navbar navbar-default">
-		  <div class="container-fluid">
-		    <!-- Brand and toggle get grouped for better mobile display -->
-		    <div class="navbar-header">
-		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-		        <span class="sr-only">Toggle navigation</span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		      </button>
-		      <a class="navbar-brand" href="/homebase">
-		      		<img src="../shared/img/brand.png" style="height:100%;" />
-		      </a>
-		    </div>
+		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+			<a class="navbar-brand" href="/homebase">
+				<img src="../shared/img/brand.png" style="height:1em;" />
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
 
-		    <!-- Collect the nav links, forms, and other content for toggling -->
-			  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				  <ul class="nav navbar-nav">
-					  <li><a href="/health/people">People</a></li>
-					  <li><a href="/health/visit">Visits</a></li>
-					  <li class="active"><a href="/health/reports">Reports <span class="sr-only">(current)</span></a></li>
-				  </ul>
-				  <!--<div class="pull-right">
-					  <div id="username"></div>
-					  <button class="btn-xs btn-danger" id="logout">Log Out</button>
-				  </div>-->
-			  </div><!-- /.navbar-collapse -->
-
-		  </div><!-- /.container-fluid -->
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item"><a class="nav-link" href="/health/people">People</a></li>
+					<li class="nav-item"><a class="nav-link" href="/health/visit">Visits</a></li>
+					<li class="nav-item active"><a class="nav-link" href="/health/reports">Reports <span class="sr-only">(current)</span></a></li>
+				</ul>
+				<ul class="navbar-nav ml-auto">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							Hello, <span id="user_name"></span>
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+							<li><a href="#" onClick="logOut();">Log Out</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div><!-- /.navbar-collapse -->
 		</nav>
 
 
@@ -58,13 +57,13 @@
 			</div>
 			<br />
 			<div class="row">
-				<div class="col-xs-10 col-xs-offset-1 well">
-					<div class="col-xs-3">
+				<div class="col-sm-12">
+					<div class="col-sm-3 card">
 						<h4>Health Costs</h4>
 						Total Health Cost: $<span id="totalCost"></span><br/>
 						Health Cost per Year: $<span id="costPerYear"></span>
 					</div>
-					<div class="col-xs-8 col-xs-offset-1" id="healthCostChart"></div>
+					<div class="col-sm" id="healthCostChart"></div>
 				</div>
 			</div>
 		</div>

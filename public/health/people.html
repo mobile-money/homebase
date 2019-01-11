@@ -2,10 +2,12 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<title>People - Health</title>
 
 		<!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
 		<!-- Optional theme -->
 		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
@@ -37,25 +39,29 @@
 						<h4 class="modal-title">Add a Person</h4>
 					</div>
 					<div class="modal-body">
-						<div class="input-group">
+						<div class="form-group">
 							<label>First Name</label>
 							<input id="newFirstName" class="form-control" type="text" placeholder="First Name" maxlength="48" />
 						</div>
-						<div class="input-group">
+						<div class="form-group">
 							<label>Middle Name</label>
 							<input id="newMiddleName" class="form-control" type="text" placeholder="Middle Name" maxlength="48" />
 						</div>
-						<div class="input-group">
+						<div class="form-group">
 							<label>Last Name</label>
 							<input id="newLastName" class="form-control" type="text" placeholder="Last Name" maxlength="48" />
 						</div>
-						<div class="input-group">
+						<div class="form-group">
 							<label>Birth Date</label>
 							<input id="newBirthDate" class="form-control" type="date" />
 						</div>
+						<div class="form-group">
+							<label>Additional User Access</label>
+							<select multiple id="newAUA" class="form-control"></select>
+						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-success" title="Add Person" id="addPersonButton"><i class="glyphicon glyphicon-plus"></i></button>
+						<button class="btn btn-success" title="Add Person" id="addPersonButton"><i class="fa fa-plus"></i></button>
 						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Peson">Cancel</button>
 					</div>
 				</div>
@@ -71,25 +77,29 @@
 					</div>
 					<div class="modal-body">
 						<input type="hidden" id="editPersonId" />
-						<div class="input-group">
+						<div class="form-group">
 							<label>First Name</label>
 							<input id="editFirstName" class="form-control" type="text" maxlength="48" />
 						</div>
-						<div class="input-group">
+						<div class="form-group">
 							<label>Middle Name</label>
 							<input id="editMiddleName" class="form-control" type="text" maxlength="48" />
 						</div>
-						<div class="input-group">
+						<div class="form-group">
 							<label>Last Name</label>
 							<input id="editLastName" class="form-control" type="text" maxlength="48" />
 						</div>
-						<div class="input-group">
+						<div class="form-group">
 							<label>Birth Date</label>
 							<input id="editBirthDate" class="form-control" type="date" />
 						</div>
+						<div class="form-group">
+							<label>Additional User Access</label>
+							<select multiple id="editAUA" class="form-control"></select>
+						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-primary" title="Edit Person" id="editPersonButton"><i class="glyphicon glyphicon-pencil"></i></button>
+						<button class="btn btn-primary" title="Edit Person" id="editPersonButton"><i class="fa fa-pencil"></i></button>
 						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Person">Cancel</button>
 					</div>
 				</div>
@@ -108,7 +118,7 @@
 						<div id="deleteModalBody"></div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-danger" title="Delete Person" id="deletePersonButton"><i class="glyphicon glyphicon-trash"></i></button>
+						<button class="btn btn-danger" title="Delete Person" id="deletePersonButton"><i class="fa fa-trash"></i></button>
 						<button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Person">Cancel</button>
 					</div>
 				</div>
@@ -116,55 +126,52 @@
 		</div>
 		<!--End Delete Person Modal-->
 
+		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+			<a class="navbar-brand" href="/homebase">
+				<img src="../shared/img/brand.png" style="height:1em;" />
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
 
-		<nav class="navbar navbar-default">
-		  <div class="container-fluid">
-		    <!-- Brand and toggle get grouped for better mobile display -->
-		    <div class="navbar-header">
-		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-		        <span class="sr-only">Toggle navigation</span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		      </button>
-		      <a class="navbar-brand" href="/homebase">
-		      		<img src="../shared/img/brand.png" style="height:100%;" />
-		      </a>
-		    </div>
-
-		    <!-- Collect the nav links, forms, and other content for toggling -->
-		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-		      <ul class="nav navbar-nav">
-				  <li class="active"><a href="/health/people">People <span class="sr-only">(current)</span></a></li>
-				  <li><a href="/health/visit">Visits</a></li>
-				  <li><a href="/health/reports">Reports</a></li>
-		      </ul>
-			    <!--<div class="pull-right">
-			    	<div id="username"></div>
-			    	<button class="btn-xs btn-danger" id="logout">Log Out</button>
-			    </div>-->
-		    </div><!-- /.navbar-collapse -->
-		  </div><!-- /.container-fluid -->
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active"><a class="nav-link" href="/health/people">People <span class="sr-only">(current)</span></a></li>
+					<li class="nav-item"><a class="nav-link" href="/health/visit">Visits</a></li>
+					<li class="nav-item"><a class="nav-link" href="/health/reports">Reports</a></li>
+				</ul>
+				<ul class="navbar-nav ml-auto">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							Hello, <span id="user_name"></span>
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+							<li><a href="#" onClick="logOut();">Log Out</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div><!-- /.navbar-collapse -->
 		</nav>
-
-
-
 
 		<div class="container-fluid">
 			<div class="col-md-12">
-				<table id="peopleTable" class="table table-striped">
-					<thead>
+				<div class="card" style="margin-top:20px;">
+					<table id="peopleTable" class="table table-striped">
+						<thead>
 						<tr>
 							<th>First Name</th>
 							<th>Middle Name</th>
 							<th>Last Name</th>
 							<th>Birth Date</th>
 							<th></th>
-							<th><button class="btn btn-success" title="Add Person" data-toggle="modal" data-target="#addPersonModal"><i class="glyphicon glyphicon-plus"></i></button></th>
+							<th></th>
+							<th><button class="btn btn-success" title="Add Person" data-toggle="modal" data-target="#addPersonModal"><i class="fa fa-plus"></i></button></th>
 						</tr>
-					</thead>
-					<tbody></tbody>
-				</table>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>

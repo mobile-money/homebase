@@ -1,6 +1,7 @@
 $(function() {
 	$("body").show();
-		
+
+	getOthers();
 	getPeople();
 });
 
@@ -40,6 +41,7 @@ $("#infoModal").on("hidden.bs.modal", function() {
 
 // FUNCTIONS
 function addPerson() {
+    // console.log($("#newAUA").val());
     let errorCount = 0;
     let newFirstName = $("#newFirstName");
     if (typeof newFirstName.val() !== "undefined" && newFirstName.val().length > 0) {
@@ -71,6 +73,7 @@ function addPerson() {
             ,middle_name: newMiddleName.val().trim()
             ,last_name: newLastName.val().trim()
             ,birth_date: newBirthDate.val()
+            ,aua: JSON.stringify($("#newAUA").val())
         };
         savePerson(person);
     }
@@ -81,6 +84,7 @@ function clearAddFields() {
     $("#newMiddleName").val("");
     $("#newLastName").val("");
     $("#newBirthDate").val("");
+    $("#newAUA option:selected").prop("selected", false);
 }
 
 function clearEditFields() {
@@ -88,6 +92,7 @@ function clearEditFields() {
     $("#editMiddleName").val("");
     $("#editLastName").val("");
     $("#editBirthDate").val("");
+    $("#editAUA option:selected").prop("selected", false);
 }
 
 function deletePerson(id) {
@@ -105,7 +110,26 @@ function editPerson(id) {
     $("#editMiddleName").val($("#"+id+" td[name=middle_name]").html());
     $("#editLastName").val($("#"+id+" td[name=last_name]").html());
     $("#editBirthDate").val(moment.utc($("#"+id+" td[name=birth_date]").html(),"MMM D, YYYY").format("YYYY-MM-DD"));
+    const aua = $("#"+id+" td[name=additional_users] input[name=additional_users_ids]").val();
+    if (typeof(aua) !== "undefined") {
+        $("#editAUA").val(aua.split(","));
+    }
     $("#editPersonModal").modal("show");
+}
+
+function getOthers() {
+    $.ajax({
+        type: "GET"
+        ,url: '/api/v1/users'
+    }).success(function(response) {
+        // console.log(response);
+        response.forEach(function(user){
+            $("#newAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
+            $("#editAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
+        });
+    }).error(function(jqXHR) {
+        // console.log(jqXHR);
+    });
 }
 
 function getPeople() {
@@ -122,14 +146,31 @@ function getPeople() {
             row += '</td>'+
 				'<td name="last_name">'+person.last_name+'</td>' +
 				'<td name="birth_date">'+moment.utc(person.birth_date).format("MMM D, YYYY")+'</td>' +
-				'<td name="visits"><a href="/health/visit?PersonId='+person.id+'">Visits</a></td>' +
-				'<td><button class="btn btn-primary" title="Edit Person" onclick="editPerson(\''+person.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
-				'<button class="btn btn-danger" title="Delete Person" onclick="deletePerson(\''+person.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
-				'</td>'+
-			'</tr>';
+				'<td name="visits"><a href="/health/visit?PersonId='+person.id+'">Visits</a></td>';
+			if (person.additional_owners.length > 0) {
+			    let addUsers = "Additional users with access:";
+			    let addUsersIds = [];
+			    person.additional_owners.forEach(function(additional_user) {
+			        addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
+			        addUsersIds.push(additional_user.id);
+                });
+                row += '<td name="additional_users"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
+                    '<input name="additional_users_ids" type="hidden" value="'+addUsersIds.join(",")+'" /></td>';
+            } else {
+			    row += '<td></td>';
+            }
+			if (person.master) {
+                row += '<td><button class="btn btn-primary" title="Edit Person" onclick="editPerson(\''+person.id+'\');"><i class="fa fa-pencil"></i></button>' +
+                    '<button class="btn btn-danger" title="Delete Person" onclick="deletePerson(\''+person.id+'\');"><i class="fa fa-trash"></i></button>' +
+                    '</td>';
+            } else {
+			    row += '<td></td>';
+            }
+			row += '</tr>';
 			$("#peopleTable").find("tbody").append(row);
 		});
-	}).error(function(jqXHR) { //, textStatus, errorThrown
+        $('[data-toggle="tooltip"]').tooltip();
+    }).error(function(jqXHR) { //, textStatus, errorThrown
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
@@ -172,6 +213,7 @@ function modifyPerson() {
                 ,middle_name: editMiddleName.val().trim()
                 ,last_name: editLastName.val().trim()
                 ,birth_date: editBirthDate.val()
+                ,aua: JSON.stringify($("#editAUA").val())
             };
             $.ajax({
                 type: "PUT"

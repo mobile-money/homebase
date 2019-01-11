@@ -2,50 +2,19 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<title>Budgets - Money</title>
 
 		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
 		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
 		<link rel="stylesheet" href="../shared/css/bootstrap-datepicker3.standalone.min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="../shared/css/style.css">
 		<link rel="shortcut icon" href="../shared/img/favicon.ico" type="image/x-icon">
 		<link rel="icon" href="../shared/img/favicon.ico" type="image/x-icon">
 	</head>
 	<body style="display:none;">
-		
-		<nav class="navbar navbar-default">
-		  <div class="container-fluid navbar-bkgd">
-		    <!-- Brand and toggle get grouped for better mobile display -->
-		    <div class="navbar-header">
-		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-		        <span class="sr-only">Toggle navigation</span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		        <span class="icon-bar"></span>
-		      </button>
-		      <a class="navbar-brand" href="/homebase">
-		      		<img src="../shared/img/brand.png" style="height:100%;" />
-		      </a>
-		    </div>
-
-		    <!-- Collect the nav links, forms, and other content for toggling -->
-		    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-		      <ul class="nav navbar-nav">
-		        <li><a href="/money/accounts">Accounts</a></li>
-		      	<li><a href="/money/transactions">Transactions</a></li>
-		        <li class="active"><a href="/money/budgets">Budgets <span class="sr-only">(current)</span></a></li>
-		        <li><a href="/money/bills">Bills</a></li>
-		        <li><a href="/money/flows">Flows</a></li>
-		      </ul>
- 			    <!--<div class="pull-right">
-			    	<div id="username"></div>
-			    	<button class="btn-xs btn-danger" id="logout">Log Out</button>
-			    </div>-->
-		    </div><!-- /.navbar-collapse -->
-
-		  </div><!-- /.container-fluid -->
-		</nav>
-
+	
 		<!--Start Info Modal-->
 		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
@@ -72,7 +41,7 @@
 					</div>
 					<div class="modal-body">
 						<div id="createBudgetModalBody">
-							<div class="input-group">
+							<div class="form-group">
 								<label>Budget Name</label>
 								<input id="newBudName" class="form-control" type="text" placeholder="Budget Name" maxlength=48 />
 							</div>
@@ -81,7 +50,7 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-success" title="Create Budget" id="createBudgetButton"><i class="glyphicon glyphicon-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Create Budget">Cancel</button>
+						<button class="btn btn-success" title="Create Budget" id="createBudgetButton"><i class="fa fa-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Create Budget">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -96,7 +65,7 @@
 					</div>
 					<div class="modal-body">
 						<div id="editBudgetModalBody">
-							<div class="input-group">
+							<div class="form-group">
 								<label>Budget Name</label>
 								<input id="editBudName" class="form-control" type="text" placeholder="Budget Name" maxlength=48 />
 							</div>
@@ -105,7 +74,7 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-primary" title="Edit Budget" id="editBudgetButton"><i class="glyphicon glyphicon-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Budget">Cancel</button>
+						<button class="btn btn-primary" title="Edit Budget" id="editBudgetButton"><i class="fa fa-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Budget">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -122,7 +91,7 @@
 						<div id="deleteModalBody"></div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-danger" title="Delete Budget" id="deleteBudgetButton"><i class="glyphicon glyphicon-trash"></i></button><button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Budget">Cancel</button>
+						<button class="btn btn-danger" title="Delete Budget" id="deleteBudgetButton"><i class="fa fa-trash"></i></button><button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Budget">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -137,11 +106,11 @@
 					</div>
 					<div class="modal-body">
 						<div id="addCategoryModalBody">
-							<div class="input-group">
+							<div class="form-group">
 								<label>Category Name</label>
 								<input id="newCatName" class="form-control" type="text" placeholder="Category Name" maxlength=48 />
 							</div>
-							<div class="input-group">
+							<div class="form-group">
 								<label>Category Type</label>
 								<br />
 								<div class="btn-group" data-toggle="buttons">
@@ -156,7 +125,7 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-success" title="Add Category" id="addCategoryButton"><i class="glyphicon glyphicon-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Category">Cancel</button>
+						<button class="btn btn-success" title="Add Category" id="addCategoryButton"><i class="fa fa-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Category">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -171,11 +140,11 @@
 					</div>
 					<div class="modal-body">
 						<div id="editCategoryModalBody">
-							<div class="input-group">
+							<div class="form-group">
 								<label>Category Name</label>
 								<input id="editCatName" class="form-control" type="text" placeholder="Category Name" maxlength=48 />
 							</div>
-							<div class="input-group">
+							<div class="form-group">
 								<label>Category Type</label>
 								<br />
 								<div class="btn-group" data-toggle="buttons">
@@ -190,7 +159,7 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-primary" title="Edit Category" id="editCategoryButton"><i class="glyphicon glyphicon-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Category">Cancel</button>
+						<button class="btn btn-primary" title="Edit Category" id="editCategoryButton"><i class="fa fa-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Category">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -207,21 +176,51 @@
 						<div id="deleteCategoryModalBody"></div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-danger" title="Delete Category" id="deleteCategoryButton"><i class="glyphicon glyphicon-trash"></i></button><button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Category">Cancel</button>
+						<button class="btn btn-danger" title="Delete Category" id="deleteCategoryButton"><i class="fa fa-trash"></i></button><button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Category">Cancel</button>
 					</div>
 				</div>
 			</div>
 		</div>
 		<!--End Delete Category Modal-->
 
+		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+			<a class="navbar-brand" href="/homebase">
+				<img src="../shared/img/brand.png" style="height:1em;" />
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item"><a class="nav-link" href="/money/accounts">Accounts</a></li>
+					<li class="nav-item"><a class="nav-link" href="/money/transactions">Transactions</a></li>
+					<li class="nav-item active"><a class="nav-link" href="/money/budgets">Budgets <span class="sr-only">(current)</span></a></li>
+					<li class="nav-item"><a class="nav-link" href="/money/bills">Bills</a></li>
+					<li class="nav-item"><a class="nav-link" href="/money/flows">Flows</a></li>
+				</ul>
+				<ul class="navbar-nav ml-auto">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							Hello, <span id="user_name"></span>
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+							<li><a href="#" onClick="logOut();">Log Out</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div><!-- /.navbar-collapse -->
+		</nav>
+
+
 		<div class="container-fluid">
-			<div class="col-xs-9">
+			<div class="col-sm-9">
 				<div class="row">
-					<div class="col-xs-3">
-						<select id="budgetSelect" class="form-control">
-						</select>
+					<div class="col-sm-3">
+						<select id="budgetSelect" class="form-control"></select>
 					</div>
-					<div class="col-xs-6">
+					<div class="col-sm-6">
 						<select class="form-control" id="dateSelect">
 							<option id="yearSelector" value="y">Current&nbsp;Year</option>
 							<option id="monthSelector" value="m" selected>Current&nbsp;Month</option>
@@ -229,28 +228,28 @@
 							<option value="c">Custom</option>
 						</select>
 					</div>
-					<div class="col-xs-3" style="margin-top:5px;">
+					<div class="col-sm-3" style="margin-top:5px;">
 						<button class="btn btn-success" id="createBudgetBtn">Create Budget</button>
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-xs-3"></div>
-					<div class="col-xs-6" id="dateFields" style="display:none;"></div>
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6" id="dateFields" style="display:none;"></div>
 				</div>
 				<div class="row">
-					<div class="col-xs-12" id="budgetBody">
+					<div class="col-sm-12" id="budgetBody">
 						<!--Budget Body-->
 					</div>
 				</div>
 			</div>
-			<div class="col-xs-3">
+			<div class="col-sm-3">
 				<div class="row">
-					<div class="col-xs-12">
+					<div class="col-sm-12">
 						<button class="btn btn-success" id="addCategoryBtn">Add Category</button>
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-xs-12" id="categoryBody">
+					<div class="col-sm-12" id="categoryBody">
 						<!--Category Body-->
 					</div>
 				</div>

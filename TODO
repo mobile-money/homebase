@@ -1,0 +1,18 @@
+-Complete Groups
+    -Modify
+    -Delete
+    -Queries for Accessible accounts/cars/people on Groups page
+-Change Account/Car/Person access to Groups
+    -Add userId [INT] and groupIds [JSON] fields to the tables
+    -Remove Owner tables
+    -Modify functions to check access
+    -Modify function to allow access from users to groups
+-Categories
+    -Make Categories assignable to account(s)
+    -Display all categories assigned to any accounts user has access to
+    -Category create needs to require at least one account to attach to initially
+    -Category create checks for an existing Category; simply assigns account if it exists
+    -Category create enforces capital casing
+-Budgets
+    -Budgets assigned to user/group(s)?
+-Theme color switcher

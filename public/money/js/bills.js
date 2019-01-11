@@ -175,11 +175,11 @@ $(document).ready(function() {
 						}
 						row += '<td name="startDate">'+moment.utc(bill.startDate).format("MM/DD/YYYY")+'</td>'+
 						'<td>'+
-							'<button class="btn btn-primary btn-xs" title="Edit Bill" onclick="editBill(\''+bill.id+'\');">'+
-								'<i class="glyphicon glyphicon-pencil"></i>'+
+							'<button class="btn btn-primary btn-sm" title="Edit Bill" onclick="editBill(\''+bill.id+'\');">'+
+								'<i class="fa fa-pencil"></i>'+
 							'</button>'+
-							'<button class="btn btn-danger btn-xs" title="Delete Bill" onclick="deleteBill(\''+bill.id+'\',\''+bill.payee+'\');">'+
-								'<i class="glyphicon glyphicon-remove"></i>'+
+							'<button class="btn btn-danger btn-sm" title="Delete Bill" onclick="deleteBill(\''+bill.id+'\',\''+bill.payee+'\');">'+
+								'<i class="fa fa-remove"></i>'+
 							'</button>'+
 						'</td>'+
 					'</tr>';

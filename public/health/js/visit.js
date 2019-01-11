@@ -188,8 +188,8 @@ function getVisits() {
                 '<td name="description">'+htmlDecode(visit.description)+'</td>' +
                 '<td name="cost">'+visit.cost.toFixed(2)+'</td>' +
                 '<td name="provider">'+visit.provider+'</td>' +
-                '<td><button class="btn btn-sm btn-primary" title="Edit Visit" onclick="editVisit(\''+visit.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
-                '<button class="btn btn-sm btn-danger" title="Delete Visit" onclick="deleteVisit(\''+visit.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
+                '<td><button class="btn btn-sm btn-primary" title="Edit Visit" onclick="editVisit(\''+visit.id+'\');"><i class="fa fa-pencil"></i></button>' +
+                '<button class="btn btn-sm btn-danger" title="Delete Visit" onclick="deleteVisit(\''+visit.id+'\');"><i class="fa fa-trash"></i></button>' +
                 '</td>'+
                 '</tr>';
             $("#visitTable").find("tbody").append(row);

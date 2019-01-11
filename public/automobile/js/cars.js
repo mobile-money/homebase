@@ -1,6 +1,7 @@
 $(document).ready(function() {
 	$("body").show();
-		
+
+	getOthers();
 	getCars();
 	getInactiveCars();
 });
@@ -47,74 +48,68 @@ $(document).ready(function() {
 	});
 
 // FUNCTIONS
-function getCars() {
-	$.ajax({
-		type: "GET"
-		,url: "/api/v1/automobile/car"
-	})
-	.success(function(response) {
-		$("#carTable").find("tbody").empty();
-		response.forEach(function(car) {
-			var row = '<tr id="'+car.id+'">' +
-				'<td name="make">'+car.make+'</td>' +
-				'<td name="model">'+car.model+'</td>'+
-				'<td name="year">'+car.year+'</td>' +
-				'<td name="vin">'+car.vin+'</td>' +
-				'<td name="license_plate">'+car.license_plate+'</td>' +
-				'<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
-				'<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
-				'<td name="current_mileage">'+car.current_mileage+'</td>' +
-				'<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>' +
-				'<td><button class="btn btn-primary" title="Edit Car" onclick="editCar(\''+car.id+'\');"><i class="glyphicon glyphicon-pencil"></i></button>' +
-				'<button class="btn btn-danger" title="Delete Car" onclick="deleteCar(\''+car.id+'\');"><i class="glyphicon glyphicon-trash"></i></button>' +
-				'</td>'+
-			'</tr>';
-			$("#carTable").find("tbody").append(row);
-		});
-	})
-	.error(function(jqXHR) { //, textStatus, errorThrown
-		if (jqXHR.status === 500) {
-			$("#infoModalBody").html("There was a problem.  Please try again.");
-			$("#infoModal").modal("show");
-		}
-	});
-}
+function addCar() {
+	let errorCount = 0;
+	const newMake = $("#newMake");
+	if (typeof newMake.val() !== "undefined" && newMake.val().length > 0) {
+		newMake.css("background-color", "#fff");
+	} else {
+		errorCount++;
+		newMake.css("background-color", "#f2dede");
+	}
+	const newModel = $("#newModel");
+	if (typeof newModel.val() !== "undefined" && newModel.val().length > 0) {
+		newModel.css("background-color", "#fff");
+	} else {
+		errorCount++;
+		newModel.css("background-color", "#f2dede");
+	}
+	const newYear = $("#newYear");
+	if (typeof newYear.val() !== "undefined" && newYear.val().length > 0) {
+		newYear.css("background-color", "#fff");
+	} else {
+		errorCount++;
+		newYear.css("background-color", "#f2dede");
+	}
+	const newVin = $("#newVin");
+	const newLicensePlate = $("#newLicensePlate");
+	const newPurchaseDate = $("#newPurchaseDate");
+	if (typeof newPurchaseDate.val() !== "undefined" && newPurchaseDate.val().length > 0) {
+		newPurchaseDate.css("background-color", "#fff");
+	} else {
+		errorCount++;
+		newPurchaseDate.css("background-color", "#f2dede");
+	}
+	const newPurcahseMileage = $("#newPurchaseMileage");
+	if (typeof newPurcahseMileage.val() !== "undefined" && newPurcahseMileage.val().length > 0) {
+		newPurcahseMileage.css("background-color", "#fff");
+	} else {
+		errorCount++;
+		newPurcahseMileage.css("background-color", "#f2dede");
+	}
+	const newCurrentMileage = $("#newCurrentMileage");
+	if (typeof newCurrentMileage.val() !== "undefined" && newCurrentMileage.val().length > 0) {
+		newCurrentMileage.css("background-color", "#fff");
+	} else {
+		errorCount++;
+		newCurrentMileage.css("background-color", "#f2dede");
+	}
 
-function getInactiveCars() {
-	$.ajax({
-		type: "GET"
-		,url: "/api/v1/automobile/car/inactive"
-	})
-	.success(function(response) {
-		$("#inactiveCarTable").find("tbody").empty();
-		response.forEach(function(car) {
-            var row = '<tr id="'+car.id+'">' +
-                '<td name="make">'+car.make+'</td>' +
-                '<td name="model">'+car.model+'</td>'+
-                '<td name="year">'+car.year+'</td>' +
-                '<td name="vin">'+car.vin+'</td>' +
-                '<td name="license_plate">'+car.license_plate+'</td>' +
-                '<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
-                '<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
-                '<td name="current_mileage">'+car.current_mileage+'</td>' +
-                '<td name="sold_date">'+moment.utc(car.sold_date).format("MMM D, YYYY")+'</td>' +
-                '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>' +
-				'<td></td>' +
-				'<td>'+
-					'<button class="btn btn-primary" title="Reactivate Car" onclick="reactivateCar(\''+car.id+'\');">'+
-						'<i class="glyphicon glyphicon-pencil"></i>'+
-					'</button>'+
-				'</td>'+
-			'</tr>';
-			$("#inactiveCarTable").find("tbody").append(row);
-		});
-	})
-	.error(function(jqXHR) { //, textStatus, errorThrown
-		if (jqXHR.status === 500) {
-			$("#infoModalBody").html("There was a problem.  Please try again.");
-			$("#infoModal").modal("show");
-		}
-	});
+	if (errorCount === 0) {
+		$("#addCarModal").modal("hide");
+		const car = {
+			make: newMake.val()
+			,model: newModel.val()
+			,year: newYear.val()
+			,vin: newVin.val().toUpperCase()
+			,license_plate: newLicensePlate.val().toUpperCase()
+			,purchase_date: newPurchaseDate.val()
+			,purchase_mileage: newPurcahseMileage.val()
+			,current_mileage: newCurrentMileage.val()
+			,aua: JSON.stringify($("#newAUA").val())
+		};
+		saveCar(car);
+	}
 }
 
 function clearAddFields() {
@@ -126,6 +121,7 @@ function clearAddFields() {
 	$("#newPurchaseDate").val("");
 	$("#newPurchaseMileage").val("");
 	$("#newCurrentMileage").val("");
+	$("#newAUA option:selected").prop("selected", false);
 }
 
 function clearEditFields() {
@@ -137,85 +133,16 @@ function clearEditFields() {
 	$("#editPurchaseDate").val("");
 	$("#editPurchaseMileage").val("");
 	$("#editCurrentMileage").val("");
+	$("#editAUA option:selected").prop("selected", false);
 }
 
-function addCar() {
-	var errorCount = 0;
-	var newMake = $("#newMake");
-	if (typeof newMake.val() !== "undefined" && newMake.val().length > 0) {
-        newMake.css("background-color", "#fff");
-	} else {
-		errorCount++;
-        newMake.css("background-color", "#f2dede");
-	}
-    var newModel = $("#newModel");
-    if (typeof newModel.val() !== "undefined" && newModel.val().length > 0) {
-        newModel.css("background-color", "#fff");
-    } else {
-        errorCount++;
-        newModel.css("background-color", "#f2dede");
-    }
-    var newYear = $("#newYear");
-    if (typeof newYear.val() !== "undefined" && newYear.val().length > 0) {
-        newYear.css("background-color", "#fff");
-    } else {
-        errorCount++;
-        newYear.css("background-color", "#f2dede");
-    }
-    var newVin = $("#newVin");
-    var newLicensePlate = $("#newLicensePlate");
-    var newPurchaseDate = $("#newPurchaseDate");
-    if (typeof newPurchaseDate.val() !== "undefined" && newPurchaseDate.val().length > 0) {
-        newPurchaseDate.css("background-color", "#fff");
-    } else {
-        errorCount++;
-        newPurchaseDate.css("background-color", "#f2dede");
-    }
-    var newPurcahseMileage = $("#newPurchaseMileage");
-    if (typeof newPurcahseMileage.val() !== "undefined" && newPurcahseMileage.val().length > 0) {
-        newPurcahseMileage.css("background-color", "#fff");
-    } else {
-        errorCount++;
-        newPurcahseMileage.css("background-color", "#f2dede");
-    }
-    var newCurrentMileage = $("#newCurrentMileage");
-    if (typeof newCurrentMileage.val() !== "undefined" && newCurrentMileage.val().length > 0) {
-        newCurrentMileage.css("background-color", "#fff");
-    } else {
-        errorCount++;
-        newCurrentMileage.css("background-color", "#f2dede");
-    }
-
-	if (errorCount === 0) {
-		$("#addCarModal").modal("hide");
-		var car = {
-			make: newMake.val()
-			,model: newModel.val()
-			,year: newYear.val()
-			,vin: newVin.val().toUpperCase()
-			,license_plate: newLicensePlate.val().toUpperCase()
-			,purchase_date: newPurchaseDate.val()
-			,purchase_mileage: newPurcahseMileage.val()
-			,current_mileage: newCurrentMileage.val()
-		};
-		saveCar(car);
-	}
-}
-
-function saveCar(car) {
-	$.ajax({
-		type: "POST"
-		,url: "/api/v1/automobile/car"
-		,data: car
-	})
-	.success(function() { //response
-		getCars();
-		return false;
-	})
-	.error(function() { //jqXHR, textStatus, errorThrown
-		$("#infoModalBody").html("There was a problem.  Please try again.");
-		$("#infoModal").modal("show");
-	});
+function deleteCar(id) {
+	const make = $("#"+id+" td[name=make]").html();
+	const model = $("#"+id+" td[name=model]").html();
+	const year = $("#"+id+" td[name=year]").html();
+	$("#deleteCarId").val(id);
+	$("#deleteModalBody").html("<strong>Are you sure you want to delete "+year+"&nbsp;"+make+"&nbsp;"+model+"?</strong>");
+	$("#deleteCarModal").modal("show");
 }
 
 function editCar(id) {
@@ -225,64 +152,182 @@ function editCar(id) {
 	$("#editYear").val($("#"+id+" td[name=year]").html());
 	$("#editVin").val($("#"+id+" td[name=vin]").html());
 	$("#editLicensePlate").val($("#"+id+" td[name=license_plate]").html());
-	$("#editPurchaseDate").val(moment.utc($("#"+id+" td[name=purchase_date]").html()).format("YYYY-MM-DD"));
+	$("#editPurchaseDate").val(moment.utc($("#"+id+" td[name=purchase_date]").html(),'MMM D, YYYY').format("YYYY-MM-DD"));
 	$("#editPurchaseMileage").val($("#"+id+" td[name=purchase_mileage]").html());
 	$("#editCurrentMileage").val($("#"+id+" td[name=current_mileage]").html());
+	const aua = $("#"+id+" td[name=additional_users] input[name=additional_users_ids]").val();
+	if (typeof(aua) !== "undefined") {
+		$("#editAUA").val(aua.split(","));
+	}
 	$("#editCarModal").modal("show");
 }
 
-function modifyCar() {
-	var id = $("#editCarId").val();
-	if (typeof id !== "undefined" && id.length > 0) {
-		var errorCount = 0;
-		var editMake = $("#editMake");
-        if (typeof editMake.val() !== "undefined" && editMake.val().length > 0) {
-            editMake.css("background-color", "#fff");
-        } else {
-            errorCount++;
-            editMake.css("background-color", "#f2dede");
-        }
-        var editModel = $("#editModel");
-        if (typeof editModel.val() !== "undefined" && editModel.val().length > 0) {
-            editModel.css("background-color", "#fff");
-        } else {
-            errorCount++;
-            editModel.css("background-color", "#f2dede");
-        }
-        var editYear = $("#editYear");
-        if (typeof editYear.val() !== "undefined" && editYear.val().length > 0) {
-            editYear.css("background-color", "#fff");
-        } else {
-            errorCount++;
-            editYear.css("background-color", "#f2dede");
-        }
-        var editVin = $("#editVin");
-        var editLicensePlate = $("#editLicensePlate");
-        var editPurchaseDate = $("#editPurchaseDate");
-        if (typeof editPurchaseDate.val() !== "undefined" && editPurchaseDate.val().length > 0) {
-            editPurchaseDate.css("background-color", "#fff");
-        } else {
-            errorCount++;
-            editPurchaseDate.css("background-color", "#f2dede");
-        }
-        var editPurcahseMileage = $("#editPurchaseMileage");
-        if (typeof editPurcahseMileage.val() !== "undefined" && editPurcahseMileage.val().length > 0) {
-            editPurcahseMileage.css("background-color", "#fff");
-        } else {
-            errorCount++;
-            editPurcahseMileage.css("background-color", "#f2dede");
-        }
-        var editCurrentMileage = $("#editCurrentMileage");
-        if (typeof editCurrentMileage.val() !== "undefined" && editCurrentMileage.val().length > 0) {
-            editCurrentMileage.css("background-color", "#fff");
-        } else {
-            errorCount++;
-            editCurrentMileage.css("background-color", "#f2dede");
-        }
+function getCars() {
+	$.ajax({
+		type: "GET"
+		,url: "/api/v1/automobile/car"
+	}).success(function(response) {
+		$("#carTable").find("tbody").empty();
+		response.forEach(function(car) {
+			let row = '<tr id="'+car.id+'">' +
+				'<td name="make">'+car.make+'</td>' +
+				'<td name="model">'+car.model+'</td>'+
+				'<td name="year">'+car.year+'</td>' +
+				'<td name="vin">'+car.vin+'</td>' +
+				'<td name="license_plate">'+car.license_plate+'</td>' +
+				'<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
+				'<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
+				'<td name="current_mileage">'+car.current_mileage+'</td>' +
+				'<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>';
+			if (car.additional_owners.length > 0) {
+				let addUsers = "Additional users with access:";
+				let addUsersIds = [];
+				car.additional_owners.forEach(function(additional_user) {
+					addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
+					addUsersIds.push(additional_user.id);
+				});
+				row += '<td name="additional_users"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
+					'<input name="additional_users_ids" type="hidden" value="'+addUsersIds.join(",")+'" /></td>';
+			} else {
+				row += '<td></td>';
+			}
+			if (car.master) {
+				row += '<td><button class="btn btn-primary" title="Edit Car" onclick="editCar(\''+car.id+'\');"><i class="fa fa-pencil"></i></button>' +
+					'<button class="btn btn-danger" title="Delete Car" onclick="deleteCar(\''+car.id+'\');"><i class="fa fa-trash"></i></button>' +
+					'</td>';
+			} else {
+				row += '<td></td>';
+			}
+			row += '</tr>';
+			$("#carTable").find("tbody").append(row);
+		});
+		$('[data-toggle="tooltip"]').tooltip();
+	}).error(function(jqXHR) { //, textStatus, errorThrown
+		if (jqXHR.status === 500) {
+			$("#infoModalBody").html("There was a problem.  Please try again.");
+			$("#infoModal").modal("show");
+		}
+	});
+}
 
-        if (errorCount === 0) {
+function getInactiveCars() {
+	$.ajax({
+		type: "GET"
+		,url: "/api/v1/automobile/car/inactive"
+	}).success(function(response) {
+		$("#inactiveCarTable").find("tbody").empty();
+		response.forEach(function(car) {
+            let row = '<tr id="'+car.id+'">' +
+                '<td name="make">'+car.make+'</td>' +
+                '<td name="model">'+car.model+'</td>'+
+                '<td name="year">'+car.year+'</td>' +
+                '<td name="vin">'+car.vin+'</td>' +
+                '<td name="license_plate">'+car.license_plate+'</td>' +
+                '<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
+                '<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
+                '<td name="current_mileage">'+car.current_mileage+'</td>' +
+                '<td name="sold_date">'+moment.utc(car.sold_date).format("MMM D, YYYY")+'</td>' +
+                '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>';
+			if (car.additional_owners.length > 0) {
+				let addUsers = "Additional users with access:";
+				let addUsersIds = [];
+				car.additional_owners.forEach(function(additional_user) {
+					addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
+					addUsersIds.push(additional_user.id);
+				});
+				row += '<td name="additional_users"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
+					'<input name="additional_users_ids" type="hidden" value="'+addUsersIds.join(",")+'" /></td>';
+			} else {
+				row += '<td></td>';
+			}
+			if (car.master) {
+				row += '<td>'+
+					'<button class="btn btn-primary" title="Reactivate Car" onclick="reactivateCar(\''+car.id+'\');">'+
+					'<i class="fa fa-pencil"></i>'+
+					'</button>'+
+					'</td>';
+			} else {
+				row += '<td></td>';
+			}
+			row += '</tr>';
+			$("#inactiveCarTable").find("tbody").append(row);
+		});
+		$('[data-toggle="tooltip"]').tooltip();
+	}).error(function(jqXHR) { //, textStatus, errorThrown
+		if (jqXHR.status === 500) {
+			$("#infoModalBody").html("There was a problem.  Please try again.");
+			$("#infoModal").modal("show");
+		}
+	});
+}
+
+function getOthers() {
+	$.ajax({
+		type: "GET"
+		,url: '/api/v1/users'
+	}).success(function(response) {
+		// console.log(response);
+		response.forEach(function(user){
+			$("#newAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
+			$("#editAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
+		});
+	}).error(function(jqXHR) {
+		// console.log(jqXHR);
+	});
+}
+
+function modifyCar() {
+	const id = $("#editCarId").val();
+	if (typeof id !== "undefined" && id.length > 0) {
+		let errorCount = 0;
+		const editMake = $("#editMake");
+		if (typeof editMake.val() !== "undefined" && editMake.val().length > 0) {
+			editMake.css("background-color", "#fff");
+		} else {
+			errorCount++;
+			editMake.css("background-color", "#f2dede");
+		}
+		const editModel = $("#editModel");
+		if (typeof editModel.val() !== "undefined" && editModel.val().length > 0) {
+			editModel.css("background-color", "#fff");
+		} else {
+			errorCount++;
+			editModel.css("background-color", "#f2dede");
+		}
+		const editYear = $("#editYear");
+		if (typeof editYear.val() !== "undefined" && editYear.val().length > 0) {
+			editYear.css("background-color", "#fff");
+		} else {
+			errorCount++;
+			editYear.css("background-color", "#f2dede");
+		}
+		const editVin = $("#editVin");
+		const editLicensePlate = $("#editLicensePlate");
+		const editPurchaseDate = $("#editPurchaseDate");
+		if (typeof editPurchaseDate.val() !== "undefined" && editPurchaseDate.val().length > 0) {
+			editPurchaseDate.css("background-color", "#fff");
+		} else {
+			errorCount++;
+			editPurchaseDate.css("background-color", "#f2dede");
+		}
+		const editPurcahseMileage = $("#editPurchaseMileage");
+		if (typeof editPurcahseMileage.val() !== "undefined" && editPurcahseMileage.val().length > 0) {
+			editPurcahseMileage.css("background-color", "#fff");
+		} else {
+			errorCount++;
+			editPurcahseMileage.css("background-color", "#f2dede");
+		}
+		const editCurrentMileage = $("#editCurrentMileage");
+		if (typeof editCurrentMileage.val() !== "undefined" && editCurrentMileage.val().length > 0) {
+			editCurrentMileage.css("background-color", "#fff");
+		} else {
+			errorCount++;
+			editCurrentMileage.css("background-color", "#f2dede");
+		}
+
+		if (errorCount === 0) {
 			$("#editCarModal").modal("hide");
-			var car = {
+			const car = {
 				id: id
 				,make: editMake.val()
 				,model: editModel.val()
@@ -292,17 +337,16 @@ function modifyCar() {
 				,purchase_date: editPurchaseDate.val()
 				,purchase_mileage: editPurcahseMileage.val()
 				,current_mileage: editCurrentMileage.val()
+				,aua: JSON.stringify($("#editAUA").val())
 			};
 			$.ajax({
 				type: "PUT"
 				,url: "/api/v1/automobile/car/"+id
 				,data: car
-			})
-			.success(function() {
+			}).success(function() {
 				getCars();
 				return false;
-			})
-			.error(function() { //jqXHR, textStatus, errorThrown
+			}).error(function() { //jqXHR, textStatus, errorThrown
 				$("#infoModalBody").html("There was a problem.  Please try again.");
 				$("#infoModal").modal("show");
 			});
@@ -310,46 +354,49 @@ function modifyCar() {
 	}
 }
 
-function deleteCar(id) {
-	var make = $("#"+id+" td[name=make]").html();
-    var model = $("#"+id+" td[name=model]").html();
-    var year = $("#"+id+" td[name=year]").html();
-	$("#deleteCarId").val(id);
-	$("#deleteModalBody").html("<strong>Are you sure you want to delete "+year+"&nbsp;"+make+"&nbsp;"+model+"?</strong>");
-	$("#deleteCarModal").modal("show");
+function reactivateCar(id) {
+	const make = $("#"+id+" td[name=make]").html();
+	const model = $("#"+id+" td[name=model]").html();
+	const year = $("#"+id+" td[name=year]").html();
+	$("#reactivateCarId").val(id);
+	$("#reactivateModalBody").html("Would you like to reactivate the "+year+"&nbsp;"+make+"&nbsp;"+model+"?");
+	$("#reactivateCarModal").modal("show");
 }
 
 function removeCar() {
-	var id = $("#deleteCarId").val();
+	const id = $("#deleteCarId").val();
 	$("#deleteCarModal").modal("hide");
 	if (typeof id !== "undefined" && id.length > 0) {
 		$.ajax({
 			type: "DELETE"
 			,url: "/api/v1/automobile/car/"+id
-		})
-		.success(function() {
+		}).success(function() {
 			getCars();
 			getInactiveCars();
 			return false;
-		})
-		.error(function() { //jqXHR, textStatus, errorThrown
+		}).error(function() { //jqXHR, textStatus, errorThrown
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
 		});
 	}
 }
 
-function reactivateCar(id) {
-    var make = $("#"+id+" td[name=make]").html();
-    var model = $("#"+id+" td[name=model]").html();
-    var year = $("#"+id+" td[name=year]").html();
-	$("#reactivateCarId").val(id);
-	$("#reactivateModalBody").html("Would you like to reactivate the "+year+"&nbsp;"+make+"&nbsp;"+model+"?");
-	$("#reactivateCarModal").modal("show");
+function saveCar(car) {
+	$.ajax({
+		type: "POST"
+		,url: "/api/v1/automobile/car"
+		,data: car
+	}).success(function() { //response
+		getCars();
+		return false;
+	}).error(function() { //jqXHR, textStatus, errorThrown
+		$("#infoModalBody").html("There was a problem.  Please try again.");
+		$("#infoModal").modal("show");
+	});
 }
 
 function undeleteCar() {
-	var id = $("#reactivateCarId").val();
+	const id = $("#reactivateCarId").val();
 	$("#reactivateCarModal").modal("hide");
 	if (typeof id !== "undefined" && id.length > 0) {
 		$.ajax({
@@ -358,13 +405,11 @@ function undeleteCar() {
 			,data: {
 				id: id
 			}
-		})
-		.success(function() {
+		}).success(function() {
 			getCars();
 			getInactiveCars();
 			return false;
-		})
-		.error(function() { //jqXHR, textStatus, errorThrown
+		}).error(function() { //jqXHR, textStatus, errorThrown
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
 		});

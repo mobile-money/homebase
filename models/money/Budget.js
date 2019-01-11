@@ -16,8 +16,15 @@ module.exports = function(sequelize, DataTypes) {
 			,allowNull: false
 			,defaultValue: false
 		}
+		,master: {
+			type: DataTypes.INTEGER
+			,allowNull: false
+		}
+		,otherUsers: {
+			type: DataTypes.JSON
+		}
 	// }
 	// ,{
 	// 	paranoid: true
 	});
-}
+};

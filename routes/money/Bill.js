@@ -2,99 +2,87 @@ module.exports = function(app, Bill, _, io) {
 	// Get all bills
 	app.get("/api/v1/money/bills", function(req, res) {
 		console.log("bills requested");
-		Bill.getAll()
-		.then(
-			function(results) {
-				if (results.length > 0) {
-					console.log("bills retrieved");
-					res.json(results);
-				} else {
-					console.log("no bills found");
-					res.status(204).send();
-				}
+		Bill.getAll(req.user).then(function(results) {
+			if (results.length > 0) {
+				console.log("bills retrieved");
+				res.json(results);
+			} else {
+				console.log("no bills found");
+				res.status(204).send();
 			}
-		)
-		.catch(
-			function(error) {
-				console.log("bills retrieval error: "+error);
-				res.status(500).send();
-			}
-		);
+		}).catch(function(error) {
+			console.log("bills retrieval error: "+error);
+			res.status(500).send();
+		});
 	});
 
 	// Insert new bill
 	app.post("/api/v1/money/bills", function(req, res) {
 		console.log("create bill requested");
-		var body = _.pick(req.body, 'payee', 'description', 'category', 'account', 'startDate', 'amount', 'frequency', 'every', 'onThe', 'automatic');
-		Bill.create(body)
-		.then(
-			function(bill) {
-				console.log("bill created");
-				io.emit("billAdded", bill.id);
-				res.status(201).send();
-			}
-		)
-		.catch(
-			function(error) {
-				console.log("bill creation error: "+error);
+		const body = _.pick(req.body, 'payee', 'description', 'category', 'account', 'startDate', 'amount', 'frequency', 'every', 'onThe', 'automatic');
+		Bill.create(req.user, body).then(function(bill) {
+			console.log("bill created");
+			io.emit("billAdded", bill.id);
+			res.status(201).send();
+		}).catch(function(error) {
+			console.log("bill creation error: "+error);
+			if (error === "unauthorized") {
+				res.status(401).send();
+			} else {
 				res.status(500).send();
 			}
-		);
+		});
 	});
 
 	// Modify bill by ID
 	app.put("/api/v1/money/bills", function(req, res) {
 		console.log("modify bill requested");
-		var body = _.pick(req.body, 'id', 'payee', 'description', 'category', 'account', 'startDate', 'amount', 'frequency', 'every', 'onThe', 'automatic');
-		Bill.update(body)
-		.then(
-			function(result) {
-				console.log("bill modified");
-				io.emit("billModified", result.id);
-				res.status(200).send();
-			}
-			,function() {
-				console.log("bill not found");
+		const body = _.pick(req.body, 'id', 'payee', 'description', 'category', 'account', 'startDate', 'amount', 'frequency', 'every', 'onThe', 'automatic');
+		Bill.update(req.user, body).then(function(result) {
+			console.log("bill modified");
+			io.emit("billModified", result.id);
+			res.status(200).send();
+		}).catch(function(error) {
+			console.log("bill modification error: "+error);
+			if (error === "unauthorized") {
+				res.status(401).send();
+			} else if (error === 'not found') {
 				res.status(404).send();
-			}
-		)
-		.catch(
-			function(error) {
-				console.log("bill modification error: "+error);
+			} else {
 				res.status(500).send();
 			}
-		);
-	})
+		});
+	});
 
 	app.delete("/api/v1/money/bills", function(req, res) {
 		console.log("delete bill requested");
-		var body = _.pick(req.body, 'id');
-		Bill.delete(body.id)
-		.then(
-			function() {
-				console.log("bill deleted");
-				io.emit("billDeleted", body.id);
-				res.status(204).send();
-			}
-			,function() {
-				console.log("bill not found");
+		const body = _.pick(req.body, 'id');
+		Bill.delete(req.user, body.id).then(function() {
+			console.log("bill deleted");
+			io.emit("billDeleted", body.id);
+			res.status(204).send();
+		}).catch(function(error) {
+			console.log("bill deletion error: "+error);
+			if (error === "unauthorized") {
+				res.status(401).send();
+			} else if (error === 'not found') {
 				res.status(404).send();
-			}
-		)
-		.catch(
-			function(error) {
-				console.log("bill deletion error: "+error);
+			} else {
 				res.status(500).send();
 			}
-		);
+		});
 	});
 
 	// Post new bills by Account ID
 	app.get("/api/v1/money/post/bills/:id", function(req, res) {
-		Bill.postNew(req.params.id).then(function(response) {
+		Bill.postNew(req.user, req.params.id).then(function(response) {
 			res.json(response);
 		}).catch(function(error) {
-			res.status(500).json(error);
+			if (error === "unauthorized") {
+				res.status(401).send();
+			} else {
+				res.status(500).json(error);
+			}
 		});
 	});
-}
+};

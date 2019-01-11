@@ -1,7 +1,7 @@
-var Sequelize = require("sequelize");
-var sequelize;
+const Sequelize = require("sequelize");
+let sequelize;
 
-var env = require("./env.js");
+const env = require("./env.js");
 
 if (env.site === "prod") {
 	sequelize = new Sequelize(env.db_automobile.DB, env.db_automobile.USER, env.db_automobile.PASS, {
@@ -18,11 +18,12 @@ if (env.site === "prod") {
 	});
 }
 
-var db = {};
+let db = {};
 
 // // START IMPORTS // //
 db.Car = sequelize.import(__dirname + "/../models/automobile/Car.js");
 db.MaintenanceLog = sequelize.import(__dirname + "/../models/automobile/MaintenanceLog.js");
+db.Owner = sequelize.import(__dirname + "/../models/automobile/Owner.js");
 // // END IMPORTS // //
 
 db.sequelize = sequelize;
@@ -33,6 +34,8 @@ db.Car.hasMany(db.MaintenanceLog, {
 	'constraints': true
 	,'onDelete': 'cascade'
 });
+db.Car.hasMany(db.Owner);
+
 db.MaintenanceLog.belongsTo(db.Car);
 // // END ASSOCIATIONS // //
 

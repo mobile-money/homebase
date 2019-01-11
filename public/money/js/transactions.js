@@ -25,11 +25,11 @@ $(document).ready(function() {
 const QueryString = function () {
   // This function is anonymous, is executed immediately and 
   // the return value is assigned to QueryString!
-  var query_string = {};
-  var query = window.location.search.substring(1);
-  var vars = query.split("&");
-  for (var i=0;i<vars.length;i++) {
-    var pair = vars[i].split("=");
+  let query_string = {};
+  const query = window.location.search.substring(1);
+  const vars = query.split("&");
+  for (let i=0;i<vars.length;i++) {
+    const pair = vars[i].split("=");
         // If first entry with this name
     if (typeof query_string[pair[0]] === "undefined") {
       query_string[pair[0]] = decodeURIComponent(pair[1]);
@@ -225,7 +225,7 @@ $("#searchClear").click(function() {
 
 $("#searchField").keypress(function(e) {
     if(e.which === 13) {
-        var obj = {
+        const obj = {
             text: $("#searchField").val()
             ,accountId: Number($("#accountSelect").val())
         };
@@ -239,10 +239,10 @@ $("#searchField").keypress(function(e) {
             $("#transactionTable").find("tbody").empty();
             // Current Transactions
             response.forEach(function(result) {
-                var dp = false;
-                var dateNow = new Date();
-                var row;
-                var tDateMoment = moment.utc(result.transactionDate);
+                let dp = false;
+                const dateNow = new Date();
+                let row;
+                const tDateMoment = moment.utc(result.transactionDate);
                 if (result.hasOwnProperty("future")) {
                     dp = true;
                     row = '<tr id="f_'+result.id+'"';
@@ -259,7 +259,7 @@ $("#searchField").keypress(function(e) {
                     '</td>'+
                     '<td name="payee">';
                 if (result.BillId !== null) {
-                    row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
+                    row += '&nbsp;<i class="fa fa-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
                 }
                 row += result.payee+'</td>';
                 if (result.description !== null) {
@@ -297,16 +297,16 @@ $("#searchField").keypress(function(e) {
                 if (result.hasOwnProperty("future")) {
                     row += '<td>'+
                         '<button class="btn btn-primary btn-xs" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
-                        '<i class="glyphicon glyphicon-pencil"></i>'+
+                        '<i class="fa fa-pencil"></i>'+
                         '</button>'+
                         '<button class="btn btn-danger btn-xs" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
-                        '<i class="glyphicon glyphicon-remove"></i>'+
+                        '<i class="fa fa-remove"></i>'+
                         '</button>'+
                         '</td>';
                 } else {
                     row += '<td>' +
                         '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\'' + result.id + '\');">' +
-                        '<i class="glyphicon glyphicon-pencil"></i>' +
+                        '<i class="fa fa-pencil"></i>' +
                         '</button>' +
                         '</td>';
                 }
@@ -333,8 +333,8 @@ $("#searchField").keypress(function(e) {
 });
 
 $("#startXferBtn").click(function() {
-    var currentAccount = $("#accountSelect").val();
-    var $xferAccountsElem = $("#xferAccounts");
+    const currentAccount = $("#accountSelect").val();
+    const $xferAccountsElem = $("#xferAccounts");
     $xferAccountsElem.empty();
     if ($("#xferAccountId").val() === "") {
         $xferAccountsElem.html('<option id="noAccountSelected" />');
@@ -368,7 +368,7 @@ $("#updatePriceButton").click(function() {
 });
 
 $("#xferAccounts").change(function() {
-    var val = $("#xferAccounts").val();
+    const val = $("#xferAccounts").val();
     if (val !== null) {
         $("#noAccountSelected").remove();
         $("#noXferBtn").removeClass("active btn-primary").addClass("btn-default");
@@ -391,16 +391,16 @@ socket.on("connect", function() {
 
 socket.on("priceUpdated", function(update) {
     $("."+update.tick.toUpperCase()).css("background-color", "#F0EEA1").animate({backgroundColor: "#F5F5F5"}, 5000);
-    var $valElem = $("."+update.tick.toUpperCase()+" td[name=value]");
-    var $dChangeElem = $("."+update.tick.toUpperCase()+" td[name=dChange]");
-    var $pChangeElem = $("."+update.tick.toUpperCase()+" td[name=pChange]");
-    var quantity = $("."+update.tick.toUpperCase()+" td[name=quantity]").html();
-    var origValue = $valElem.html();
-    var origDChange = $dChangeElem.html();
-    var basis = Number(origValue) - Number(origDChange);
-    var newValue = Number(quantity) * Number(update.price);
-    var newDChange = newValue - basis;
-    var newPChange = (basis / newDChange) * 100;
+    const $valElem = $("."+update.tick.toUpperCase()+" td[name=value]");
+    const $dChangeElem = $("."+update.tick.toUpperCase()+" td[name=dChange]");
+    const $pChangeElem = $("."+update.tick.toUpperCase()+" td[name=pChange]");
+    const quantity = $("."+update.tick.toUpperCase()+" td[name=quantity]").html();
+    const origValue = $valElem.html();
+    const origDChange = $dChangeElem.html();
+    const basis = Number(origValue) - Number(origDChange);
+    const newValue = Number(quantity) * Number(update.price);
+    const newDChange = newValue - basis;
+    const newPChange = (basis / newDChange) * 100;
 
     $("."+update.tick.toUpperCase()+" td[name=price] span").html(Number(update.price).toFixed(2));
     $valElem.html(newValue.toFixed(2));
@@ -422,14 +422,14 @@ socket.on("priceUpdated", function(update) {
         $pChangeElem.css("color", "black");
     }
 
-    var totalValue = 0;
-    var totalBasis = Number($("#totalBasis").html());
+    let totalValue = 0;
+    const totalBasis = Number($("#totalBasis").html());
     $.each($(".positionRow td[name=value]"), function() {
         totalValue += Number($(this).html());
     });
     $("#totalValue").html(totalValue.toFixed(2));
-    var totalDChange = totalValue - totalBasis;
-    var $totalDChangeElem = $("#totalDChange");
+    const totalDChange = totalValue - totalBasis;
+    const $totalDChangeElem = $("#totalDChange");
     $totalDChangeElem.html(totalDChange.toFixed(2));
     if (totalDChange > 0) {
         $totalDChangeElem.css("color", "green");
@@ -438,8 +438,8 @@ socket.on("priceUpdated", function(update) {
     } else {
         $totalDChangeElem.css("color", "black");
     }
-    var totalPChange = (totalDChange / totalBasis) * 100;
-    var $totalPChangeElem = $("#totalPChange");
+    const totalPChange = (totalDChange / totalBasis) * 100;
+    const $totalPChangeElem = $("#totalPChange");
     $totalPChangeElem.html(totalPChange.toFixed(2));
     if (totalPChange > 0) {
         $totalPChangeElem.css("color", "green");
@@ -709,7 +709,7 @@ function clearSearch() {
 }
 
 function deleteTransaction(id) {
-    var name = $("#f_"+id+" td[name=payee]").html();
+    const name = $("#f_"+id+" td[name=payee]").html();
     $("#deleteTransactionId").val(id);
     $("#deleteModalBody").html("<strong>Are you sure you want to delete the transaction for "+name+"?</strong>");
     $("#deleteTransactionModal").modal("show");
@@ -774,48 +774,46 @@ function getAccounts() {
     $.ajax({
         type: "GET"
         ,url: "/api/v1/money/accounts"
-    })
-        .success(function(response) {
-            var jq_accountSelect = $("#accountSelect");
-            $(".newTrans").prop("disabled", false);
-            accountArray = response;
-            jq_accountSelect.empty();
-            if (response.length === 1) {
-                $("#startXferBtn").prop("disabled", true);
-            }
-            response.forEach(function(account) {
-                accountNames[account.id] = {name: account.name, type: account.type};
-                if (typeof QueryString["acct"] !== "undefined") {
-                    if (account.id === Number(QueryString["acct"])) {
-                        jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
-                    } else {
-                        jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
-                    }
+    }).success(function(response) {
+        const jq_accountSelect = $("#accountSelect");
+        $(".newTrans").prop("disabled", false);
+        accountArray = response;
+        jq_accountSelect.empty();
+        if (response.length === 1) {
+            $("#startXferBtn").prop("disabled", true);
+        }
+        response.forEach(function(account) {
+            accountNames[account.id] = {name: account.name, type: account.type};
+            if (typeof QueryString["acct"] !== "undefined") {
+                if (account.id === Number(QueryString["acct"])) {
+                    jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
                 } else {
-                    if (account.default === true) {
-                        jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
-                    } else {
-                        jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
-                    }
+                    jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
                 }
-            });
-            if (accountNames[jq_accountSelect.val()].type === "Investment") {
-                getInvestments(jq_accountSelect.val(), null, null);
             } else {
-                getTransactions(null, null);
-                // getPeriods($("#accountSelect").val());
-            }
-        })
-        .error(function(jqXHR) {
-            if (jqXHR.status === 404) {
-                $(".newTrans").prop("disabled", true);
-                return false;
-            } else {
-                $(".newTrans").prop("disabled", true);
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
+                if (account.default === true) {
+                    jq_accountSelect.append('<option value="'+account.id+'" selected>'+account.name+'</option>');
+                } else {
+                    jq_accountSelect.append('<option value="'+account.id+'">'+account.name+'</option>');
+                }
             }
         });
+        if (accountNames[jq_accountSelect.val()].type === "Investment") {
+            getInvestments(jq_accountSelect.val(), null, null);
+        } else {
+            getTransactions(null, null);
+            // getPeriods($("#accountSelect").val());
+        }
+    }).error(function(jqXHR) {
+        if (jqXHR.status === 404) {
+            $(".newTrans").prop("disabled", true);
+            return false;
+        } else {
+            $(".newTrans").prop("disabled", true);
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        }
+    });
 }
 
 function getBills() {
@@ -829,22 +827,20 @@ function getCategories() {
     $.ajax({
         type: "GET"
         ,url: "/api/v1/money/categories"
-    })
-        .success(function(response) {
-            categoryArray = response;
-            $("#newCategory").html('<option id="defaultCategory" />');
-            response.forEach(function(category) {
-                $("#newCategory").append('<option value="'+category.id+'">'+category.name+'</option>');
-            });
-        })
-        .error(function(jqXHR) {
-            if (jqXHR.status === 404) {
-                return false;
-            } else {
-                $("#infoModalBody").html("There was a problem retrieving Categories.  Please try again.");
-                $("#infoModal").modal("show");
-            }
+    }).success(function(response) {
+        categoryArray = response;
+        $("#newCategory").html('<option id="defaultCategory" />');
+        response.forEach(function(category) {
+            $("#newCategory").append('<option value="'+category.id+'">'+category.name+'</option>');
         });
+    }).error(function(jqXHR) {
+        if (jqXHR.status === 404) {
+            return false;
+        } else {
+            $("#infoModalBody").html("There was a problem retrieving Categories.  Please try again.");
+            $("#infoModal").modal("show");
+        }
+    });
 }
 
 function getInvestments(id, tradeId, positionId, type) {
@@ -853,155 +849,153 @@ function getInvestments(id, tradeId, positionId, type) {
     $.ajax({
         type: "GET"
         ,url: "/api/v1/money/investments/"+id
-    })
-        .success(function(response, textStatus, jqXHR) {
-            var $positionSectionElem = $("#positionSection");
-            var $tableElem = $("#transactionTable");
-            $positionSectionElem.empty();
-            $tableElem.find("tbody").empty();
-            if (jqXHR.status !== 204) {
-                if (response.trades.length > 0) {
-                    var costs = {};
-                    response.trades.forEach(function(trade, index) {
-                        if (trade.description !== "Employer Match") {
-                            if (costs.hasOwnProperty(trade.ticker)) {
-                                costs[trade.ticker] = costs[trade.ticker] + (Number(trade.quantity) * Number(trade.price));
-                            } else {
-                                costs[trade.ticker] = (Number(trade.quantity) * Number(trade.price));
-                            }
-                        }
-                        var row = '<tr class="transRow" id="trade_'+trade.id+'"';
-                        if (index >= transactionLimit) { row += ' style="display:none;"'; }
-                        row += '>'+
-                            '<td>'+moment.utc(trade.transactionDate).format("MM/DD/YYYY")+'</td>';
-                        row += '<td>'+trade.ticker+'</td>';
-                        if (trade.description !== null) {
-                            row += '<td>'+trade.description+'</td>';
+    }).success(function(response, textStatus, jqXHR) {
+        const $positionSectionElem = $("#positionSection");
+        const $tableElem = $("#transactionTable");
+        $positionSectionElem.empty();
+        $tableElem.find("tbody").empty();
+        if (jqXHR.status !== 204) {
+            if (response.trades.length > 0) {
+                let costs = {};
+                response.trades.forEach(function(trade, index) {
+                    if (trade.description !== "Employer Match") {
+                        if (costs.hasOwnProperty(trade.ticker)) {
+                            costs[trade.ticker] = costs[trade.ticker] + (Number(trade.quantity) * Number(trade.price));
                         } else {
-                            row += '<td></td>';
+                            costs[trade.ticker] = (Number(trade.quantity) * Number(trade.price));
                         }
-                        row += '<td>'+trade.quantity.toFixed(3)+'</td>'+
-                            '<td>'+trade.price.toFixed(3)+'</td>'+
-                            '<td>'+(Number(trade.quantity) * Number(trade.price)).toFixed(2)+'</td>'+
-                            '</tr>';
-                        $tableElem.find("tbody").append(row);
-                    });
-                    if ($(".transRow:visible").length !== $(".transRow").length) {
-                        var moreRow = '<tr id="moreRow" style="text-align:center;">'+
-                            '<td colspan="6">'+
-                            '<a onclick="getMoreInvestments();">'+
-                            'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
-                            '</a>'+
-                            '</td>'+
-                            '</tr>';
                     }
+                    let row = '<tr class="transRow" id="trade_'+trade.id+'"';
+                    if (index >= transactionLimit) { row += ' style="display:none;"'; }
+                    row += '>'+
+                        '<td>'+moment.utc(trade.transactionDate).format("MM/DD/YYYY")+'</td>';
+                    row += '<td>'+trade.ticker+'</td>';
+                    if (trade.description !== null) {
+                        row += '<td>'+trade.description+'</td>';
+                    } else {
+                        row += '<td></td>';
+                    }
+                    row += '<td>'+trade.quantity.toFixed(3)+'</td>'+
+                        '<td>'+trade.price.toFixed(3)+'</td>'+
+                        '<td>'+(Number(trade.quantity) * Number(trade.price)).toFixed(2)+'</td>'+
+                        '</tr>';
+                    $tableElem.find("tbody").append(row);
+                });
+                if ($(".transRow:visible").length !== $(".transRow").length) {
+                    const moreRow = '<tr id="moreRow" style="text-align:center;">'+
+                        '<td colspan="6">'+
+                        '<a onclick="getMoreInvestments();">'+
+                        'More&nbsp;<i class="fa fa-chevron-down"></i>'+
+                        '</a>'+
+                        '</td>'+
+                        '</tr>';
                     $tableElem.find("tbody").append(moreRow);
-                    if (type !== null) {
-                        tradeHighlight(tradeId, "trade");
-                    }
                 }
-                if (response.positions.length > 0) {
-                    var totalBasis = 0;
-                    var totalValue = 0;
-                    var table = '<div class="well"><table class="table table-condensed">'+
-                        '<thead>'+
-                        '<tr>'+
-                        '<th>Ticker</th>'+
-                        '<th>Name</th>'+
-                        '<th>Quantity</th>'+
-                        '<th>Current Price</th>'+
-                        '<th>Basis</th>'+
-                        '<th>Value</th>'+
-                        '<th>+/- $</th>'+
-                        '<th>+/- %</th>'+
-                        '</tr>'+
-                        '</thead>'+
-                        '<tbody>';
-                    response.positions.forEach(function(position) {
-                        if (position.quantity > 0) {
-                            if (position.ticker.toUpperCase() !== "CASH") {
-                                if (moment.utc(position.updatedAt).dayOfYear() !== moment.utc().dayOfYear()) {
-                                    $.ajax({
-                                        type: "GET"
-                                        , url: "/api/v1/money/positions/update/" + position.ticker
-                                    });
-                                }
+                if (type !== null) {
+                    tradeHighlight(tradeId, "trade");
+                }
+            }
+            if (response.positions.length > 0) {
+                let totalBasis = 0;
+                let totalValue = 0;
+                let table = '<div class="well"><table class="table table-condensed">'+
+                    '<thead>'+
+                    '<tr>'+
+                    '<th>Ticker</th>'+
+                    '<th>Name</th>'+
+                    '<th>Quantity</th>'+
+                    '<th>Current Price</th>'+
+                    '<th>Basis</th>'+
+                    '<th>Value</th>'+
+                    '<th>+/- $</th>'+
+                    '<th>+/- %</th>'+
+                    '</tr>'+
+                    '</thead>'+
+                    '<tbody>';
+                response.positions.forEach(function(position) {
+                    if (position.quantity > 0) {
+                        if (position.ticker.toUpperCase() !== "CASH") {
+                            if (moment.utc(position.updatedAt).dayOfYear() !== moment.utc().dayOfYear()) {
+                                $.ajax({
+                                    type: "GET"
+                                    , url: "/api/v1/money/positions/update/" + position.ticker
+                                });
                             }
-                            var value = (Number(position.quantity) * Number(position.currentPrice));
-                            var cost = costs[position.ticker];
-                            var dollarChange = value - cost;
-                            var percentChange = (dollarChange / cost) * 100;
-                            totalBasis += cost;
-                            totalValue += value;
-                            var row = '<tr id="position_' + position.id + '" class="' + position.ticker.toUpperCase() + ' positionRow"';
-                            row += '>' +
-                                '<td name="ticker">' + position.ticker + '</td>' +
-                                '<td name="name">' + position.name + '</td>' +
-                                '<td name="quantity">' + position.quantity + '</td>' +
-                                '<td name="price"><span onClick="newPrice(\''+position.ticker+'\')">' + position.currentPrice + '</span></td>';
-                            if (typeof(cost) !== "undefined") {
-                                row += '<td name="basis">' + cost.toFixed(2) + '</td>';
-                            }
-                            row += '<td name="value">' + value.toFixed(2) + '</td>' +
-                                '<td name="dChange"';
-                            if (dollarChange > 0) {
-                                row += ' style="color:green;"'
-                            } else if (dollarChange < 0) {
-                                row += ' style="color:red;"'
-                            }
-                            row += '>' + dollarChange.toFixed(2) + '</td>' +
-                                '<td name="pChange"';
-                            if (percentChange > 0) {
-                                row += ' style="color:green;"'
-                            } else if (percentChange < 0) {
-                                row += ' style="color:red;"'
-                            }
-                            row += '>' + percentChange.toFixed(2) + '</td>' +
-                                '</tr>';
-                            table += row;
                         }
-                    });
-                    table += '<tr>'+
-                        '<td colspan="4"></td>'+
-                        '<td id="totalBasis" style="font-weight: bold;">'+totalBasis.toFixed(2)+'</td>'+
-                        '<td id="totalValue" style="font-weight: bold;">'+totalValue.toFixed(2)+'</td>'+
-                        '<td id="totalDChange" style="font-weight: bold;';
-                    var totalDollarChange = totalValue - totalBasis;
-                    if (totalDollarChange > 0) {
-                        table += 'color:green;'
-                    } else if (totalDollarChange < 0) {
-                        table += 'color:red;'
+                        const value = (Number(position.quantity) * Number(position.currentPrice));
+                        const cost = costs[position.ticker];
+                        const dollarChange = value - cost;
+                        const percentChange = (dollarChange / cost) * 100;
+                        totalBasis += cost;
+                        totalValue += value;
+                        let row = '<tr id="position_' + position.id + '" class="' + position.ticker.toUpperCase() + ' positionRow"';
+                        row += '>' +
+                            '<td name="ticker">' + position.ticker + '</td>' +
+                            '<td name="name">' + position.name + '</td>' +
+                            '<td name="quantity">' + position.quantity + '</td>' +
+                            '<td name="price"><span onClick="newPrice(\''+position.ticker+'\')">' + position.currentPrice + '</span></td>';
+                        if (typeof(cost) !== "undefined") {
+                            row += '<td name="basis">' + cost.toFixed(2) + '</td>';
+                        }
+                        row += '<td name="value">' + value.toFixed(2) + '</td>' +
+                            '<td name="dChange"';
+                        if (dollarChange > 0) {
+                            row += ' style="color:green;"'
+                        } else if (dollarChange < 0) {
+                            row += ' style="color:red;"'
+                        }
+                        row += '>' + dollarChange.toFixed(2) + '</td>' +
+                            '<td name="pChange"';
+                        if (percentChange > 0) {
+                            row += ' style="color:green;"'
+                        } else if (percentChange < 0) {
+                            row += ' style="color:red;"'
+                        }
+                        row += '>' + percentChange.toFixed(2) + '</td>' +
+                            '</tr>';
+                        table += row;
                     }
-                    table += '">'+totalDollarChange.toFixed(2)+'</td>'+
-                        '<td id="totalPChange" style="font-weight: bold;';
-                    var totalPercentChange = (totalDollarChange / totalBasis) * 100;
-                    if (totalPercentChange > 0) {
-                        table += 'color:green;'
-                    } else if (totalPercentChange < 0) {
-                        table += 'color:red;'
-                    }
-                    table += '">'+totalPercentChange.toFixed(2)+'</td>'+
-                        '</tr></tbody></table></div>';
-                    $positionSectionElem.html(table);
-                    if (type !== null) {
-                        tradeHighlight(positionId, "position");
-                    }
+                });
+                table += '<tr>'+
+                    '<td colspan="4"></td>'+
+                    '<td id="totalBasis" style="font-weight: bold;">'+totalBasis.toFixed(2)+'</td>'+
+                    '<td id="totalValue" style="font-weight: bold;">'+totalValue.toFixed(2)+'</td>'+
+                    '<td id="totalDChange" style="font-weight: bold;';
+                const totalDollarChange = totalValue - totalBasis;
+                if (totalDollarChange > 0) {
+                    table += 'color:green;'
+                } else if (totalDollarChange < 0) {
+                    table += 'color:red;'
+                }
+                table += '">'+totalDollarChange.toFixed(2)+'</td>'+
+                    '<td id="totalPChange" style="font-weight: bold;';
+                const totalPercentChange = (totalDollarChange / totalBasis) * 100;
+                if (totalPercentChange > 0) {
+                    table += 'color:green;'
+                } else if (totalPercentChange < 0) {
+                    table += 'color:red;'
+                }
+                table += '">'+totalPercentChange.toFixed(2)+'</td>'+
+                    '</tr></tbody></table></div>';
+                $positionSectionElem.html(table);
+                if (type !== null) {
+                    tradeHighlight(positionId, "position");
                 }
             }
-        })
-        .error(function(jqXHR/*, textStatus, errorThrown*/) {
-            if (jqXHR.status === 404) {
-                return false;
-            } else {
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
-            }
-        });
+        }
+    }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+        if (jqXHR.status === 404) {
+            return false;
+        } else {
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        }
+    });
 }
 
 function getTransactions(offset, limit, transId) {
     $("#page-load").show();
-    var $tableElem = $("#transactionTable");
+    const $tableElem = $("#transactionTable");
     $("#searchDiv").show();
     clearSearch();
     setupTable();
@@ -1012,14 +1006,13 @@ function getTransactions(offset, limit, transId) {
     $.ajax({
         type: "GET"
         ,url: "/api/v1/money/transactions/account/"+$("#accountSelect").val()+"/"+offset+"/"+limit
-    })
-    .success(function(response) {
+    }).success(function(response) {
         // console.log(response);
         $tableElem.find("tbody").empty();
         // var balance = Number(response.cTrans[0].Summary.balance);
-        var balance = 0;
-        var initialBalance = 0;
-        for (var i = 0; i < response.cTrans.length; i++) {
+        let balance = 0;
+        let initialBalance = 0;
+        for (let i = 0; i < response.cTrans.length; i++) {
             if (!response.cTrans[i].future) {
                 if (response.cTrans[i].postDate !== null) {
                     if (response.cTrans[i].hasOwnProperty("Summary")) {
@@ -1034,12 +1027,12 @@ function getTransactions(offset, limit, transId) {
         balance += Number(response.adjust);
 
         // Current Transactions
-        var flag = false;
+        let flag = false;
         response.cTrans.forEach(function(result) {
-            var dp = false;
-            var dateNow = new Date();
-            var row;
-            var tDateMoment = moment.utc(result.transactionDate);
+            let dp = false;
+            const dateNow = new Date();
+            let row;
+            const tDateMoment = moment.utc(result.transactionDate);
             if (result.hasOwnProperty("future")) {
                 dp = true;
                 row = '<tr id="f_'+result.id+'"';
@@ -1063,11 +1056,11 @@ function getTransactions(offset, limit, transId) {
                 '</td>'+
                 '<td name="payee">';
             if (result.BillId !== null) {
-                row += '&nbsp;<i class="glyphicon glyphicon-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
+                row += '&nbsp;<i class="fa fa-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
             }
             if (result.Bill !== null) {
                 if (result.Bill.automatic) {
-                    row += '&nbsp;<i class="glyphicon glyphicon-flash img-rounded trans-badge" title="Automatic Payment"></i>';
+                    row += '&nbsp;<i class="fa fa-flash img-rounded trans-badge" title="Automatic Payment"></i>';
                 }
             }
             row += result.payee+'</td>';
@@ -1122,20 +1115,20 @@ function getTransactions(offset, limit, transId) {
             row += '<td name="balance">'+balance.toFixed(2)+'</td>';
             if (result.hasOwnProperty("future")) {
                 row += '<td>'+
-                    '<button class="btn btn-primary btn-xs" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
-                    '<i class="glyphicon glyphicon-pencil"></i>'+
+                    '<button class="btn btn-primary btn-sm" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
+                    '<i class="fa fa-pencil"></i>'+
                     '</button>'+
                     // '<button class="btn btn-success btn-xs" title="Commit Transaction" onclick="commitFTransaction(\''+result.id+'\');">'+
-                    // 	'<i class="glyphicon glyphicon-plus"></i>'+
+                    // 	'<i class="fa fa-plus"></i>'+
                     // '</button>'+
-                    '<button class="btn btn-danger btn-xs" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
-                    '<i class="glyphicon glyphicon-remove"></i>'+
+                    '<button class="btn btn-danger btn-sm" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
+                    '<i class="fa fa-trash"></i>'+
                     '</button>'+
                     '</td>';
             } else {
                 row += '<td>' +
-                    '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\'' + result.id + '\');">' +
-                    '<i class="glyphicon glyphicon-pencil"></i>' +
+                    '<button class="btn btn-primary btn-sm" title="Edit Transaction" onclick="editTransaction(\'' + result.id + '\');">' +
+                    '<i class="fa fa-pencil"></i>' +
                     '</button>' +
                     '</td>';
             }
@@ -1161,10 +1154,10 @@ function getTransactions(offset, limit, transId) {
         });
         // console.log(response.cTrans.length);
         if (response.cTrans.length >= transactionLimit) {
-            var moreRow = '<tr id="moreRow" style="text-align:center;">'+
+            const moreRow = '<tr id="moreRow" style="text-align:center;">'+
                 '<td colspan="9">'+
                 '<a onclick="getMoreTransactions('+balance+','+transactionLimit+','+transactionLimit+');">'+
-                'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
+                'More&nbsp;<i class="fa fa-chevron-down"></i>'+
                 '</a>'+
                 '</td>'+
                 '</tr>';
@@ -1175,8 +1168,7 @@ function getTransactions(offset, limit, transId) {
         }
         $("#page-load").hide();
         getBills();
-    })
-    .error(function(jqXHR/*, textStatus, errorThrown*/) {
+    }).error(function(jqXHR/*, textStatus, errorThrown*/) {
         $("#page-load").hide();
         if (jqXHR.status === 404) {
             return false;
@@ -1196,7 +1188,7 @@ function getMoreInvestments() {
         var moreRow = '<tr id="moreRow" style="text-align:center;">'+
             '<td colspan="6">'+
             '<a onclick="getMoreInvestments('+visible+');">'+
-            'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
+            'More&nbsp;<i class="fa fa-chevron-down"></i>'+
             '</a>'+
             '</td>'+
             '</tr>';
@@ -1274,7 +1266,7 @@ function getMoreTransactions(balance, offset, limit) {
                     row += '<td name="balance">'+balance.toFixed(2)+'</td>';
                     row += '<td>'+
                         '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\''+result.id+'\');">'+
-                        '<i class="glyphicon glyphicon-pencil"></i>'+
+                        '<i class="fa fa-pencil"></i>'+
                         '</button>'+
                         '</td>'+
                         '</tr>';
@@ -1291,7 +1283,7 @@ function getMoreTransactions(balance, offset, limit) {
                 var moreRow = '<tr id="moreRow" style="text-align:center;">'+
                     '<td colspan="9">'+
                     '<a onclick="getMoreTransactions('+balance+','+(offset+transactionLimit)+','+transactionLimit+');">'+
-                    'More&nbsp;<i class="glyphicon glyphicon-chevron-down"></i>'+
+                    'More&nbsp;<i class="fa fa-chevron-down"></i>'+
                     '</a>'+
                     '</td>'+
                     '</tr>';
@@ -1328,9 +1320,9 @@ function initiateMultiCategory(deposit,withdrawal) {
     	amount = Number(withdrawal);
 	}
 	let body = '<table><thead><tr><th style="padding: 5px;">Unassigned Amount</th><th id="transAmount" style="padding: 5px;">'+amount.toFixed(2)+'</th>'+
-        '<th style="padding: 5px;">Discount</th><th style="padding: 5px;"><div class="input-group">'+
+        '<th style="padding: 5px;">Discount</th><th style="padding: 5px;"><div class="form-group">'+
         '<input type="number" class="form-control" min="0" max="100" step="1" id="multiCatDiscount" />'+
-        '<span class="input-group-addon">%</span></div></th></tr></thead><tbody>';
+        '<span class="form-group-addon">%</span></div></th></tr></thead><tbody>';
     for (let i=0; i<midpoint; i++) {
         let left = i;
         let right = i+midpoint;

@@ -1,7 +1,7 @@
 {
   "name": "homebase",
   "version": "1.0.0",
-  "description": "home managment webapp",
+  "description": "home management webapp",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,15 +19,18 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.0.0",
+    "cookie-parser": "^1.4.3",
     "crypto-js": "^3.0.0",
     "express": "^4.16.4",
+    "express-brute": "^1.0.1",
+    "express-brute-sequelize": "0.0.8",
     "http": "0.0.0",
     "jsonwebtoken": "^8.4.0",
-    "moment": "^2.22.2",
+    "moment": "^2.23.0",
     "mysql": "^2.16.0",
-    "nodemailer": "^4.7.0",
+    "nodemailer": "^5.1.1",
     "request": "^2.88.0",
-    "sequelize": "^3.0.0",
+    "sequelize": "^3.34.0",
     "socket.io": "^2.2.0",
     "underscore": "^1.9.1"
   }

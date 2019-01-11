@@ -1,62 +1,62 @@
-var _ = require("underscore");
-var moment = require("moment");
+// const _ = require("underscore");
+const moment = require("moment");
 
 module.exports = function(db) {
 	return {
-		getByAccountId: function(id) {
+		getByAccountId: function(user, id) {
 			return new Promise(function(resolve, reject) {
-				db.Summary.findAll({
-					where: {
-						AccountId: id
+				db.Owner.validateAccountOwner(user.id, id).then(function() {
+					db.Summary.findAll({
+						where: {
+							AccountId: id
+							,initial: false
+						}
+						,order: [['start', 'DESC']]
+					}).then(function(results) {
+						resolve(results);
+					});
+				}, function() {
+					reject("unauthorized");
+				}).catch(function(error) {
+					console.log("catch error on Summary controller getByAccountId method: " + error);
+					reject();
+				});
+			});
+		}
+		,getAll: function(user) {
+			return new Promise(function(resolve, reject) {
+				db.Owner.getAllowedAccounts(user.id).then(function(allowedAccounts) {
+					db.Summary.findAll({
+						where: { AccountId: { $in: allowedAccounts } }
+						,order: [["start", "DESC"]]
 						,initial: false
-					}
-					,order: [['start', 'DESC']]
-				})
-				.then(
-					function(results) {
+					}).then(function(results) {
 						resolve(results);
-					}
-				)
-				.catch(
-					function(error) {
-						reject(error);
-					}
-				);
+					});
+				}, function(error) {
+					console.log("error getting allowed accounts: " + error);
+					reject();
+				}).catch(function(error) {
+					console.log("catch error on Summary controller getAll method: " + error);
+					reject();
+				});
 			});
 		}
-		,getAll: function() {
+		,getAllUnique: function(user) {
 			return new Promise(function(resolve, reject) {
-				db.Summary.findAll({
-					order: [["start", "DESC"]]
-					,initial: false
-				})
-				.then(
-					function(results) {
-						resolve(results);
-					}
-				)
-				.catch(
-					function(error) {
-						reject(error);
-					}
-				);
-			});
-		}
-		,getAllUnique: function() {
-			return new Promise(function(resolve, reject) {
-				db.Summary.findAll({
-					where: {
-						initial: false
-					}
-					,attributes: ["start", "end", "id"]
-					,order: [["start", "DESC"]]
-				})
-				.then(
-					function(results) {
-						var dedupe = [];
-						var summs = [];
-						var x = 1;
-						for (var i = 0, len = results.length; i < len; i++) {
+				db.Owner.getAllowedAccounts(user.id).then(function(allowedAccounts) {
+					db.Summary.findAll({
+						where: {
+							initial: false,
+							AccountId: { $in: allowedAccounts }
+						}
+						,attributes: ["start", "end", "id"]
+						,order: [["start", "DESC"]]
+					}).then(function(results) {
+						let dedupe = [];
+						let summs = [];
+						let x = 1;
+						for (let i = 0, len = results.length; i < len; i++) {
 							if (i !== 0) {
 								if (moment(results[i].start).format('x') !== moment(results[i-1].start).format('x')) {
 									dedupe[i-x].summaries = summs;
@@ -81,14 +81,15 @@ module.exports = function(db) {
 							}
 						}
 						resolve(dedupe);
-					}
-				)
-				.catch(
-					function(error) {
-						reject({code: -1, error: error});
-					}
-				);
+					});
+				}, function(error) {
+					console.log("error getting allowed accounts: " + error);
+					reject();
+				}).catch(function(error) {
+					console.log("catch error on Summary controller getAllUnique method: " + error);
+					reject();
+				});
 			});
 		}
 	};
-}
+};

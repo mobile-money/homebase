@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Welcome</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="shared/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="shared/css/bootstrap-theme.min.css">
+    <!--<link rel="stylesheet" href="shared/css/bootstrap-dark.min.css">-->
+
+    <link rel="stylesheet" href="shared/css/style.css">
+    <link rel="shortcut icon" href="shared/img/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="shared/img/favicon.ico" type="image/x-icon">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        .grecaptcha-badge {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!--Start Info Modal-->
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="infoModalTitle">Sign-Up Now</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="infoModalBody"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-info" data-dismiss="modal" aria-label="OK" title="OK">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Info Modal-->
+    <!--Start Sign-Up Modal-->
+    <div class="modal fade" id="signupModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Sign-Up Now</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <span class="input-group-addon">First Name</span>
+                        <input id="newFirstName" class="form-control signup-field" type="text" maxlength="24" />
+                    </div>
+                    <div class="input-group" style="margin-top: 10px;">
+                        <span class="input-group-addon">Last Name</span>
+                        <input id="newLastName" class="form-control signup-field" type="text" maxlength="24" />
+                    </div>
+                    <div class="input-group" style="margin-top: 10px;">
+                        <span class="input-group-addon">Email Address</span>
+                        <input id="newEmail" class="form-control signup-field" type="email" maxlength="48" />
+                    </div>
+                    <span class="label label-danger signup-error" id="newEmailError" style="display:none;">Email address appears to be invalid</span>
+                    <div class="input-group" style="margin-top: 10px;">
+                        <span class="input-group-addon">Password</span>
+                        <input id="newPassword" class="form-control signup-field" type="password" maxlength="16" />
+                    </div>
+                    <span class="label label-danger signup-error" id="newPasswordError" style="display:none;">8-16 characters, 1 uppercase, 1 lowercase, 1 numeric, 1 special</span>
+                    <!--<span class="label label-danger password-case" id="newPasswordLength">8-16 Characters</span>-->
+                    <!--<span class="label label-default">And three of the following:</span>-->
+                    <!--<span class="label label-danger password-case" id="newPasswordUppercase">One uppercase character</span>-->
+                    <!--<span class="label label-danger password-case" id="newPasswordLowercase">One lowercase character</span>-->
+                    <!--<span class="label label-danger password-case" id="newPasswordNumeric">One numeric character</span>-->
+                    <!--<span class="label label-danger password-case" id="newPasswordSpecial">One special character</span>-->
+                    <div class="input-group" style="margin-top: 10px;">
+                        <span class="input-group-addon">Confirm Password</span>
+                        <input id="confirmPassword" class="form-control signup-field" type="password" maxlength="16" />
+                    </div>
+                    <span class="label label-danger signup-error" id="confirmPasswordError" style="display:none;">Passwords do not match</span>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success g-recaptcha" title="Sign-Up" id="sendSignupButton" data-sitekey="6LdQd4UUAAAAAP14rY5d5IZnxeiYfJ0Nrl3nJLTl" data-callback='captchaCheck' data-badge="inline">Sign-Up!</button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Sign-Up">Cancel</button>
+                    <br /><h6>This site is protected by reCAPTCHA and the Google
+                    <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+                    <a href="https://policies.google.com/terms">Terms of Service</a> apply.</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Sign-Up Modal-->
+    <div class="container-fluid">
+        <div class="row justify-content-between">
+            <div class="col-md">
+                <h1>
+                    <img src="shared/img/brand.png" style="width:100px;" />
+                </h1>
+            </div>
+            <div class="col-md-3" style="margin-top: 5px;">
+                <input class="form-control" id="username" type="text" placeholder="Email" />
+                <input class="form-control" id="password" type="password" placeholder="Password" />
+                <button class="btn-md btn-primary" id="loginButton">Login</button><button class="btn-md btn-success" id="signupButton">Sign-Up</button>
+            </div>
+        </div>
+        <div class="row centered">
+            <div class="col-md">
+                <h2>Welcome to your portal for home management</h2>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="shared/js/jquery-2.2.0.min.js"></script>
+    <script type="text/javascript" src="shared/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="shared/js/global.js"></script>
+    <script type="text/javascript" src="welcome.js"></script>
+    <!-- <script type="text/javascript" src="/shared/js/jquery.color-2.1.2.min.js"></script>
+    <script type="text/javascript" src="/shared/js/socket.io-1.4.5.js"></script>
+    <script type="text/javascript" src="/shared/js/bootstrap-timepicker.min.js"></script>
+    <script type="text/javascript" src="/shared/js/moment.min.js"></script>
+    <script type="text/javascript" src="/shared/js/underscore-1.8.3.js"></script> -->
+</body>
+</html>

@@ -4,13 +4,17 @@ module.exports = function(app, Visit, _, io) {
         let vt = _.pick(req.body, 'visit_date', 'description', 'cost', 'provider', 'PersonId');
         console.log("inserting visit");
         console.log(vt);
-        Visit.insert(vt).then(function(result) {
+        Visit.insert(req.user, vt).then(function(result) {
             console.log("inserted visit");
             io.emit("visitAdded", result.id);
             res.status(201).json(result);
         }).catch(function(error) {
             console.log(`error inserting visit; ${error}`);
-            res.status(500).json(error);
+            if (error === "unauthorized") {
+                res.status(401).send();
+            } else {
+                res.status(500).json(error);
+            }
         });
     });
 
@@ -18,12 +22,16 @@ module.exports = function(app, Visit, _, io) {
     app.get("/api/v1/health/visit/:id", function(req, res) {
         let personId = req.params.id;
         console.log(`visits requested for person: ${personId}`);
-        Visit.get(personId).then(function(results) {
+        Visit.get(req.user, personId).then(function(results) {
             console.log("retrieved visits");
             res.json(results);
         }).catch(function(error) {
             console.log(`error retrieving visits; ${error}`);
-            res.status(500).json(error);
+            if (error === "unauthorized") {
+                res.status(401).send();
+            } else {
+                res.status(500).json(error);
+            }
         });
     });
 
@@ -33,13 +41,17 @@ module.exports = function(app, Visit, _, io) {
         let vt = _.pick(req.body, 'visit_date', 'description', 'cost', 'provider', 'PersonId');
         console.log(`visit ${visitId} update requested`);
         console.log(vt);
-        Visit.update(visitId, vt).then(function(results) {
+        Visit.update(req.user, visitId, vt).then(function(results) {
             console.log(`visit ${visitId} updated`);
             io.emit("visitUpdated", visitId);
             res.json(results);
         }).catch(function(error) {
             console.log(`visit update error: ${error}`);
-            res.status(500).json(error);
+            if (error === "unauthorized") {
+                res.status(401).send();
+            } else {
+                res.status(500).json(error);
+            }
         });
     });
 
@@ -47,13 +59,17 @@ module.exports = function(app, Visit, _, io) {
     app.delete("/api/v1/health/visit/:id", function(req, res) {
         let visitId = req.params.id;
         console.log(`visit ${visitId} delete requested`);
-        Visit.delete(visitId).then(function(results) {
+        Visit.delete(req.user, visitId).then(function(results) {
             console.log(`visit ${visitId} deleted`);
             io.emit("visitDeleted", visitId);
             res.json(results);
         }).catch(function(error) {
             console.log(`visit delete error: ${error}`);
-            res.status(500).json(error);
+            if (error === "unauthorized") {
+                res.status(401).send();
+            } else {
+                res.status(500).json(error);
+            }
         });
     });
 };
