@@ -2,7 +2,7 @@ const moment = require("moment");
 // const _ = require("underscore");
 const request = require('request');
 
-module.exports = function(db) {
+module.exports = function(db,io) {
 	return {
 		create: function(user, newBill) {
 			return new Promise(function(resolve, reject) {
@@ -135,22 +135,37 @@ module.exports = function(db) {
 								let lastDate;
 								for (let i = 0; i < trans.dates.length; i++) {
 									lastDate = trans.dates[i];
+									// const body = {
+									// 	account: trans.AccountId
+									// 	,description: trans.description
+									// 	,tDate: trans.dates[i]
+									// 	,payee: trans.payee
+									// 	,amount: trans.amount
+									// 	,bill: trans.BillId
+									// 	,category: trans.CategoryId
+									// };
+									// request.post("http://localhost:3000/api/v1/money/futureTransactions", {
+									// 	json: true
+									// 	,body: body
+									// }, function(error/*, response, body*/) {
+									// 	if (error) {
+									// 		console.log('error adding future transaction from bill: ' + error);
+									// 	}
+									// });
 									const body = {
-										account: trans.AccountId
+										AccountId: trans.AccountId
 										,description: trans.description
-										,tDate: trans.dates[i]
+										,transactionDate: trans.dates[i]
 										,payee: trans.payee
 										,amount: trans.amount
-										,bill: trans.BillId
-										,category: trans.CategoryId
+										,BillId: trans.BillId
+										,CategoryId: trans.CategoryId
 									};
-									request.post("http://localhost:3000/api/v1/money/futureTransactions", {
-										json: true
-										,body: body
-									}, function(error/*, response, body*/) {
-										if (error) {
-											console.log('error adding future transaction from bill: ' + error);
-										}
+									db.FutureTransaction.create(body).then(function(obj) {
+										io.emit("transactionAdded", "f_"+obj.id);
+										console.log('new bill posted for ' + trans.payee);
+									}, function(error) {
+										console.log('error posting new bill for ' + trans.payee + '; error: ' + error);
 									});
 								}
 								db.Bill.update({lastAdded: lastDate}, {

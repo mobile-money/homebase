@@ -121,6 +121,27 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // 	}
 // });
 
+// Start socket.io
+// io.on("connection", function(/*socket*/) {
+// 	console.log("Connection made");
+// });
+const io_money = io.of("/money");
+io_money.on("connection", function(/*socket*/) {
+	console.log("Connection made - Money");
+});
+const io_auto = io.of("/auto");
+io_auto.on("connection", function(/*socket*/) {
+	console.log("Connection made - Automobile");
+});
+const io_hvac = io.of("/hvac");
+io_hvac.on("connection", function(/*socket*/) {
+	console.log("Connection made - HVAC");
+});
+const io_health = io.of("/health");
+io_health.on("connection", function(/*socket*/) {
+	console.log("Connection made - Health");
+});
+
 // // CONTROLLERS // //
 // ADMIN
 const User = require("./controllers/admin/User.js")(db_admin);
@@ -142,7 +163,7 @@ const Summary = require("./controllers/money/Summary.js")(db_money, db_admin);
 const Category = require("./controllers/money/Category.js")(db_money, db_admin);
 const Transaction = require("./controllers/money/Transaction.js")(db_money);
 const FutureTransaction = require("./controllers/money/FutureTransaction.js")(db_money, Transaction, db_admin);
-const Bill = require("./controllers/money/Bill.js")(db_money, db_admin);
+const Bill = require("./controllers/money/Bill.js")(db_money, io_money);
 const Budget = require("./controllers/money/Budget.js")(db_money, db_admin);
 const Trade = require("./controllers/money/Trade.js")(db_money, db_admin);
 const Position = require("./controllers/money/Position.js")(db_money);
@@ -153,27 +174,6 @@ const MaintenanceLog = require("./controllers/automobile/MaintenanceLog.js")(db_
 // HEALTH
 const Person = require("./controllers/health/Person.js")(db_health, db_admin);
 const Visit = require("./controllers/health/Visit.js")(db_health);
-
-// Start socket.io
-// io.on("connection", function(/*socket*/) {
-// 	console.log("Connection made");
-// });
-const io_money = io.of("/money");
-io_money.on("connection", function(/*socket*/) {
-    console.log("Connection made - Money");
-});
-const io_auto = io.of("/auto");
-io_auto.on("connection", function(/*socket*/) {
-    console.log("Connection made - Automobile");
-});
-const io_hvac = io.of("/hvac");
-io_hvac.on("connection", function(/*socket*/) {
-    console.log("Connection made - HVAC");
-});
-const io_health = io.of("/health");
-io_health.on("connection", function(/*socket*/) {
-    console.log("Connection made - Health");
-});
 
 // // ROUTES // //
 // ADMIN
