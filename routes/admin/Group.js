@@ -26,4 +26,35 @@ module.exports = function(app, Group, _) {
             res.status(400).send();
         });
     });
+
+    // Modify Group
+    app.put("/api/v1/group", function(req, res) {
+        const data = _.pick(req.body, 'id', 'name', 'members');
+        console.log("group modify requested");
+        console.log(data);
+        Group.modify(req.user,data).then(function() {
+            console.log("group modified");
+            res.status(202).send();
+        }).catch(function(error) {
+            if (error === "group not found") {
+                res.status(404).send();
+            } else {
+                console.log("error modifying group: " + error);
+                res.status(400).send();
+            }
+        });
+    });
+
+    // Delete Group
+    app.delete("/api/v1/group/:id", function(req, res) {
+        const groupId = req.params.id;
+        console.log("group delete requested");
+        Group.destroy(req.user,groupId).then(function() {
+            console.log("group deleted");
+            res.status(204).send();
+        }).catch(function(error) {
+            console.log("error deleting group: " + error);
+            res.status(400).send();
+        });
+    });
 };

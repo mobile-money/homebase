@@ -86,7 +86,8 @@ function deleteGroup(id) {
 	$("#editGroupModal").modal("hide");
 	const name = $("#"+id+" td[name=name]").html();
 	$("#deleteGroupId").val(id);
-	$("#deleteModalBody").html("<strong>Are you sure you want to delete the group "+name+"?</strong>");
+	$("#deleteModalBody").html("<strong>Are you sure you want to delete the group "+name+"?</strong><br/><br />" +
+		"This will remove all listed access for the members.");
 	$("#deleteGroupModal").modal("show");
 }
 
@@ -146,57 +147,6 @@ function getGroups() {
 	});
 }
 
-// function getInactiveCars() {
-// 	$.ajax({
-// 		type: "GET"
-// 		,url: "/api/v1/automobile/car/inactive"
-// 	}).success(function(response) {
-// 		$("#inactiveCarTable").find("tbody").empty();
-// 		response.forEach(function(car) {
-//             let row = '<tr id="'+car.id+'">' +
-//                 '<td name="make">'+car.make+'</td>' +
-//                 '<td name="model">'+car.model+'</td>'+
-//                 '<td name="year">'+car.year+'</td>' +
-//                 '<td name="vin">'+car.vin+'</td>' +
-//                 '<td name="license_plate">'+car.license_plate+'</td>' +
-//                 '<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
-//                 '<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
-//                 '<td name="current_mileage">'+car.current_mileage+'</td>' +
-//                 '<td name="sold_date">'+moment.utc(car.sold_date).format("MMM D, YYYY")+'</td>' +
-//                 '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>';
-// 			if (car.additional_owners.length > 0) {
-// 				let addUsers = "Additional users with access:";
-// 				let addUsersIds = [];
-// 				car.additional_owners.forEach(function(additional_user) {
-// 					addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
-// 					addUsersIds.push(additional_user.id);
-// 				});
-// 				row += '<td name="additional_users"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
-// 					'<input name="additional_users_ids" type="hidden" value="'+addUsersIds.join(",")+'" /></td>';
-// 			} else {
-// 				row += '<td></td>';
-// 			}
-// 			if (car.master) {
-// 				row += '<td>'+
-// 					'<button class="btn btn-primary" title="Reactivate Car" onclick="reactivateCar(\''+car.id+'\');">'+
-// 					'<i class="fa fa-pencil"></i>'+
-// 					'</button>'+
-// 					'</td>';
-// 			} else {
-// 				row += '<td></td>';
-// 			}
-// 			row += '</tr>';
-// 			$("#inactiveCarTable").find("tbody").append(row);
-// 		});
-// 		$('[data-toggle="tooltip"]').tooltip();
-// 	}).error(function(jqXHR) { //, textStatus, errorThrown
-// 		if (jqXHR.status === 500) {
-// 			$("#infoModalBody").html("There was a problem.  Please try again.");
-// 			$("#infoModal").modal("show");
-// 		}
-// 	});
-// }
-
 function getOthers() {
 	return new Promise(function(resolve) {
 		$.ajax({
@@ -250,32 +200,21 @@ function modifyGroup() {
 	}
 }
 
-// function reactivateCar(id) {
-// 	const make = $("#"+id+" td[name=make]").html();
-// 	const model = $("#"+id+" td[name=model]").html();
-// 	const year = $("#"+id+" td[name=year]").html();
-// 	$("#reactivateCarId").val(id);
-// 	$("#reactivateModalBody").html("Would you like to reactivate the "+year+"&nbsp;"+make+"&nbsp;"+model+"?");
-// 	$("#reactivateCarModal").modal("show");
-// }
-//
-// function removeCar() {
-// 	const id = $("#deleteCarId").val();
-// 	$("#deleteCarModal").modal("hide");
-// 	if (typeof id !== "undefined" && id.length > 0) {
-// 		$.ajax({
-// 			type: "DELETE"
-// 			,url: "/api/v1/automobile/car/"+id
-// 		}).success(function() {
-// 			getCars();
-// 			getInactiveCars();
-// 			return false;
-// 		}).error(function() { //jqXHR, textStatus, errorThrown
-// 			$("#infoModalBody").html("There was a problem.  Please try again.");
-// 			$("#infoModal").modal("show");
-// 		});
-// 	}
-// }
+function removeGroup() {
+	const id = $("#deleteGroupId").val();
+	$("#deleteGroupModal").modal("hide");
+	if (typeof id !== "undefined" && id.length > 0) {
+		$.ajax({
+			type: "DELETE"
+			,url: "/api/v1/group/"+id
+		}).success(function() {
+			getGroups();
+		}).error(function() { //jqXHR, textStatus, errorThrown
+			$("#infoModalBody").html("There was a problem.  Please try again.");
+			$("#infoModal").modal("show");
+		});
+	}
+}
 
 function saveGroup(group) {
 	$.ajax({
@@ -290,24 +229,3 @@ function saveGroup(group) {
 		$("#infoModal").modal("show");
 	});
 }
-
-// function undeleteCar() {
-// 	const id = $("#reactivateCarId").val();
-// 	$("#reactivateCarModal").modal("hide");
-// 	if (typeof id !== "undefined" && id.length > 0) {
-// 		$.ajax({
-// 			type: "PUT"
-// 			,url: "/api/v1/automobile/car/reactivate"
-// 			,data: {
-// 				id: id
-// 			}
-// 		}).success(function() {
-// 			getCars();
-// 			getInactiveCars();
-// 			return false;
-// 		}).error(function() { //jqXHR, textStatus, errorThrown
-// 			$("#infoModalBody").html("There was a problem.  Please try again.");
-// 			$("#infoModal").modal("show");
-// 		});
-// 	}
-// }

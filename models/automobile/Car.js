@@ -1,3 +1,4 @@
+
 module.exports = function(sequelize, DataTypes) {
     return sequelize.define('Car', {
             make: {
@@ -34,6 +35,10 @@ module.exports = function(sequelize, DataTypes) {
                 type: DataTypes.BOOLEAN
                 ,allowNull: false
                 ,defaultValue: true
+            }
+            ,ownerId: {
+                type: DataTypes.INTEGER
+                ,allowNull: false
             }
         }
         ,{

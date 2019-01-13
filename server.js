@@ -20,11 +20,11 @@ const cookieParser = require("cookie-parser");
 const _ = require("underscore");
 const cryptojs = require("crypto-js");
 const moment = require("moment");
+const db_admin = require("./config/db_admin.js");
 const db_hvac = require("./config/db_hvac.js");
 const db_money = require("./config/db_money.js");
 const db_automobile = require("./config/db_automobile.js");
 const db_health = require("./config/db_health.js");
-const db_admin = require("./config/db_admin.js");
 
 app.use(cookieParser());
 app.use(function(req, res, next) {

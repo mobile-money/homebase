@@ -72,8 +72,8 @@
 							<input id="newCurrentMileage" type="number" min="0" max="300000" step="1" class="form-control" />
 						</div>
 						<div class="form-group">
-							<label>Additional User Access</label>
-							<select multiple id="newAUA" class="form-control"></select>
+							<label>Group Access</label>
+							<select multiple id="newGroup" class="form-control"></select>
 						</div>
 					</div>
 					<div class="modal-footer">
@@ -126,13 +126,18 @@
 							<input id="editCurrentMileage" type="number" min="0" max="300000" step="1" class="form-control" />
 						</div>
 						<div class="form-group">
-							<label>Additional User Access</label>
-							<select multiple id="editAUA" class="form-control"></select>
+							<label>Group Access</label>
+							<select multiple id="editGroup" class="form-control"></select>
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-primary" title="Edit Car" id="editCarButton"><i class="fa fa-pencil"></i></button>
-						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Car">Cancel</button>
+						<div class="mr-auto">
+							<button class="btn btn-danger" title="Delete Car" id="dltCarButton"><i class="fa fa-trash"></i></button>
+						</div>
+						<div class="ml-auto">
+							<button class="btn btn-primary" title="Edit Car" id="editCarButton"><i class="fa fa-pencil"></i></button>
+							<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Car">Cancel</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -209,7 +214,7 @@
 		<div class="container-fluid">
 			<div class="col-sm-12">
 				<div class="card" style="margin-top:20px;">
-					<table id="carTable" class="table table-striped">
+					<table id="carTable" class="table table-striped table-sm">
 						<thead>
 						<tr>
 							<th>Make</th>
@@ -222,7 +227,7 @@
 							<th>Current&nbsp;Mileage</th>
 							<th></th>
 							<th></th>
-							<th><button class="btn btn-success" title="Add Car" data-toggle="modal" data-target="#addCarModal"><i class="fa fa-plus"></i></button></th>
+							<th><button class="btn btn-sm btn-success" title="Add Car" data-toggle="modal" data-target="#addCarModal"><i class="fa fa-plus"></i></button></th>
 						</tr>
 						</thead>
 						<tbody></tbody>

@@ -1,7 +1,6 @@
 /* TODO
 -Complete Groups
-    -Modify
-    -Delete
+    -Add groups columns to Accounts/Cars/People
     -Queries for Accessible accounts/cars/people on Groups page
 -Change Account/Car/Person access to Groups
     -Add userId [INT] and groupIds [JSON] fields to the tables

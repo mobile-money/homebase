@@ -1,7 +1,7 @@
 module.exports = function(app, Car, _) {
     // Insert car
     app.post("/api/v1/automobile/car", function(req, res) {
-        const car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage', 'aua');
+        const car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage', 'groups');
         console.log("inserting car");
         console.log(car);
         Car.insert(req.user, car).then(function(result) {
@@ -51,7 +51,7 @@ module.exports = function(app, Car, _) {
                 }
             });
         } else {
-            const car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage', 'aua');
+            const car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage', 'groups');
             console.log("car " + carId + " update requested");
             console.log(car);
             Car.update(req.user, carId, car).then(function (results) {

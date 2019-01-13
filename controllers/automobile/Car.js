@@ -1,31 +1,30 @@
 const moment = require("moment");
 const _ = require('underscore');
+const Sequelize = require('sequelize');
+const { fn, col } = Sequelize;
 
 module.exports = function(db, admin) {
     return {
         delete: function(user, carId) {
             return new Promise(function(resolve, reject) {
-                db.Owner.validateCarMaster(user.id, carId).then(function() {
-                    db.Car.findOne({
-                        where: {
-                            id: carId
-                        }
-                    }).then(function(car) {
-                        if (car !== null) {
-                            car.active = false;
-                            car.sold_date = moment().format('YYYY-MM-DD');
-                            car.save().then(function(result) {
-                                // car.destroy().then(function(result) {
-                                resolve(result);
-                            }).catch(function(error) {
-                                reject(error);
-                            });
-                        } else {
-                            reject("car not found");
-                        }
-                    });
-                }, function() {
-                    reject("unauthorized");
+                db.Car.findOne({
+                    where: {
+                        id: carId,
+                        ownerId: user.id
+                    }
+                }).then(function(car) {
+                    if (car !== null) {
+                        car.active = false;
+                        car.sold_date = moment().format('YYYY-MM-DD');
+                        car.save().then(function(result) {
+                            // car.destroy().then(function(result) {
+                            resolve(result);
+                        }).catch(function(error) {
+                            reject(error);
+                        });
+                    } else {
+                        reject("car not found");
+                    }
                 }).catch(function(error) {
                     console.log("catch error on Car controller delete method: " + error);
                     reject();
@@ -35,88 +34,50 @@ module.exports = function(db, admin) {
         ,get: function(user, params) {
             params.active = true;
             return new Promise(function(resolve, reject) {
-                db.Owner.getAllowedCars(user.id).then(function(ac) {
-                    if (params.hasOwnProperty("id")) {
-                        if (_.indexOf(ac,Number(params.id)) === -1) {
-                            reject('unauthorized');
+                params.ownerId = user.id;
+                db.Car.findAll({
+                    where: params
+                    ,order: [[ 'make', 'ASC' ]]
+                }).then(function(results) {
+                    let finResults = [];
+                    let carIds = [];
+                    results.forEach(function(result) {
+                        let tObj = {
+                            id: result.id,
+                            make: result.make,
+                            model: result.model,
+                            year: result.year,
+                            vin: result.vin,
+                            license_plate: result.license_plate,
+                            purchase_date: result.purchase_date,
+                            purchase_mileage: result.purchase_mileage,
+                            current_mileage: result.current_mileage,
+                            sold_date: result.sold_date,
+                            groups: []
+                        };
+                        if (result.ownerId === user.id) {
+                            tObj.owner = true;
                         }
-                    } else {
-                        params.id = { $in: ac };
-                    }
-
-                    db.Car.findAll({
-                        where: params
-                        ,order: [[ 'make', 'ASC' ]]
-                        ,include: [{
-                            model: db.Owner
-                        }]
-                    }).then(function(results) {
-                        // Extract all the owners of the returned Cars
-                        let ownerIds = [];
-                        let finResults = [];
-                        results.forEach(function(result) {
-                            let tObj = {
-                                id: result.id,
-                                make: result.make,
-                                model: result.model,
-                                year: result.year,
-                                vin: result.vin,
-                                license_plate: result.license_plate,
-                                purchase_date: result.purchase_date,
-                                purchase_mileage: result.purchase_mileage,
-                                current_mileage: result.current_mileage,
-                                sold_date: result.sold_date,
-                                additional_owners: []
-                            };
-                            result.Owners.forEach(function(owner) {
-                                // Exclude the currently logged in user
-                                if (owner.userId !== user.id) {
-                                    tObj.additional_owners.push({id: owner.userId});
-                                    ownerIds.push(owner.userId);
-                                }
-                                // Set car master
-                                if (owner.master) {
-                                    if (owner.userId === user.id) {
-                                        tObj.master = true;
-                                    }
-                                }
-                            });
-                            finResults.push(tObj);
-                        });
-                        // Create an array of only unique values
-                        ownerIds = _.uniq(ownerIds);
-
-                        if (ownerIds.length > 0) {
-                            // Query for the identified owners
-                            admin.User.findAll({
-                                where: {
-                                    id: {
-                                        $in: ownerIds
-                                    }
-                                }
-                            }).then(function(owners) {
-                                owners.forEach(function(owner) {
-                                    finResults.forEach(function(finResult) {
-                                        finResult.additional_owners.forEach(function(additional_owner) {
-                                            if (additional_owner.id === owner.id) {
-                                                // additional_owner.id = cryptojs.MD5(owner.id+'_padding').toString();
-                                                additional_owner.first_name = owner.firstName;
-                                                additional_owner.last_name = owner.lastName;
-                                            }
-                                        });
-                                    });
-                                });
-                                resolve(finResults);
-                            }, function() {
-                                // couldn't get additional owners, so just return without them
-                                resolve(finResults);
-                            });
-                        } else {
-                            resolve(finResults);
-                        }
+                        carIds.push(result.id);
+                        finResults.push(tObj);
                     });
-                }, function() {
-                    reject();
+                    admin.Group.findAll({}).then(function(groups) {
+                        groups.forEach(function(group) {
+                            const arr = JSON.parse(group.Cars);
+                            if (arr.length > 0) {
+                                arr.forEach(function(groupCar) {
+                                    let tObj = _.findWhere(finResults, {id: groupCar});
+                                    if (tObj && tObj.hasOwnProperty("groups")) {
+                                        tObj.groups.push(group.id);
+                                    }
+                                });
+                            }
+                        });
+                        resolve(finResults);
+                    }, function (error) {
+                        console.log("error getting groups for cars: " + error);
+                        resolve(finResults);
+                    });
                 }).catch(function(error) {
                     console.log("catch error on Car controller get method: " + error);
                     reject();
@@ -125,85 +86,52 @@ module.exports = function(db, admin) {
         }
         ,getInactive: function(user) {
             return new Promise(function(resolve, reject) {
-                db.Owner.getAllowedCars(user.id).then(function(ac) {
-                    db.Car.findAll({
-                        where: {
-                            active: false,
-                            id: {
-                                $in: ac
-                            }
+                db.Car.findAll({
+                    where: {
+                        active: false,
+                        ownerId: user.id
+                    }
+                    ,order: [['make', 'ASC']]
+                }).then(function(results) {
+                    let finResults = [];
+                    let carIds = [];
+                    results.forEach(function(result) {
+                        let tObj = {
+                            id: result.id,
+                            make: result.make,
+                            model: result.model,
+                            year: result.year,
+                            vin: result.vin,
+                            license_plate: result.license_plate,
+                            purchase_date: result.purchase_date,
+                            purchase_mileage: result.purchase_mileage,
+                            current_mileage: result.current_mileage,
+                            sold_date: result.sold_date,
+                            groups: []
+                        };
+                        if (result.ownerId === user.id) {
+                            tObj.owner = true;
                         }
-                        ,order: [['make', 'ASC']]
-                        ,include: [{
-                            model: db.Owner
-                        }]
-                    }).then(function(results) {
-                        // Extract all the owners of the returned Cars
-                        let ownerIds = [];
-                        let finResults = [];
-                        results.forEach(function(result) {
-                            let tObj = {
-                                id: result.id,
-                                make: result.make,
-                                model: result.model,
-                                year: result.year,
-                                vin: result.vin,
-                                license_plate: result.license_plate,
-                                purchase_date: result.purchase_date,
-                                purchase_mileage: result.purchase_mileage,
-                                current_mileage: result.current_mileage,
-                                sold_date: result.sold_date,
-                                additional_owners: []
-                            };
-                            result.Owners.forEach(function(owner) {
-                                // Exclude the currently logged in user
-                                if (owner.userId !== user.id) {
-                                    tObj.additional_owners.push({id: owner.userId});
-                                    ownerIds.push(owner.userId);
-                                }
-                                // Set car master
-                                if (owner.master) {
-                                    if (owner.userId === user.id) {
-                                        tObj.master = true;
-                                    }
-                                }
-                            });
-                            finResults.push(tObj);
-                        });
-                        // Create an array of only unique values
-                        ownerIds = _.uniq(ownerIds);
-
-                        if (ownerIds.length > 0) {
-                            // Query for the identified owners
-                            admin.User.findAll({
-                                where: {
-                                    id: {
-                                        $in: ownerIds
-                                    }
-                                }
-                            }).then(function(owners) {
-                                owners.forEach(function(owner) {
-                                    finResults.forEach(function(finResult) {
-                                        finResult.additional_owners.forEach(function(additional_owner) {
-                                            if (additional_owner.id === owner.id) {
-                                                // additional_owner.id = cryptojs.MD5(owner.id+'_padding').toString();
-                                                additional_owner.first_name = owner.firstName;
-                                                additional_owner.last_name = owner.lastName;
-                                            }
-                                        });
-                                    });
-                                });
-                                resolve(finResults);
-                            }, function() {
-                                // couldn't get additional owners, so just return without them
-                                resolve(finResults);
-                            });
-                        } else {
-                            resolve(finResults);
-                        }
+                        carIds.push(result.id);
+                        finResults.push(tObj);
                     });
-                }, function() {
-                    reject();
+                    admin.Group.findAll({}).then(function(groups) {
+                        groups.forEach(function(group) {
+                            const arr = JSON.parse(group.Cars);
+                            if (arr.length > 0) {
+                                arr.forEach(function(groupCar) {
+                                    let tObj = _.findWhere(finResults, {id: groupCar});
+                                    if (tObj && tObj.hasOwnProperty("groups")) {
+                                        tObj.groups.push(group.id);
+                                    }
+                                });
+                            }
+                        });
+                        resolve(finResults);
+                    }, function (error) {
+                        console.log("error getting groups for cars: " + error);
+                        resolve(finResults);
+                    });
                 }).catch(function(error) {
                     console.log("catch error on Car controller getInactive method: " + error);
                     reject();
@@ -214,38 +142,23 @@ module.exports = function(db, admin) {
             return new Promise(function(resolve, reject) {
                 admin.User.findById(user.id).then(function(foundUser) {
                     if (foundUser) {
+                        car.ownerId = user.id;
                         db.Car.create(car).then(function(result) {
-                            let bulkArr = [{
-                                userId: foundUser.id,
-                                CarId: result.id,
-                                master: true
-                            }];
-                            if (car.hasOwnProperty("aua")) {
-                                const arr = JSON.parse(car.aua);
-                                if (arr) {
-                                    arr.forEach(function(val) {
-                                        // const bytes = cryptojs.AES.decrypt(val,'1M1x%SQ%');
-                                        // const decrypt = bytes.toString(cryptojs.enc.Utf8);
-                                        // const parts = decrypt.split("_");
-                                        const tObj = {
-                                            // userId: parts[0],
-                                            userId: val,
-                                            CarId: result.id,
-                                            master: false
-                                        };
-                                        bulkArr.push(tObj);
-                                    });
-                                }
+                            if (car.hasOwnProperty("groups")) {
+                                let arr = JSON.parse(car.groups);
+                                arr = _.map(arr, function(val) { return Number(val); });
+                                admin.Group.update({
+                                    Cars: fn('JSON_ARRAY_APPEND', col('Cars'), '$', Number(result.id))
+                                }, {
+                                    where: { id: { $in: arr } }
+                                }).then(function() {
+                                    console.log('added group access');
+                                    resolve(result);
+                                }, function(error) {
+                                    console.log("error adding group access: " + error);
+                                    resolve(result);
+                                });
                             }
-                            db.Owner.bulkCreate(bulkArr).then(function() {
-                                resolve(result);
-                            }, function(error) {
-                                result.destroy().then(function() {
-                                    reject('error associating users and cars: ' + error);
-                                },function() {
-                                    reject('error associating users and cars: ' + error);
-                                })
-                            });
                         },function(error) {
                             reject('unable to create car: ' + error);
                         });
@@ -288,8 +201,12 @@ module.exports = function(db, admin) {
         }
         ,update: function(user, carId, data) {
             return new Promise(function(resolve, reject) {
-                db.Owner.validateCarMaster(user.id, carId).then(function() {
-                    db.Car.findById(carId).then(function(car) {
+                    db.Car.findOne({
+                        where: {
+                            id: carId,
+                            ownerId: user.id
+                        }
+                    }).then(function(car) {
                         if (car !== null) {
                             if (data.make) { car.make = data.make; }
                             if (data.model) { car.model = data.model; }
@@ -399,9 +316,7 @@ module.exports = function(db, admin) {
                             reject("car not found");
                         }
                     });
-                }, function() {
-                    reject('unauthorized');
-                }).catch(function(error) {
+                    .catch(function(error) {
                     console.log("catch error on Car controller update method: " + error);
                     reject();
                 });

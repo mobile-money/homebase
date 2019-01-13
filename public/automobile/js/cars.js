@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	$("body").show();
 
-	getOthers();
+	getGroups();
 	getCars();
 	getInactiveCars();
 });
@@ -13,6 +13,9 @@ $(document).ready(function() {
 	});
 	$("#editCarButton").click(function() {
 		modifyCar();
+	});
+	$("#dltCarButton").click(function() {
+		deleteCar();
 	});
 	$("#deleteCarButton").click(function() {
 		removeCar();
@@ -106,7 +109,7 @@ function addCar() {
 			,purchase_date: newPurchaseDate.val()
 			,purchase_mileage: newPurcahseMileage.val()
 			,current_mileage: newCurrentMileage.val()
-			,aua: JSON.stringify($("#newAUA").val())
+			,groups: JSON.stringify($("#newGroup").val())
 		};
 		saveCar(car);
 	}
@@ -121,10 +124,11 @@ function clearAddFields() {
 	$("#newPurchaseDate").val("");
 	$("#newPurchaseMileage").val("");
 	$("#newCurrentMileage").val("");
-	$("#newAUA option:selected").prop("selected", false);
+	$("#newGroup option:selected").prop("selected", false);
 }
 
 function clearEditFields() {
+	$("#editCarId").val("");
 	$("#editMake").val("");
 	$("#editModel").val("");
 	$("#editYear").val("");
@@ -133,10 +137,12 @@ function clearEditFields() {
 	$("#editPurchaseDate").val("");
 	$("#editPurchaseMileage").val("");
 	$("#editCurrentMileage").val("");
-	$("#editAUA option:selected").prop("selected", false);
+	$("#editGroup option:selected").prop("selected", false);
 }
 
-function deleteCar(id) {
+function deleteCar() {
+	$("#editCarModal").modal("hide");
+	const id = 	$("#editCarId").val();
 	const make = $("#"+id+" td[name=make]").html();
 	const model = $("#"+id+" td[name=model]").html();
 	const year = $("#"+id+" td[name=year]").html();
@@ -155,9 +161,9 @@ function editCar(id) {
 	$("#editPurchaseDate").val(moment.utc($("#"+id+" td[name=purchase_date]").html(),'MMM D, YYYY').format("YYYY-MM-DD"));
 	$("#editPurchaseMileage").val($("#"+id+" td[name=purchase_mileage]").html());
 	$("#editCurrentMileage").val($("#"+id+" td[name=current_mileage]").html());
-	const aua = $("#"+id+" td[name=additional_users] input[name=additional_users_ids]").val();
+	const aua = $("#"+id+" td[name=groups] input[name=group_ids]").val();
 	if (typeof(aua) !== "undefined") {
-		$("#editAUA").val(aua.split(","));
+		$("#editGroup").val(aua.split(","));
 	}
 	$("#editCarModal").modal("show");
 }
@@ -167,6 +173,7 @@ function getCars() {
 		type: "GET"
 		,url: "/api/v1/automobile/car"
 	}).success(function(response) {
+		console.log(response);
 		$("#carTable").find("tbody").empty();
 		response.forEach(function(car) {
 			let row = '<tr id="'+car.id+'">' +
@@ -177,23 +184,17 @@ function getCars() {
 				'<td name="license_plate">'+car.license_plate+'</td>' +
 				'<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
 				'<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
-				'<td name="current_mileage">'+car.current_mileage+'</td>' +
-				'<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>';
-			if (car.additional_owners.length > 0) {
-				let addUsers = "Additional users with access:";
-				let addUsersIds = [];
-				car.additional_owners.forEach(function(additional_user) {
-					addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
-					addUsersIds.push(additional_user.id);
-				});
-				row += '<td name="additional_users"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
-					'<input name="additional_users_ids" type="hidden" value="'+addUsersIds.join(",")+'" /></td>';
+				'<td name="current_mileage">'+car.current_mileage+'</td>';
+			if (car.groups.length > 0) {
+				row += '<td name="groups"><i class="fa fa-users"></i>' +
+					'<input name="group_ids" type="hidden" value="'+car.groups.join(",")+'" /></td>';
 			} else {
 				row += '<td></td>';
 			}
-			if (car.master) {
-				row += '<td><button class="btn btn-primary" title="Edit Car" onclick="editCar(\''+car.id+'\');"><i class="fa fa-pencil"></i></button>' +
-					'<button class="btn btn-danger" title="Delete Car" onclick="deleteCar(\''+car.id+'\');"><i class="fa fa-trash"></i></button>' +
+			row += '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>';
+			if (car.owner) {
+				row += '<td><button class="btn btn-sm btn-primary" title="Edit Car" onclick="editCar(\''+car.id+'\');"><i class="fa fa-pencil"></i></button>' +
+					// '<button class="btn btn-sm btn-danger" title="Delete Car" onclick="deleteCar(\''+car.id+'\');"><i class="fa fa-trash"></i></button>' +
 					'</td>';
 			} else {
 				row += '<td></td>';
@@ -215,6 +216,7 @@ function getInactiveCars() {
 		type: "GET"
 		,url: "/api/v1/automobile/car/inactive"
 	}).success(function(response) {
+		// console.log(response);
 		$("#inactiveCarTable").find("tbody").empty();
 		response.forEach(function(car) {
             let row = '<tr id="'+car.id+'">' +
@@ -226,23 +228,17 @@ function getInactiveCars() {
                 '<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
                 '<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
                 '<td name="current_mileage">'+car.current_mileage+'</td>' +
-                '<td name="sold_date">'+moment.utc(car.sold_date).format("MMM D, YYYY")+'</td>' +
-                '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>';
-			if (car.additional_owners.length > 0) {
-				let addUsers = "Additional users with access:";
-				let addUsersIds = [];
-				car.additional_owners.forEach(function(additional_user) {
-					addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
-					addUsersIds.push(additional_user.id);
-				});
-				row += '<td name="additional_users"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
-					'<input name="additional_users_ids" type="hidden" value="'+addUsersIds.join(",")+'" /></td>';
+                '<td name="sold_date">'+moment.utc(car.sold_date).format("MMM D, YYYY")+'</td>';
+			if (car.groups.length > 0) {
+				row += '<td name="groups"><i class="fa fa-users"></i>' +
+					'<input name="group_ids" type="hidden" value="'+car.groups.join(",")+'" /></td>';
 			} else {
 				row += '<td></td>';
 			}
-			if (car.master) {
+			row += '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>';
+			if (car.owner) {
 				row += '<td>'+
-					'<button class="btn btn-primary" title="Reactivate Car" onclick="reactivateCar(\''+car.id+'\');">'+
+					'<button class="btn btn-sm btn-primary" title="Reactivate Car" onclick="reactivateCar(\''+car.id+'\');">'+
 					'<i class="fa fa-pencil"></i>'+
 					'</button>'+
 					'</td>';
@@ -261,15 +257,15 @@ function getInactiveCars() {
 	});
 }
 
-function getOthers() {
+function getGroups() {
 	$.ajax({
 		type: "GET"
-		,url: '/api/v1/users'
+		,url: '/api/v1/group'
 	}).success(function(response) {
-		// console.log(response);
-		response.forEach(function(user){
-			$("#newAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
-			$("#editAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
+		console.log(response);
+		response.forEach(function(group){
+			$("#newGroup").append($('<option>',{value: group.id, text: group.name}));
+			$("#editGroup").append($('<option>',{value: group.id, text: group.name}));
 		});
 	}).error(function(jqXHR) {
 		// console.log(jqXHR);
@@ -337,7 +333,7 @@ function modifyCar() {
 				,purchase_date: editPurchaseDate.val()
 				,purchase_mileage: editPurcahseMileage.val()
 				,current_mileage: editCurrentMileage.val()
-				,aua: JSON.stringify($("#editAUA").val())
+				,groups: JSON.stringify($("#editGroup").val())
 			};
 			$.ajax({
 				type: "PUT"
