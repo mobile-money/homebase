@@ -109,7 +109,7 @@ function addCar() {
 			,purchase_date: newPurchaseDate.val()
 			,purchase_mileage: newPurcahseMileage.val()
 			,current_mileage: newCurrentMileage.val()
-			,groups: JSON.stringify($("#newGroup").val())
+			,group_ids: JSON.stringify($("#newGroup").val())
 		};
 		saveCar(car);
 	}
@@ -173,7 +173,7 @@ function getCars() {
 		type: "GET"
 		,url: "/api/v1/automobile/car"
 	}).success(function(response) {
-		console.log(response);
+		// console.log(response);
 		$("#carTable").find("tbody").empty();
 		response.forEach(function(car) {
 			let row = '<tr id="'+car.id+'">' +
@@ -262,7 +262,7 @@ function getGroups() {
 		type: "GET"
 		,url: '/api/v1/group'
 	}).success(function(response) {
-		console.log(response);
+		// console.log(response);
 		response.forEach(function(group){
 			$("#newGroup").append($('<option>',{value: group.id, text: group.name}));
 			$("#editGroup").append($('<option>',{value: group.id, text: group.name}));
@@ -333,7 +333,7 @@ function modifyCar() {
 				,purchase_date: editPurchaseDate.val()
 				,purchase_mileage: editPurcahseMileage.val()
 				,current_mileage: editCurrentMileage.val()
-				,groups: JSON.stringify($("#editGroup").val())
+				,group_ids: JSON.stringify($("#editGroup").val())
 			};
 			$.ajax({
 				type: "PUT"

@@ -54,6 +54,10 @@ $("#deleteLogButton").click(function() {
     removeLog();
 });
 
+$("#dltLogButton").click(function() {
+    deleteLog($("#editLogId").val());
+});
+
 $("#deleteLogModal").on("hidden.bs.modal", function() {
     // $("#newPayee").focus();
 });
@@ -169,6 +173,7 @@ function clearSearch() {
 }
 
 function deleteLog(id) {
+    $("#editLogModal").modal("hide");
     const date = $("#"+id+" td[name=service_date]").html();
     const desc = $("#"+id+" td[name=description]").html();
     $("#deleteLogId").val(id);
@@ -200,7 +205,7 @@ function getLogs() {
                 '<td name="cost">'+log.cost.toFixed(2)+'</td>' +
                 '<td name="servicer">'+log.servicer+'</td>' +
                 '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="fa fa-pencil"></i></button>' +
-                '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="fa fa-trash"></i></button>' +
+                // '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="fa fa-trash"></i></button>' +
                 '</td>'+
                 '</tr>';
             $("#logTable").find("tbody").append(row);

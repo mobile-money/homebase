@@ -1,58 +1,18 @@
-const _ = require("underscore");
-const Sequelize = require('sequelize');
-const { fn, col } = Sequelize;
-
 module.exports = function(db) {
 	return {
 		get: function(user) {
-			return new Promise(function(resolve, reject) {
-				db.Group.findAll({
-					where: {
-						$or: [
-							{ ownerId: user.id },
-							fn('JSON_CONTAINS', col('memberIds'), String(user.id))
-						]
-					},
-					order: [[ 'name', 'ASC' ]]
-				}).then(function(groups) {
-					// resolve(groups);
-					let ret = [];
-					groups.forEach(function(group) {
-						let tmpObj = {
-							id: group.id,
-							name: group.name,
-							ownerId: group.ownerId,
-							memberIds: group.memberIds,
-							Accounts: group.Accounts,
-							Cars: group.Cars,
-							People: group.People
-						};
-						if (group.ownerId === user.id) {
-							tmpObj.owner = true;
-						}
-						ret.push(tmpObj);
-					});
-					resolve(ret);
-				}, function(error) {
-					reject(error);
-				}).catch(function(error) {
-					console.log("catch error on Group controller get method: " + error);
-					reject(error);
-				});
+			return new Promise(function(resolve) {
+				resolve(user.groups);
 			});
 		},
 		create: function(user, data) {
 			return new Promise(function(resolve, reject) {
 				db.User.findById(user.id).then(function(foundUser) {
 					if (foundUser) {
-
 						let obj = {
 							name: data.name,
 							ownerId: user.id,
 							memberIds: [],
-							Accounts: [],
-							Cars: [],
-							People: []
 						};
 						if (data.members !== 'null') {
 							// Cast member IDs to ints
@@ -144,8 +104,5 @@ module.exports = function(db) {
 				});
 			});
 		}
-		// addAccount
-		// addCar
-		// addPerson
 	};
 };

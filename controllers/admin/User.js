@@ -58,7 +58,7 @@ module.exports = function(db) {
 				})
 			});
 		}
-		,login: function(data) {
+		,login: function(data, req_ip) {
 			return new Promise(function(resolve, reject) {
 				let userInstance;
 				db.User.authenticate(data).then(function(user) {
@@ -70,14 +70,17 @@ module.exports = function(db) {
 					}).then(function(tokenInstance) {
 						// console.log("token created");
 						console.log("successful login");
-						resolve({tokenInstance: tokenInstance, userInstance: userInstance});
+						db.Login.addLogin(data.email, req_ip).then(function() {
+							resolve({tokenInstance: tokenInstance, userInstance: userInstance});
+						});
 					});
 				}, function(error) {
 					// failed login
 					if (error.match(/^incorrect password/)) {
 						db.FailedLogin.create({
 							userName: data.email,
-							error: error
+							error: error,
+							ip: req_ip
 						}).then(function() {
 							// Check for too many failed logins, 5 in the last 2 hours
 							db.FailedLogin.findAll({

@@ -66,35 +66,17 @@ app.use(function(req, res, next) {
 						} else {
 							// console.log("userInstance: " + JSON.stringify(userInstance));
 							// req.user = userInstance;
-							req.user = {
-								id: userInstance.id
-								,firstName: userInstance.firstName
-								,lastName: userInstance.lastName
-								,email: userInstance.email
-							};
-							next();
-							// db_admin.UserAccount.findAll({
-							// 	where: {
-							// 		UserId: userInstance.id
-							// 	}
-							// }).then(function(UserAccounts) {
-							// 	req.user.Accounts = _.pluck(UserAccounts,'accountId');
-							// 	db_admin.UserCar.findAll({
-							// 		where: {
-							// 			UserId: userInstance.id
-							// 		}
-							// 	}).then(function(UserCars) {
-							// 		req.user.Cars = _.pluck(UserCars,'carId');
-							// 		db_admin.UserPerson.findAll({
-							// 			where: {
-							// 				UserId: userInstance.id
-							// 			}
-							// 		}).then(function(UserPeople) {
-							// 			req.user.People = _.pluck(UserPeople,'personId');
-							// 			next();
-							// 		})
-							// 	});
-							// });
+							// Add groups to user object
+							db_admin.Group.getUsersGroups(userInstance.id).then(function(groups) {
+								req.user = {
+									id: userInstance.id
+									,firstName: userInstance.firstName
+									,lastName: userInstance.lastName
+									,email: userInstance.email
+									,groups: groups
+								};
+								next();
+							});
 						}
 					}
 				});

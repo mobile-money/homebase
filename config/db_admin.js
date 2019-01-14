@@ -30,6 +30,8 @@ let db = {};
 db.User = sequelize.import(__dirname + "/../models/admin/User.js");
 db.Token = sequelize.import(__dirname + "/../models/admin/Token.js");
 db.Group = sequelize.import(__dirname + "/../models/admin/Group.js");
+db.Login = sequelize.import(__dirname + "/../models/admin/Login.js");
+db.FailedLogin = sequelize.import(__dirname + "/../models/admin/FailedLogin.js");
 // // END IMPORTS // //
 
 db.sequelize = sequelize;

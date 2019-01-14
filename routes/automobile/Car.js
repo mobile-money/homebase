@@ -1,7 +1,12 @@
 module.exports = function(app, Car, _) {
     // Insert car
     app.post("/api/v1/automobile/car", function(req, res) {
-        const car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage', 'groups');
+        const car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage', 'group_ids');
+        if (car.group_ids === 'null') {
+            car.group_ids = [];
+        } else {
+            car.group_ids = JSON.parse(car.group_ids);
+        }
         console.log("inserting car");
         console.log(car);
         Car.insert(req.user, car).then(function(result) {
@@ -51,7 +56,12 @@ module.exports = function(app, Car, _) {
                 }
             });
         } else {
-            const car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage', 'groups');
+            const car = _.pick(req.body, 'make', 'model', 'year', 'vin', 'license_plate', 'purchase_date', 'purchase_mileage', 'current_mileage', 'group_ids');
+            if (car.group_ids === 'null') {
+                car.group_ids = [];
+            } else {
+                car.group_ids = JSON.parse(car.group_ids);
+            }
             console.log("car " + carId + " update requested");
             console.log(car);
             Car.update(req.user, carId, car).then(function (results) {
@@ -114,6 +124,22 @@ module.exports = function(app, Car, _) {
             res.status(200).send();
         }).catch(function(error) {
             console.log("reactivate car error: "+error);
+            if (error === "unauthorized") {
+                res.status(401).send();
+            } else {
+                res.status(500).send();
+            }
+        });
+    });
+
+    // Get Accessible Cars by Group ID
+    app.get('/api/v1/automobile/car/groups/:id', function (req, res) {
+        const groupId = req.params.id;
+        console.log("getting accessible cars for group: " + groupId);
+        Car.getByGroup(req.user, groupId).then(function(cars) {
+            res.status(200).json({group: Number(groupId), cars: cars});
+        }).catch(function(error) {
+            console.log("get cars by group error: "+error);
             if (error === "unauthorized") {
                 res.status(401).send();
             } else {

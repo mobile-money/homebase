@@ -46,10 +46,6 @@ function getCar(id) {
             ,url: "/api/v1/automobile/car?id="+id
         }).success(function(response) {
             resolve(response[0]);
-            // var totalMiles = response[0].current_mileage - response[0].purchase_mileage;
-            // $("#milesDrive").html(totalMiles);
-            // var years = moment().diff(moment(response[0].purchase_date), 'years');
-            // $("#milesPerYear").html((totalMiles/years).toFixed(2));
         }).error(function(jqXHR) { //, textStatus, errorThrown
             if (jqXHR.status === 500) {
                 $("#infoModalBody").html("There was a problem.  Please try again.");
@@ -164,18 +160,16 @@ function populateCars() {
             }
         }
         response.forEach(function(car) {
-            var obj = {
+            const obj = {
                 value: car.id
                 ,text: car.year + " " + car.make + " " + car.model
             };
             if (car.id === Number($("#currentCarId").val())) {
                 obj.selected = true;
             }
-           $("#carSelect").append($('<option>', obj));
+            $("#carSelect").append($('<option>', obj));
         });
         umbrellaFunction();
-        // getLogs();
-        // getCar();
     }).error(function() { //jqXHR, textStatus, errorThrown
         $("#infoModalBody").html("There was a problem.  Please try again.");
         $("#infoModal").modal("show");
@@ -183,18 +177,18 @@ function populateCars() {
 }
 
 function umbrellaFunction() {
-    var id = $("#currentCarId").val();
+    const id = $("#currentCarId").val();
     getCar(id).then(function(car) {
         getLogs(id).then(function(logs) {
             // Calculate total and average miles driven
-            var totalMiles = car.current_mileage - car.purchase_mileage;
+            const totalMiles = car.current_mileage - car.purchase_mileage;
             $("#milesDrive").html(totalMiles);
-            var years = moment().diff(moment(car.purchase_date), 'years');
-            var avgMiles = (totalMiles/years).toFixed(2);
+            const years = moment().diff(moment(car.purchase_date), 'years');
+            const avgMiles = (totalMiles/years).toFixed(2);
             $("#milesPerYear").html(avgMiles);
 
             // Sum total maintenance costs
-            var totalCost = 0;
+            let totalCost = 0;
             logs.forEach(function(log) {
                 totalCost += log.cost;
             });
@@ -202,18 +196,18 @@ function umbrellaFunction() {
             $("#maintenancePerYear").html((totalCost/years).toFixed(2));
 
             // Build array of years spanned
-            var yearArr = [];
-            var firstYear = Number(moment(car.purchase_date).format("YYYY"));
-            var currentYear = Number(moment().format("YYYY"));
-            for (var i=firstYear; i<=currentYear; i++) {
+            let yearArr = [];
+            const firstYear = Number(moment(car.purchase_date).format("YYYY"));
+            const currentYear = Number(moment().format("YYYY"));
+            for (let i=firstYear; i<=currentYear; i++) {
                 yearArr.push(i);
             }
 
             // Build arrays of maintenance costs per year and average maintenance cost
-            var costArr = [];
-            var costAvgArr = [];
+            let costArr = [];
+            let costAvgArr = [];
             yearArr.forEach(function(targetYear) {
-                var yearCost = 0;
+                let yearCost = 0;
                 logs.forEach(function(log) {
                     if (Number(moment(log.service_date).format("YYYY")) === targetYear) {
                         yearCost += Number(log.cost);
@@ -225,10 +219,10 @@ function umbrellaFunction() {
             makeMxCostChart(yearArr,costArr,costAvgArr);
 
             // Build arrays of miles driven per year and average miles driven
-            var mileArr = [];
-            var mileAvgArr = [];
-            var lastMileage = Number(car.purchase_mileage);
-            var tmpMileage = lastMileage;
+            let mileArr = [];
+            let mileAvgArr = [];
+            let lastMileage = Number(car.purchase_mileage);
+            let tmpMileage = lastMileage;
             yearArr.forEach(function(targetYear) {
                 logs.forEach(function(log) {
                     if (Number(moment(log.service_date).format("YYYY")) === targetYear) {

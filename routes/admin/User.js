@@ -78,7 +78,7 @@ module.exports = function(app, User, _) {
         app.post("/api/v1/users/login", function (req, res) {
             console.log("login requested");
             const body = _.pick(req.body, 'email', 'password');
-            User.login(body).then(function(response) {
+            User.login(body,(req.headers['X-Forwarded-For'] || req.ip)).then(function(response) {
                 res.header("Auth", response.tokenInstance.get("token")).json(response.userInstance.toPublicJSON());
             }, function(error) {
                 if (error.code === 1) {

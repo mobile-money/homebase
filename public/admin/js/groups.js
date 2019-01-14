@@ -140,6 +140,20 @@ function getGroups() {
 			}
 			row += '</td></tr>';
 			$("#groupTable").find("tbody").append(row);
+			// Get Accessible Cars for Group
+			$.ajax({
+				type: 'GET',
+				url: '/api/v1/automobile/car/groups/'+group.id
+			}).success(function(response) {
+				// console.log(response);
+				let carArr = [];
+				response.cars.forEach(function(car) {
+					carArr.push(car.year+" "+car.make+" "+car.model);
+				});
+				$("#"+response.group+" td[name=cars]").html(carArr.join('<br />'));
+			}).error(function(/*jqXHR, textStatus, errorThrown*/) {
+				console.log('error getting cars for group');
+			});
 		});
 	}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 		$("#infoModalBody").html("There was a problem.  Please try again.");

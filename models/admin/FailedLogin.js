@@ -8,5 +8,8 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.STRING(256)
 			,allowNull: false
 		}
+		,ip: {
+			type: DataTypes.STRING
+		}
 	});
 };
