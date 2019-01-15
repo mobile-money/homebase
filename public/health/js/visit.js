@@ -57,6 +57,10 @@ $("#deleteVisitModal").on("hidden.bs.modal", function() {
     // $("#newPayee").focus();
 });
 
+$("#dltVisitButton").click(function() {
+    deleteVisit($("#editVisitId").val());
+});
+
 $("#editVisitButton").on("click", function() {
     modifyVisit();
 });
@@ -159,6 +163,7 @@ function clearSearch() {
 }
 
 function deleteVisit(id) {
+    $("#editVisitModal").modal("hide");
     let date = $("#"+id+" td[name=visit_date]").html();
     let desc = $("#"+id+" td[name=description]").html();
     $("#deleteVisitId").val(id);
@@ -189,7 +194,7 @@ function getVisits() {
                 '<td name="cost">'+visit.cost.toFixed(2)+'</td>' +
                 '<td name="provider">'+visit.provider+'</td>' +
                 '<td><button class="btn btn-sm btn-primary" title="Edit Visit" onclick="editVisit(\''+visit.id+'\');"><i class="fa fa-pencil"></i></button>' +
-                '<button class="btn btn-sm btn-danger" title="Delete Visit" onclick="deleteVisit(\''+visit.id+'\');"><i class="fa fa-trash"></i></button>' +
+                // '<button class="btn btn-sm btn-danger" title="Delete Visit" onclick="deleteVisit(\''+visit.id+'\');"><i class="fa fa-trash"></i></button>' +
                 '</td>'+
                 '</tr>';
             $("#visitTable").find("tbody").append(row);

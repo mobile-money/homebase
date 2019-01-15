@@ -15,6 +15,7 @@
 		<link rel="stylesheet" href="../shared/css/style.css">
 		<link rel="shortcut icon" href="../shared/img/favicon.ico" type="image/x-icon">
 		<link rel="icon" href="../shared/img/favicon.ico" type="image/x-icon">
+		<style>.small-text { font-size: 0.8em; }</style>
 	</head>
 	<body style="display:none;">
 		<!--Start Info Modal-->
@@ -137,22 +138,35 @@
 		</nav>
 
 		<div class="container-fluid">
-			<div class="col-sm-12">
-				<div class="card" style="margin-top:20px;">
-					<table id="groupTable" class="table table-striped table-sm">
-						<thead>
-							<tr>
-								<th>Name</th>
-								<th>Owner</th>
-								<th>Members</th>
-								<th>Accessible Accounts</th>
-								<th>Accessible Cars</th>
-								<th>Accessible People</th>
-								<th><button class="btn btn-success" title="Add Group" data-toggle="modal" data-target="#addGroupModal"><i class="fa fa-plus"></i></button></th>
-							</tr>
-						</thead>
-						<tbody></tbody>
-					</table>
+			<div class='row'>
+				<div class="col-sm-12">
+					<p class="lead" style="margin-top: 10px;">
+						Groups allow you to share access to Accounts, Cars, and/or People (ACP).  Any member of a Group
+						can add an ACP to that Group, then all members of that Group can add/edit/delete entries
+						(transactions/logs/visits) for that ACP.  However, only owners (creator) of the ACP can edit/delete
+						the ACP itself, including adding or removing it from a Group.<br />
+						Finally, only the owner (creator) of a Group can edit or delete the Group.
+					</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="card" style="margin-top:20px;">
+						<table id="groupTable" class="table table-striped table-sm">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Owner</th>
+									<th>Members</th>
+									<th>Accessible Accounts</th>
+									<th>Accessible Cars</th>
+									<th>Accessible People</th>
+									<th><button class="btn btn-success" title="Add Group" data-toggle="modal" data-target="#addGroupModal"><i class="fa fa-plus"></i></button></th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
 				</div>
 			</div>
 		</div>

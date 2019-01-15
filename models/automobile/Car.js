@@ -48,7 +48,7 @@ module.exports = function(sequelize, DataTypes) {
     },{
         paranoid: true,
         classMethods: {
-            validateAccess: function(user, car_id) {
+            validateCarAccess: function(user, car_id) {
                 // query for all cars that match the given car id AND match the user id to owner id OR
                 // one of the users groups to one of the cars groups
                 return new Promise(function(resolve, reject) {

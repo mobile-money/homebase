@@ -1,4 +1,4 @@
-const _ = require("underscore");
+// const _ = require("underscore");
 
 module.exports = function(db) {
     return {
@@ -6,7 +6,7 @@ module.exports = function(db) {
             return new Promise(function(resolve, reject) {
                 db.Visit.findById(vtId).then(function(vt) {
                     if (vt !== null) {
-                        db.Owner.validatePersonOwner(user.id, vt.PersonId).then(function() {
+                        db.Person.validatePersonAccess(user, vt.PersonId).then(function() {
                             vt.destroy().then(function (result) {
                                 resolve(result);
                             }).catch(function (error) {
@@ -26,11 +26,9 @@ module.exports = function(db) {
         }
         ,get: function(user, personId) {
             return new Promise(function(resolve, reject) {
-                db.Owner.validatePersonOwner(user.id, personId).then(function() {
+                db.Person.validatePersonAccess(user, personId).then(function() {
                     db.Visit.findAll({
-                        where: {
-                            PersonId: personId
-                        }
+                        where: { PersonId: personId }
                         ,order: [[ 'visit_date', 'DESC' ]]
                     }).then(function(results) {
                         resolve(results);
@@ -45,7 +43,7 @@ module.exports = function(db) {
         }
         ,insert: function(user, vt) {
             return new Promise(function(resolve, reject) {
-                db.Owner.validatePersonOwner(user.id, vt.PersonId).then(function() {
+                db.Person.validatePersonAccess(user, vt.PersonId).then(function() {
                     db.Visit.create(vt).then(function (result) {
                         resolve(result);
                     });
@@ -59,7 +57,7 @@ module.exports = function(db) {
         }
         ,update: function(user, vtId, data) {
             return new Promise(function(resolve, reject) {
-                db.Owner.validatePersonOwner(user.id, data.PersonId).then(function() {
+                db.Person.validatePersonAccess(user, data.PersonId).then(function() {
                     db.Visit.findById(vtId).then(function (vt) {
                         if (vt !== null) {
                             if (data.visit_date) {

@@ -23,7 +23,6 @@ let db = {};
 // // START IMPORTS // //
 db.Car = sequelize.import(__dirname + "/../models/automobile/Car.js");
 db.MaintenanceLog = sequelize.import(__dirname + "/../models/automobile/MaintenanceLog.js");
-// db.Owner = sequelize.import(__dirname + "/../models/automobile/Owner.js");
 // // END IMPORTS // //
 
 db.sequelize = sequelize;
@@ -34,7 +33,6 @@ db.Car.hasMany(db.MaintenanceLog, {
 	'constraints': true
 	,'onDelete': 'cascade'
 });
-// db.Car.hasMany(db.Owner);
 
 db.MaintenanceLog.belongsTo(db.Car);
 // // END ASSOCIATIONS // //

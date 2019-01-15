@@ -115,12 +115,12 @@ function getGroups() {
 			const owner = _.findWhere(others, {uid: group.ownerId});
 			let row = '<tr id="'+group.id+'">' +
 				'<td name="name">'+group.name+'</td>' +
-				'<td name="owner">';
+				'<td name="owner" class="small-text">';
 			if (owner) {
 				row += owner.firstName + " " + owner.lastName;
 			}
 			row += '</td>'+
-				'<td name="members">';
+				'<td name="members" class="small-text">';
 			if (group.memberIds) {
 				const members = JSON.parse(group.memberIds);
 				let arr = [];
@@ -131,15 +131,29 @@ function getGroups() {
 				row += arr.join('<br />')+'<input type="hidden" name="member_ids" value="'+members.join(',')+'" />';
 			}
 			row += '</td>' +
-				'<td name="accounts"></td>' +
-				'<td name="cars"></td>' +
-				'<td name="people"></td>' +
+				'<td name="accounts" class="small-text"></td>' +
+				'<td name="cars" class="small-text"></td>' +
+				'<td name="people" class="small-text"></td>' +
 				'<td>';
 			if (group.owner) {
 				row += '<button class="btn btn-sm btn-primary" title="Edit Group" onclick="editGroup(\''+group.id+'\');"><i class="fa fa-pencil"></i></button>';
 			}
 			row += '</td></tr>';
 			$("#groupTable").find("tbody").append(row);
+			// Get Accessible Accounts for Group
+			$.ajax({
+				type: 'GET',
+				url: '/api/v1/money/account/groups/'+group.id
+			}).success(function(response) {
+				// console.log(response);
+				let accountArr = [];
+				response.accounts.forEach(function(account) {
+					accountArr.push(account.name);
+				});
+				$("#"+response.group+" td[name=accounts]").html(accountArr.join('<br />'));
+			}).error(function(/*jqXHR, textStatus, errorThrown*/) {
+				console.log('error getting accounts for group');
+			});
 			// Get Accessible Cars for Group
 			$.ajax({
 				type: 'GET',
@@ -153,6 +167,20 @@ function getGroups() {
 				$("#"+response.group+" td[name=cars]").html(carArr.join('<br />'));
 			}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 				console.log('error getting cars for group');
+			});
+			// Get Accessible People for Group
+			$.ajax({
+				type: 'GET',
+				url: '/api/v1/health/person/groups/'+group.id
+			}).success(function(response) {
+				// console.log(response);
+				let personArr = [];
+				response.people.forEach(function(person) {
+					personArr.push(person.first_name+" "+person.middle_name+" "+person.last_name);
+				});
+				$("#"+response.group+" td[name=people]").html(personArr.join('<br />'));
+			}).error(function(/*jqXHR, textStatus, errorThrown*/) {
+				console.log('error getting people for group');
 			});
 		});
 	}).error(function(/*jqXHR, textStatus, errorThrown*/) {

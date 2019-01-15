@@ -56,8 +56,8 @@
 							<input id="newBirthDate" class="form-control" type="date" />
 						</div>
 						<div class="form-group">
-							<label>Additional User Access</label>
-							<select multiple id="newAUA" class="form-control"></select>
+							<label>Groups Access</label>
+							<select multiple id="newGroups" class="form-control"></select>
 						</div>
 					</div>
 					<div class="modal-footer">
@@ -94,13 +94,18 @@
 							<input id="editBirthDate" class="form-control" type="date" />
 						</div>
 						<div class="form-group">
-							<label>Additional User Access</label>
-							<select multiple id="editAUA" class="form-control"></select>
+							<label>Group Access</label>
+							<select multiple id="editGroups" class="form-control"></select>
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-primary" title="Edit Person" id="editPersonButton"><i class="fa fa-pencil"></i></button>
-						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Person">Cancel</button>
+						<div class="mr-auto">
+							<button class="btn btn-danger" title="Delete Person" id="dltPersonButton"><i class="fa fa-trash"></i></button>
+						</div>
+						<div class="ml-auto">
+							<button class="btn btn-primary" title="Edit Person" id="editPersonButton"><i class="fa fa-pencil"></i></button>
+							<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Person">Cancel</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -147,6 +152,7 @@
 							<span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+							<li><a href="/admin/groups">Groups</a></li>
 							<li><a href="#" onClick="logOut();">Log Out</a></li>
 						</ul>
 					</li>
@@ -157,7 +163,7 @@
 		<div class="container-fluid">
 			<div class="col-md-12">
 				<div class="card" style="margin-top:20px;">
-					<table id="peopleTable" class="table table-striped">
+					<table id="peopleTable" class="table table-striped table-sm">
 						<thead>
 						<tr>
 							<th>First Name</th>
@@ -166,7 +172,7 @@
 							<th>Birth Date</th>
 							<th></th>
 							<th></th>
-							<th><button class="btn btn-success" title="Add Person" data-toggle="modal" data-target="#addPersonModal"><i class="fa fa-plus"></i></button></th>
+							<th><button class="btn btn-sm btn-success" title="Add Person" data-toggle="modal" data-target="#addPersonModal"><i class="fa fa-plus"></i></button></th>
 						</tr>
 						</thead>
 						<tbody></tbody>

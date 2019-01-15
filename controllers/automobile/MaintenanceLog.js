@@ -6,7 +6,7 @@ module.exports = function(db) {
             return new Promise(function(resolve, reject) {
                 db.MaintenanceLog.findById(mxId).then(function(mx) {
                     if (mx !== null) {
-                        db.Car.validateAccess(user, mx.CarId).then(function() {
+                        db.Car.validateCarAccess(user, mx.CarId).then(function() {
                             db.Car.findById(mx.CarId).then(function(car) {
                                 if (car !== null) {
                                     if (car.current_mileage === mx.mileage) {
@@ -57,7 +57,7 @@ module.exports = function(db) {
         }
         ,get: function(user, carId) {
             return new Promise(function(resolve, reject) {
-                db.Car.validateAccess(user, carId).then(function() {
+                db.Car.validateCarAccess(user, carId).then(function() {
                     db.MaintenanceLog.findAll({
                         where: { CarId: carId }
                         ,order: [[ 'service_date', 'DESC' ]]
@@ -74,7 +74,7 @@ module.exports = function(db) {
         }
         ,insert: function(user, mx) {
             return new Promise(function(resolve, reject) {
-                db.Car.validateAccess(user, mx.CarId).then(function() {
+                db.Car.validateCarAccess(user, mx.CarId).then(function() {
                     db.MaintenanceLog.create(mx).then(function(result) {
                         db.Car.findById(mx.CarId).then(function(car) {
                             if (car !== null) {
@@ -98,7 +98,7 @@ module.exports = function(db) {
         }
         ,update: function(user, mxId, data) {
             return new Promise(function(resolve, reject) {
-                db.Car.validateAccess(user, data.CarId).then(function() {
+                db.Car.validateCarAccess(user, data.CarId).then(function() {
                     db.MaintenanceLog.findById(mxId).then(function(mx) {
                         if (mx !== null) {
                             if (data.service_date) { mx.service_date = data.service_date; }

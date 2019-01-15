@@ -23,7 +23,6 @@ let db = {};
 // // START IMPORTS // //
 db.Person = sequelize.import(__dirname + "/../models/health/Person.js");
 db.Visit = sequelize.import(__dirname + "/../models/health/Visit.js");
-db.Owner = sequelize.import(__dirname + "/../models/health/Owner.js");
 // // END IMPORTS // //
 
 db.sequelize = sequelize;
@@ -34,7 +33,6 @@ db.Person.hasMany(db.Visit, {
     'constraints': true
     ,'onDelete': 'cascade'
 });
-db.Person.hasMany(db.Owner);
 
 db.Visit.belongsTo(db.Person);
 // // END ASSOCIATIONS // //

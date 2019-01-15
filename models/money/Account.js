@@ -1,5 +1,8 @@
+const Sequelize = require('sequelize');
+const { fn, col } = Sequelize;
+
 module.exports = function(sequelize, DataTypes) {
-	return sequelize.define('Account', {
+	let Account = sequelize.define('Account', {
 		name: {
 			type: DataTypes.STRING
 			,allowNull: false
@@ -24,44 +27,74 @@ module.exports = function(sequelize, DataTypes) {
 			,allowNull: false
 			,defaultValue: true
 		}
-	}
-	,{
+		,ownerId: {
+			type: DataTypes.INTEGER
+			,allowNull: false
+		}
+		,group_ids: {
+			type: DataTypes.JSON
+		}
+	},{
 	// 	paranoid: true
 		hooks: {
 			afterCreate: function(account) {
 				if (account.default === true) {
 					this.update(
+						{ default: false },
 						{
-							default: false
+							where: { id: { $ne: account.id } },
+							hooks: false
 						}
-						,{
-							where: {
-								id: {
-									$ne: account.id
-								}
-							}
-							,hooks: false
+					);
+				}
+			},
+			afterUpdate: function(account) {
+				if (account.default === true) {
+					this.update(
+						{ default: false },
+						{
+							where: { id: { $ne: account.id } },
+							hooks: false
 						}
 					);
 				}
 			}
-			,afterUpdate: function(account) {
-				if (account.default === true) {
-					this.update(
-						{
-							default: false
-						}
-						,{
-							where: {
-								id: {
-									$ne: account.id
-								}
+		},
+		classMethods: {
+			validateAccountAccess: function(user, account_id) {
+				// query for all accounts that match the given account id AND match the user id to owner id OR
+				// one of the users groups to one of the accounts groups
+				return new Promise(function(resolve, reject) {
+					let params = {
+						id: account_id,
+						$or: [
+							{ ownerId: user.id },
+						]
+					};
+					user.groups.forEach(function(group) {
+						params.$or.push(fn('JSON_CONTAINS', col('group_ids'), String(group.id)));
+					});
+					Account.findAll({
+						where: params
+					}).then(function(account) {
+						if (account !== null) {
+							if (account.length === 1) {
+								resolve();
+							} else {
+								// somethings off, only one car should be returned
+								reject()
 							}
-							,hooks: false
+						} else {
+							// no such car found
+							reject();
 						}
-					);
-				}
+					}).catch(function(error) {
+						console.log("error in validateAccountAccess: " + error);
+						reject();
+					});
+				});
 			}
 		}
 	});
+	return Account;
 };

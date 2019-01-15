@@ -1,7 +1,7 @@
 $(function() {
 	$("body").show();
 
-	getOthers();
+	getGroups();
 	getPeople();
 });
 
@@ -14,6 +14,10 @@ $("#addPersonModal").on("shown.bs.modal", function() {
     $("#newFirstName").trigger("focus");
 }).on("hidden.bs.modal", function() {
     clearAddFields();
+});
+
+$("#dltPersonButton").click(function() {
+    deletePerson();
 });
 
 $("#deletePersonButton").on("click", function() {
@@ -73,7 +77,7 @@ function addPerson() {
             ,middle_name: newMiddleName.val().trim()
             ,last_name: newLastName.val().trim()
             ,birth_date: newBirthDate.val()
-            ,aua: JSON.stringify($("#newAUA").val())
+            ,group_ids: JSON.stringify($("#newGroups").val())
         };
         savePerson(person);
     }
@@ -84,18 +88,21 @@ function clearAddFields() {
     $("#newMiddleName").val("");
     $("#newLastName").val("");
     $("#newBirthDate").val("");
-    $("#newAUA option:selected").prop("selected", false);
+    $("#newGroups option:selected").prop("selected", false);
 }
 
 function clearEditFields() {
+    $("#editPersonId").val("");
     $("#editFirstName").val("");
     $("#editMiddleName").val("");
     $("#editLastName").val("");
     $("#editBirthDate").val("");
-    $("#editAUA option:selected").prop("selected", false);
+    $("#editGroups option:selected").prop("selected", false);
 }
 
-function deletePerson(id) {
+function deletePerson() {
+    const id = 	$("#editPersonId").val();
+    $("#editPersonModal").modal("hide");
     let first_name = $("#"+id+" td[name=first_name]").html();
     let middle_name = $("#"+id+" td[name=middle_name]").html();
     let last_name = $("#"+id+" td[name=last_name]").html();
@@ -110,22 +117,22 @@ function editPerson(id) {
     $("#editMiddleName").val($("#"+id+" td[name=middle_name]").html());
     $("#editLastName").val($("#"+id+" td[name=last_name]").html());
     $("#editBirthDate").val(moment.utc($("#"+id+" td[name=birth_date]").html(),"MMM D, YYYY").format("YYYY-MM-DD"));
-    const aua = $("#"+id+" td[name=additional_users] input[name=additional_users_ids]").val();
+    const aua = $("#"+id+" td[name=groups] input[name=group_ids]").val();
     if (typeof(aua) !== "undefined") {
-        $("#editAUA").val(aua.split(","));
+        $("#editGroups").val(aua.split(","));
     }
     $("#editPersonModal").modal("show");
 }
 
-function getOthers() {
+function getGroups() {
     $.ajax({
         type: "GET"
-        ,url: '/api/v1/users'
+        ,url: '/api/v1/group'
     }).success(function(response) {
         // console.log(response);
-        response.forEach(function(user){
-            $("#newAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
-            $("#editAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
+        response.forEach(function(group){
+            $("#newGroups").append($('<option>',{value: group.id, text: group.name}));
+            $("#editGroups").append($('<option>',{value: group.id, text: group.name}));
         });
     }).error(function(jqXHR) {
         // console.log(jqXHR);
@@ -137,6 +144,7 @@ function getPeople() {
 		type: "GET"
 		,url: "/api/v1/health/person"
 	}).success(function(response) {
+	    // console.log(response);
 		$("#peopleTable").find("tbody").empty();
 		response.forEach(function(person) {
 			let row = '<tr id="'+person.id+'">' +
@@ -145,23 +153,17 @@ function getPeople() {
 			if (person.middle_name !== null) { row += person.middle_name; }
             row += '</td>'+
 				'<td name="last_name">'+person.last_name+'</td>' +
-				'<td name="birth_date">'+moment.utc(person.birth_date).format("MMM D, YYYY")+'</td>' +
-				'<td name="visits"><a href="/health/visit?PersonId='+person.id+'">Visits</a></td>';
-			if (person.additional_owners.length > 0) {
-			    let addUsers = "Additional users with access:";
-			    let addUsersIds = [];
-			    person.additional_owners.forEach(function(additional_user) {
-			        addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
-			        addUsersIds.push(additional_user.id);
-                });
-                row += '<td name="additional_users"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
-                    '<input name="additional_users_ids" type="hidden" value="'+addUsersIds.join(",")+'" /></td>';
+				'<td name="birth_date">'+moment.utc(person.birth_date).format("MMM D, YYYY")+'</td>';
+			if (person.groups.length > 0) {
+                row += '<td name="groups"><i class="fa fa-users"></i>' +
+                    '<input name="group_ids" type="hidden" value="'+person.groups.join(",")+'" /></td>';
             } else {
 			    row += '<td></td>';
             }
-			if (person.master) {
-                row += '<td><button class="btn btn-primary" title="Edit Person" onclick="editPerson(\''+person.id+'\');"><i class="fa fa-pencil"></i></button>' +
-                    '<button class="btn btn-danger" title="Delete Person" onclick="deletePerson(\''+person.id+'\');"><i class="fa fa-trash"></i></button>' +
+            row += '<td name="visits"><a href="/health/visit?PersonId='+person.id+'">Visits</a></td>';
+			if (person.owner) {
+                row += '<td><button class="btn btn-sm btn-primary" title="Edit Person" onclick="editPerson(\''+person.id+'\');"><i class="fa fa-pencil"></i></button>' +
+                    // '<button class="btn btn-danger" title="Delete Person" onclick="deletePerson(\''+person.id+'\');"><i class="fa fa-trash"></i></button>' +
                     '</td>';
             } else {
 			    row += '<td></td>';
@@ -169,7 +171,7 @@ function getPeople() {
 			row += '</tr>';
 			$("#peopleTable").find("tbody").append(row);
 		});
-        $('[data-toggle="tooltip"]').tooltip();
+        // $('[data-toggle="tooltip"]').tooltip();
     }).error(function(jqXHR) { //, textStatus, errorThrown
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
@@ -213,7 +215,7 @@ function modifyPerson() {
                 ,middle_name: editMiddleName.val().trim()
                 ,last_name: editLastName.val().trim()
                 ,birth_date: editBirthDate.val()
-                ,aua: JSON.stringify($("#editAUA").val())
+                ,group_ids: JSON.stringify($("#editGroups").val())
             };
             $.ajax({
                 type: "PUT"

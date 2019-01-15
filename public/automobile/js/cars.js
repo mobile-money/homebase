@@ -202,7 +202,7 @@ function getCars() {
 			row += '</tr>';
 			$("#carTable").find("tbody").append(row);
 		});
-		$('[data-toggle="tooltip"]').tooltip();
+		// $('[data-toggle="tooltip"]').tooltip();
 	}).error(function(jqXHR) { //, textStatus, errorThrown
 		if (jqXHR.status === 500) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");

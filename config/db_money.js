@@ -37,7 +37,6 @@ db.Budget = sequelize.import(__dirname + "/../models/money/Budget.js");
 db.Position = sequelize.import(__dirname + "/../models/money/Position.js");
 db.Trade = sequelize.import(__dirname + "/../models/money/Trade.js");
 db.CategorySplit = sequelize.import(__dirname + "/../models/money/CategorySplit.js");
-db.Owner = sequelize.import(__dirname + "/../models/money/Owner.js");
 // // END IMPORTS // //
 
 db.sequelize = sequelize;
@@ -56,7 +55,6 @@ db.Account.hasMany(db.FutureTransaction, {
 	'constraints': true
 	,'onDelete': 'cascade'
 });
-db.Account.hasMany(db.Owner);
 
 db.Summary.hasMany(db.Transaction, {
 	'constraints': true
