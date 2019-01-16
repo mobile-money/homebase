@@ -56,23 +56,27 @@
 						</div>
 						<div class="form-group">
 							<label>Default Account</label>
-							<br />
-							<div class="btn-group" role="group">
-								<label id="defaultOffLabel" class="btn btn-default active">
-									<input type="radio" name="newDefault" id="defaultOff" checked /> No 
-								</label>
-								<label id="defaultOnLabel" class="btn btn-default">
-									<input type="radio" name="newDefault" id="defaultOn" /> Yes 
-								</label>
-							</div>
+							<select id="newDefault" class="form-control">
+								<option value="no" selected>No</option>
+								<option value="yes">Yes</option>
+							</select>
+							<!--<br />-->
+							<!--<div class="btn-group" role="group">-->
+								<!--<label id="defaultOffLabel" class="btn btn-default active">-->
+									<!--<input type="radio" name="newDefault" id="defaultOff" checked /> No -->
+								<!--</label>-->
+								<!--<label id="defaultOnLabel" class="btn btn-default">-->
+									<!--<input type="radio" name="newDefault" id="defaultOn" /> Yes -->
+								<!--</label>-->
+							<!--</div>-->
 						</div>
 						<div class="form-group">
 							<label id="newBalanceLabel">Opening Balance</label>
 							<input id="newBalance" type="number" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" class="form-control currency" placeholder="Opening Balance" />
 						</div>
                         <div class="form-group">
-                            <label>Additional User Access</label>
-                            <select multiple id="newAUA" class="form-control"></select>
+                            <label>Group Access</label>
+                            <select multiple id="newGroups" class="form-control"></select>
                         </div>
 					</div>
 					<div class="modal-footer">
@@ -108,15 +112,19 @@
 						</div>
 						<div class="form-group">
 							<label>Default Account</label>
-							<br />
-							<div class="btn-group" data-toggle="buttons">
-								<label id="editDefaultOffLabel" class="btn btn-default">
-									<input type="radio" name="editDefault" id="editDefaultOff" /> No 
-								</label>
-								<label id="editDefaultOnLabel" class="btn btn-default">
-									<input type="radio" name="editDefault" id="editDefaultOn" /> Yes 
-								</label>
-							</div>
+							<select id="editDefault" class="form-control">
+								<option value="no">No</option>
+								<option value="yes">Yes</option>
+							</select>
+							<!--<br />-->
+							<!--<div class="btn-group" data-toggle="buttons">-->
+								<!--<label id="editDefaultOffLabel" class="btn btn-default">-->
+									<!--<input type="radio" name="editDefault" id="editDefaultOff" /> No -->
+								<!--</label>-->
+								<!--<label id="editDefaultOnLabel" class="btn btn-default">-->
+									<!--<input type="radio" name="editDefault" id="editDefaultOn" /> Yes -->
+								<!--</label>-->
+							<!--</div>-->
 						</div>
 <!-- 						<div class="input-group">
 							<div class="btn-group" data-toggle="buttons">
@@ -131,12 +139,18 @@
 							<label>Account Active</label>
 						</div> -->
                         <div class="form-group">
-                            <label>Additional User Access</label>
-                            <select multiple id="editAUA" class="form-control"></select>
+                            <label>Group Access</label>
+                            <select multiple id="editGroups" class="form-control"></select>
                         </div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-primary" title="Edit Account" id="editAccountButton"><i class="fa fa-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Account">Cancel</button>
+						<div class="mr-auto">
+							<button class="btn btn-danger" title="Delete Account" id="dltAccountButton"><i class="fa fa-trash"></i></button>
+						</div>
+						<div class="ml-auto">
+							<button class="btn btn-primary" title="Edit Account" id="editAccountButton"><i class="fa fa-pencil"></i></button>
+							<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Account">Cancel</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -154,7 +168,8 @@
 						<div id="deleteModalBody"></div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-danger" title="Delete Account" id="deleteAccountButton"><i class="fa fa-trash"></i></button><button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Account">Cancel</button>
+						<button class="btn btn-danger" title="Delete Account" id="deleteAccountButton"><i class="fa fa-trash"></i></button>
+						<button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Account">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -202,6 +217,7 @@
 							<span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+							<li><a href="/admin/groups">Groups</a></li>
 							<li><a href="#" onClick="logOut();">Log Out</a></li>
 						</ul>
 					</li>
@@ -213,7 +229,7 @@
 		<div class="container-fluid">
 			<div class="col-md-12">
 				<div class="card" style="margin-top:20px;">
-					<table id="accountTable" class="table table-striped">
+					<table id="accountTable" class="table table-striped table-sm">
 						<thead>
 						<tr>
 							<th>Name</th>

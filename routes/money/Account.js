@@ -22,7 +22,12 @@ module.exports = function(app, Account, _, io) {
 
 	app.post("/api/v1/money/accounts", function(req, res) {
 		console.log("create account requested");
-		const body = _.pick(req.body, 'name', 'balance', 'type', 'default', 'aua');
+		const body = _.pick(req.body, 'name', 'balance', 'type', 'default', 'group_ids');
+		if (body.group_ids === 'null') {
+			body.group_ids = [];
+		} else {
+			body.group_ids = JSON.parse(body.group_ids);
+		}
 		Account.create(req.user, body).then(function(account) {
 			console.log("account created");
 			io.emit("accountAdded", account.id);
@@ -40,7 +45,12 @@ module.exports = function(app, Account, _, io) {
 
 	app.put("/api/v1/money/accounts", function(req, res) {
 		console.log("modify account requested");
-		const body = _.pick(req.body, 'name', 'type', 'default', 'id', 'aua');
+		const body = _.pick(req.body, 'name', 'type', 'default', 'id', 'group_ids');
+		if (body.group_ids === 'null') {
+			body.group_ids = [];
+		} else {
+			body.group_ids = JSON.parse(body.group_ids);
+		}
 		Account.update(req.user, body).then(function(result) {
 			console.log("account modified");
 			io.emit("accountChanged", result.id);
@@ -136,4 +146,21 @@ module.exports = function(app, Account, _, io) {
 			}
 		});
 	});
+
+	// Get Accessible Accounts by Group ID
+	app.get('/api/v1/money/account/groups/:id', function (req, res) {
+		const groupId = req.params.id;
+		console.log("getting accessible accounts for group: " + groupId);
+		Account.getByGroup(req.user, groupId).then(function(accounts) {
+			res.status(200).json({group: Number(groupId), accounts: accounts});
+		}).catch(function(error) {
+			console.log("get accounts by group error: "+error);
+			if (error === "unauthorized") {
+				res.status(401).send();
+			} else {
+				res.status(500).send();
+			}
+		});
+	});
+
 };

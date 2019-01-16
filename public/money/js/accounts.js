@@ -5,7 +5,7 @@ let tickUpdates = {};
 $(document).ready(function() {
 	$("body").show();
 
-	getOthers();
+	getGroups();
 	getAccounts(null, null);
 	getInactiveAccounts(null, null);
 });
@@ -26,6 +26,10 @@ $(document).ready(function() {
 	});
 	$("#editAccountButton").click(function() {
 		modifyAccount();
+	});
+	$("#dltAccountButton").click(function() {
+		deleteAccount($("#editAccountId").val());
+		$("#editAccountModal").modal("hide");
 	});
 	$("#deleteAccountButton").click(function() {
 		removeAccount();
@@ -118,13 +122,9 @@ function addAccount() {
 			name: newName
 			,balance: newBalance
 			,type: $typeField.val()
-			,aua: JSON.stringify($("#newAUA").val())
+			,group_ids: JSON.stringify($("#newGroups").val())
 		};
-		if ($("#defaultOffLabel").hasClass("active")) {
-			account.default = false;
-		} else if ($("#defaultOnLabel").hasClass("active")) {
-			account.default = true;
-		}
+		account.default = $("#newDefault").val() === "yes";
 		saveAccount(account);
 	}
 }
@@ -136,25 +136,19 @@ function accountHighlight(id) {
 	$field.css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
 }
 
-function cancelAdd() {
-	$("#addAccountModal").modal("hide");
-}
-
 function clearAddFields() {
 	$("#newName").val("");
 	$("#newBalance").val("");
-	$("#defaultOffLabel").addClass("active");
-	$("#defaultOnLabel").removeClass("active");
-	$("#newAUA option:selected").prop("selected", false);
+	$("#newDefault").val("no");
+	$("#newGroups option:selected").prop("selected", false);
 }
 
 function clearEditFields() {
 	$("#editAccountId").val("");
 	$("#editName").val("");
 	$("#editType").val("");
-	$("#editDefaultOffLabel").removeClass("active");
-	$("#editDefaultOnLabel").removeClass("active");
-	$("#editAUA option:selected").prop("selected", false);
+	$("#editDefault").val("no");
+	$("#editGroups option:selected").prop("selected", false);
 }
 
 function deleteAccount(id) {
@@ -181,14 +175,16 @@ function editAccount(id) {
 	} else if (origType === "Savings") {
 		$("#editType").val("Savings");
 	}
-	if ($("#"+id+" td[name=default] i").hasClass("glyphicon-remove")) {
-		$("#editDefaultOffLabel").addClass("active");
+	if ($("#"+id+" td[name=name] i").hasClass("fa-star")) {
+		$("#editDefault").val("yes");
+		$("#dltAccountButton").prop("disabled",true);
 	} else {
-		$("#editDefaultOnLabel").addClass("active");
+		$("#editDefault").val("no");
+		$("#dltAccountButton").prop("disabled",false);
 	}
-	const aua = $("#"+id+" td[name=additional_users] input[name=additional_users_ids]").val();
+	const aua = $("#"+id+" td[name=groups] input[name=group_ids]").val();
 	if (typeof(aua) !== "undefined") {
-		$("#editAUA").val(aua.split(","));
+		$("#editGroups").val(aua.split(","));
 	}
 	$("#editAccountModal").modal("show");
 }
@@ -242,23 +238,24 @@ function getAccounts(id, type) {
 			}
 			row += '<td name="balance">'+balance.toFixed(2)+'</td>'+
 			'<td name="type">'+account.type+'</td>';
-			if (account.additional_owners.length > 0) {
-				let addUsers = "Additional users with access:";
-				let addUsersIds = [];
-				account.additional_owners.forEach(function(additional_user) {
-					addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
-					addUsersIds.push(additional_user.id);
-				});
-				row += '<td name="additional_users"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
-					'<input name="additional_users_ids" type="hidden" value="'+addUsersIds.join(",")+'" /></td>';
+			if (account.groups.length > 0) {
+				// let addUsers = "Additional users with access:";
+				// let addUsersIds = [];
+				// account.additional_owners.forEach(function(additional_user) {
+				// 	addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
+				// 	addUsersIds.push(additional_user.id);
+				// });
+				// row += '<td name="groups"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
+				row += '<td name="groups"><i class="fa fa-users"></i>' +
+					'<input name="group_ids" type="hidden" value="'+account.groups.join(",")+'" /></td>';
 			} else {
 				row += '<td></td>';
 			}
-			if (account.master) {
-				row += '<td><button class="btn btn-primary" title="Edit Account" onclick="editAccount(\''+account.id+'\');"><i class="fa fa-pencil"></i></button>';
-				if (account.default !== true) {
-					row += '<button class="btn btn-danger" title="Delete Account" onclick="deleteAccount(\''+account.id+'\');"><i class="fa fa-trash"></i></button>';
-				}
+			if (account.owner) {
+				row += '<td><button class="btn btn-primary btn-sm" title="Edit Account" onclick="editAccount(\''+account.id+'\');"><i class="fa fa-pencil"></i></button>';
+				// if (account.default !== true) {
+				// 	row += '<button class="btn btn-danger" title="Delete Account" onclick="deleteAccount(\''+account.id+'\');"><i class="fa fa-trash"></i></button>';
+				// }
 				row += '</td>';
 			} else {
 				row += '<td></td>';
@@ -266,7 +263,7 @@ function getAccounts(id, type) {
 			row += '</tr>';
 			$("#accountTable tbody").append(row);
 		});
-		$('[data-toggle="tooltip"]').tooltip();
+		// $('[data-toggle="tooltip"]').tooltip();
 		if (type !== null) {
 			accountHighlight(id);			
 		}
@@ -288,19 +285,19 @@ function getInactiveAccounts(id, type) {
 			let row = '<tr id="'+account.id+'">'+
 				'<td name="name"><span id="text">'+account.name+'</span></td>'+
 				'<td name="type">'+account.type+'</td>';
-			if (account.additional_owners.length > 0) {
-				let addUsers = "Additional users with access:";
-				let addUsersIds = [];
-				account.additional_owners.forEach(function(additional_user) {
-					addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
-					addUsersIds.push(additional_user.id);
-				});
-				row += '<td name="additional_users"><i class="fa fa-user" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+addUsers+'"></i>' +
-					'<input name="additional_users_ids" type="hidden" value="'+addUsersIds.join(",")+'" /></td>';
+			if (account.groups.length > 0) {
+				// let addUsers = "Additional users with access:";
+				// let addUsersIds = [];
+				// account.additional_owners.forEach(function(additional_user) {
+				// 	addUsers += "<br />"+additional_user.first_name+' '+additional_user.last_name;
+				// 	addUsersIds.push(additional_user.id);
+				// });
+				row += '<td name="groups"><i class="fa fa-users"></i>' +
+					'<input name="group_ids" type="hidden" value="'+account.groups.join(",")+'" /></td>';
 			} else {
 				row += '<td></td>';
 			}
-			if (account.master) {
+			if (account.owner) {
 				row += '<td>'+
 					'<button class="btn-sm btn-primary" title="Reactivate Account" onclick="reactivateAccount(\''+account.id+'\');">'+
 					'<i class="fa fa-pencil"></i>'+
@@ -312,7 +309,7 @@ function getInactiveAccounts(id, type) {
 			row += '</tr>';
 			$("#inactiveAccountTable tbody").append(row);
 		});
-		$('[data-toggle="tooltip"]').tooltip();
+		// $('[data-toggle="tooltip"]').tooltip();
 		if (type !== null) {
 			accountHighlight(id);			
 		}
@@ -324,15 +321,15 @@ function getInactiveAccounts(id, type) {
 	});
 }
 
-function getOthers() {
+function getGroups() {
 	$.ajax({
 		type: "GET"
-		,url: '/api/v1/users'
+		,url: '/api/v1/group'
 	}).success(function(response) {
 		// console.log(response);
-		response.forEach(function(user){
-			$("#newAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
-			$("#editAUA").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
+		response.forEach(function(group){
+			$("#newGroups").append($('<option>',{value: group.id, text: group.name}));
+			$("#editGroups").append($('<option>',{value: group.id, text: group.name}));
 		});
 	}).error(function(jqXHR) {
 		// console.log(jqXHR);
@@ -350,12 +347,12 @@ function modifyAccount() {
 				id: id
 				,name: editName
 				,type: $("#editType").val()
-				,aua: JSON.stringify($("#editAUA").val())
+				,group_ids: JSON.stringify($("#editGroups").val())
 			};
-			if ($("#editDefaultOffLabel").hasClass("active")) {
-				data.default = false;
-			} else if ($("#editDefaultOnLabel").hasClass("active")) {
+			if ($("#editDefault").val() === "yes") {
 				data.default = true;
+			} else {
+				data.default = false;
 			}
 			$.ajax({
 				type: "PUT"
@@ -403,12 +400,7 @@ function saveAccount(account) {
 	$.ajax({
 		type: "POST"
 		,url: "/api/v1/money/accounts"
-		,data: {
-			name: account.name
-			,balance: account.balance
-			,type: account.type
-			,default: account.default
-		}
+		,data: account
 	}).success(function(/*response*/) {
 		return false;
 	}).error(function(/*jqXHR, textStatus, errorThrown*/) {
@@ -431,8 +423,7 @@ function undeleteAccount() {
 			getAccounts(id,"add");
 			getInactiveAccounts(null,null);
 			return false;
-		})
-		.error(function(/*jqXHR, textStatus, errorThrown*/) {
+		}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
 		});
