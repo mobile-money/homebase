@@ -203,7 +203,7 @@ module.exports = function(db) {
 		add: function(user, data) {
 			return new Promise(function(resolve, reject) {
 				// Validate ownership of subject account
-				db.Owner.validateAccountOwner(user.id, data.account).then(function() {
+				db.Account.validateAccountAccess(user,data.account).then(function() {
 					// Start sequelize transaction
 					db.sequelize.transaction().then(function(t) {
 						const transactionMoment = moment.utc(data.tDate, "MM/DD/YYYY");

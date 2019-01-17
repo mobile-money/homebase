@@ -1,12 +1,13 @@
 const moment = require("moment");
-// const _ = require("underscore");
-const request = require('request');
+const _ = require("underscore");
+const Sequelize = require('sequelize');
+const { fn, col } = Sequelize;
 
 module.exports = function(db,io) {
 	return {
 		create: function(user, newBill) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, newBill.account).then(function() {
+				db.Account.validateAccountAccess(user,newBill.account).then(function() {
 					let obj = {
 						payee: newBill.payee.trim()
 						,startDate: moment.utc(newBill.startDate, "MM/DD/YYYY")
@@ -41,7 +42,7 @@ module.exports = function(db,io) {
 			return new Promise(function(resolve, reject) {
 				db.Bill.findById(id).then(function(bill) {
 					if (bill !== null) {
-						db.Owner.validateAccountOwner(user.id, bill.AccountId).then(function() {
+						db.Account.validateAccountAccess(user,bill.AccountId).then(function() {
 							db.Bill.destroy({
 								where: { id: id }
 							}).then(function(rows) {
@@ -66,7 +67,7 @@ module.exports = function(db,io) {
 		}
 		,getAll: function(user) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.getAllowedAccounts(user.id).then(function(allowedAccounts) {
+				db.Account.getAllowedAccounts(user,{where: {active: true}}).then(function(allowedAccounts) {
 					db.Bill.findAll({
 						where: { AccountId: { $in: allowedAccounts } }
 						,order: [['payee', 'ASC']]
@@ -77,12 +78,29 @@ module.exports = function(db,io) {
 				}).catch(function(error) {
 					console.log("catch error on Bill controller getAll method: " + error);
 					reject();
-				});
+				})
+				// // Get all accounts for user
+				// let queryArr = [];
+				// user.groups.forEach(function(group) {
+				// 	queryArr.push(fn('JSON_CONTAINS', col('group_ids'), String(group.id)));
+				// });
+				//
+				// db.Account.findAll({
+				// 	where: {
+				// 		active: true,
+				// 		$or: [
+				// 			{ ownerId: user.id },
+				// 			{ $or: queryArr }
+				// 		]
+				// 	}
+				// }).then(function(accounts) {
+				// 	const acctIds = _.pluck(accounts,"id");
+				// });
 			});
 		}
 		,postNew: function(user, id) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, id).then(function() {
+				db.Account.validateAccountAccess(user,id).then(function() {
 					const endDate = moment.utc().add(30, 'd');
 					db.Bill.findAll({
 						where: { AccountId: id }
@@ -135,23 +153,6 @@ module.exports = function(db,io) {
 								let lastDate;
 								for (let i = 0; i < trans.dates.length; i++) {
 									lastDate = trans.dates[i];
-									// const body = {
-									// 	account: trans.AccountId
-									// 	,description: trans.description
-									// 	,tDate: trans.dates[i]
-									// 	,payee: trans.payee
-									// 	,amount: trans.amount
-									// 	,bill: trans.BillId
-									// 	,category: trans.CategoryId
-									// };
-									// request.post("http://localhost:3000/api/v1/money/futureTransactions", {
-									// 	json: true
-									// 	,body: body
-									// }, function(error/*, response, body*/) {
-									// 	if (error) {
-									// 		console.log('error adding future transaction from bill: ' + error);
-									// 	}
-									// });
 									const body = {
 										AccountId: trans.AccountId
 										,description: trans.description
@@ -187,7 +188,7 @@ module.exports = function(db,io) {
 			return new Promise(function(resolve, reject) {
 				db.Bill.findById(data.id).then(function(result) {
 					if (result !== null) {
-						db.Owner.validateAccountOwner(user.id, data.account).then(function() {
+						db.Account.validateAccountAccess(user,data.account).then(function() {
 							result.payee = data.payee.trim();
 							result.startDate = data.startDate;
 							result.frequency = data.frequency;

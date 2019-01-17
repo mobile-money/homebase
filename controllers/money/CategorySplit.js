@@ -8,7 +8,7 @@ module.exports = function(db) {
                         // Get account id from summary id
                         db.Summary.findById(trans.SummaryId).then(function(summary) {
                             if (summary !== null) {
-                                db.Owner.validateAccountOwner(user.id, summary.AccountId).then(function() {
+                                db.Account.validateAccountAccess(user, summary.AccountId).then(function() {
                                     db.CategorySplit.findOne({
                                         where: { transaction: id }
                                     }).then(function(categorySplit) {
@@ -26,7 +26,7 @@ module.exports = function(db) {
                         // Look for id in future transactions
                         db.FutureTransaction.findById(id).then(function(fTrans) {
                             if (fTrans !== null) {
-                                db.Owner.validateAccountOwner(user.id, fTrans.AccountId).then(function() {
+                                db.Account.validateAccountAccess(user,fTrans.AccountId).then(function() {
                                     db.CategorySplit.findOne({
                                         where: { transaction: id }
                                     }).then(function(categorySplit) {

@@ -5,7 +5,7 @@ module.exports = function(db) {
 	return {
 		getByAccountId: function(user, id) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, id).then(function() {
+				db.Account.validateAccountAccess(user,id).then(function() {
 					db.Summary.findAll({
 						where: {
 							AccountId: id
@@ -25,7 +25,7 @@ module.exports = function(db) {
 		}
 		,getAll: function(user) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.getAllowedAccounts(user.id).then(function(allowedAccounts) {
+				db.Account.getAllowedAccounts(user,{where:{active:true}}).then(function(allowedAccounts) {
 					db.Summary.findAll({
 						where: { AccountId: { $in: allowedAccounts } }
 						,order: [["start", "DESC"]]
@@ -44,7 +44,7 @@ module.exports = function(db) {
 		}
 		,getAllUnique: function(user) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.getAllowedAccounts(user.id).then(function(allowedAccounts) {
+				db.Account.getAllowedAccounts(user,{where:{active:true}}).then(function(allowedAccounts) {
 					db.Summary.findAll({
 						where: {
 							initial: false,

@@ -4,7 +4,7 @@ module.exports = function(db, Transaction) {
 	return {
 		getByAccountId: function(user, id) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, id).then(function() {
+				db.Account.validateAccountAccess(user, id).then(function() {
 					db.FutureTransaction.findAll({
 						where: { AccountId: id }
 						,include: [{ model: db.Category }]
@@ -22,7 +22,7 @@ module.exports = function(db, Transaction) {
 		}
 		,add: function(user, data) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, data.account).then(function() {
+				db.Account.validateAccountAccess(user, data.account).then(function() {
 					let newTrans = {
 						transactionDate: data.tDate
 						,payee: data.payee
@@ -73,7 +73,7 @@ module.exports = function(db, Transaction) {
 		,update: function(user, data) {
 			return new Promise(function(resolve, reject) {
 				db.FutureTransaction.findById(data.id).then(function(transaction) {
-					db.Owner.validateAccountOwner(user.id, transaction.AccountId).then(function() {
+					db.Account.validateAccountAccess(user, transaction.AccountId).then(function() {
 						if (transaction !== null) {
 							transaction.payee = data.payee;
 							transaction.transactionDate = data.tDate;
@@ -116,7 +116,7 @@ module.exports = function(db, Transaction) {
 			return new Promise(function(resolve, reject) {
 				db.FutureTransaction.findById(id).then(function(transaction) {
 					if (transaction !== null) {
-						db.Owner.validateAccountOwner(user.id, transaction.AccountId).then(function() {
+						db.Account.validateAccountAccess(user, transaction.AccountId).then(function() {
 							db.FutureTransaction.destroy({
 								where: { id: id }
 							}).then(function(rows) {
@@ -144,7 +144,7 @@ module.exports = function(db, Transaction) {
 		,commit: function(user, data) {
 			return new Promise(function(resolve, reject) {
 				db.FutureTransaction.findById(data.id).then(function(fTrans) {
-					db.Owner.validateAccountOwner(user.id, fTrans.AccountId).then(function() {
+					db.Account.validateAccountAccess(user, fTrans.AccountId).then(function() {
 						if (fTrans === null) {
 							reject({code: 1});
 						} else {

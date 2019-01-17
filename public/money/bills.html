@@ -65,7 +65,7 @@
 						<div class="form-group">
 							<label>Frequency</label>
 							<select id="newFrequency" class="form-control newBill" onchange="setFreq();">
-								<option value="none" selected />
+								<option value="none" selected></option>
 								<option value="d">Daily</option>
 								<option value="w">Weekly</option>
 								<option value="M">Monthly</option>
@@ -81,17 +81,21 @@
 						</div>
 						<div class="form-group">
 							<label>Transaction Type</label>
-							<br />
-							<div class="btn-group" data-toggle="buttons">
-								<label id="typeWLabel" class="btn btn-default active">
-									<input type="radio" name="newType" value="w" checked />
-									<span id="newMinusType"> Withdrawl </span>
-								</label>
-								<label id="typeDLabel" class="btn btn-default">
-									<input type="radio" name="newType" value="d" />
-									<span id="newPlusType"> Deposit </span>
-								</label>
-							</div>
+							<select id="newType" class="form-control">
+								<option class="newMinusType" value="w" selected>Withdrawal</option>
+								<option class="newPlusType" value="d">Deposit</option>
+							</select>
+							<!--<br />-->
+							<!--<div class="btn-group" data-toggle="buttons">-->
+								<!--<label id="typeWLabel" class="btn btn-default active">-->
+									<!--<input type="radio" name="newType" value="w" checked />-->
+									<!--<span id="newMinusType"> Withdrawl </span>-->
+								<!--</label>-->
+								<!--<label id="typeDLabel" class="btn btn-default">-->
+									<!--<input type="radio" name="newType" value="d" />-->
+									<!--<span id="newPlusType"> Deposit </span>-->
+								<!--</label>-->
+							<!--</div>-->
 						</div>
 						<div class="form-group">
 							<label>Amount</label>
@@ -99,7 +103,8 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-success" title="Add Bill" id="addBillButton"><i class="fa fa-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Bill">Cancel</button>
+						<button class="btn btn-success" title="Add Bill" id="addBillButton"><i class="fa fa-plus"></i></button>
+						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Bill">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -154,17 +159,21 @@
 						</div>
 						<div class="form-group">
 							<label>Transaction Type</label>
-							<br />
-							<div class="btn-group" data-toggle="buttons">
-								<label id="editTypeWLabel" class="btn btn-default active">
-									<input type="radio" name="editType" value="w" checked />
-									<span id="editMinusType">  Withdrawl </span>
-								</label>
-								<label id="editTypeDLabel" class="btn btn-default">
-									<input type="radio" name="editType" value="d" />
-									<span id="editPlusType">  Deposit </span>
-								</label>
-							</div>
+							<select id="editType" class="form-control">
+								<option class="editMinusType" value="w">Withdrawal</option>
+								<option class="editPlusType" value="d">Deposit</option>
+							</select>
+							<!--<br />-->
+							<!--<div class="btn-group" data-toggle="buttons">-->
+								<!--<label id="editTypeWLabel" class="btn btn-default active">-->
+									<!--<input type="radio" name="editType" value="w" checked />-->
+									<!--<span id="editMinusType">  Withdrawl </span>-->
+								<!--</label>-->
+								<!--<label id="editTypeDLabel" class="btn btn-default">-->
+									<!--<input type="radio" name="editType" value="d" />-->
+									<!--<span id="editPlusType">  Deposit </span>-->
+								<!--</label>-->
+							<!--</div>-->
 						</div>
 						<div class="form-group">
 							<label>Amount</label>
@@ -175,7 +184,13 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-primary" title="Edit Bill" id="editBillButton"><i class="fa fa-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Bill">Cancel</button>
+						<div class="mr-auto">
+							<button class="btn btn-danger" title="Delete Bill" id="dltBillButton"><i class="fa fa-trash"></i></button>
+						</div>
+						<div class="ml-auto">
+							<button class="btn btn-primary" title="Edit Bill" id="editBillButton"><i class="fa fa-pencil"></i></button>
+							<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Bill">Cancel</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -193,7 +208,8 @@
 						<div id="deleteModalBody"></div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-danger" title="Delete Bill" id="deleteBillButton" onclick="removeBill();"><i class="fa fa-trash"></i></button><button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Bill">Cancel</button>
+						<button class="btn btn-danger" title="Delete Bill" id="deleteBillButton" onclick="removeBill();"><i class="fa fa-trash"></i></button>
+						<button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Bill">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -224,6 +240,7 @@
 							<span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+							<li><a href="/admin/groups">Groups</a></li>
 							<li><a href="#" onClick="logOut();">Log Out</a></li>
 						</ul>
 					</li>

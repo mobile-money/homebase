@@ -259,7 +259,7 @@ $("#searchField").keypress(function(e) {
                     '</td>'+
                     '<td name="payee">';
                 if (result.BillId !== null) {
-                    row += '&nbsp;<i class="fa fa-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
+                    row += '&nbsp;<i class="fa fa-repeat rounded trans-badge" title="Repeating Transaction"></i>';
                 }
                 row += result.payee+'</td>';
                 if (result.description !== null) {
@@ -1056,11 +1056,11 @@ function getTransactions(offset, limit, transId) {
                 '</td>'+
                 '<td name="payee">';
             if (result.BillId !== null) {
-                row += '&nbsp;<i class="fa fa-repeat img-rounded trans-badge" title="Repeating Transaction"></i>';
+                row += '&nbsp;<i class="fa fa-repeat rounded trans-badge" title="Repeating Transaction"></i>';
             }
             if (result.Bill !== null) {
                 if (result.Bill.automatic) {
-                    row += '&nbsp;<i class="fa fa-flash img-rounded trans-badge" title="Automatic Payment"></i>';
+                    row += '&nbsp;<i class="fa fa-flash rounded trans-badge" title="Automatic Payment"></i>';
                 }
             }
             row += result.payee+'</td>';

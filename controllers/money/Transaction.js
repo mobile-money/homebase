@@ -5,7 +5,7 @@ module.exports = function(db) {
 	return {
 		add: function(user, data) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, data.account).then(function() {
+				db.Account.validateAccountAccess(user,data.account).then(function() {
 					db.sequelize.transaction().then(function(t) {
 						db.Account.findById(data.account).then(function(account) {
 							if (account !== null) {
@@ -241,7 +241,7 @@ module.exports = function(db) {
 				// Get summary of transaction
 				db.Summaries.findById(id).then(function(summary) {
 					// Validate account access
-					db.Owner.validateAccountOwner(user.id, summary.AccountId).then(function() {
+					db.Account.validateAccountAccess(user,summary.AccountId).then(function() {
 						db.Transaction.findById(id).then(function(transaction) {
 							if (transaction !== null) {
 								transaction.cleared = true;
@@ -270,7 +270,7 @@ module.exports = function(db) {
 				// Get summary of transaction
 				db.Summaries.findById(id).then(function(summary) {
 					// Validate account access
-					db.Owner.validateAccountOwner(user.id, summary.AccountId).then(function() {
+					db.Account.validateAccountAccess(user,summary.AccountId).then(function() {
 						db.Transaction.destroy({
 							where: { id: id }
 						}).then(function(rows) {
@@ -308,7 +308,7 @@ module.exports = function(db) {
 		}
 		,getByAccountId: function(user, id, offset, limit) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, id).then(function() {
+				db.Account.validateAccountAccess(user,id).then(function() {
 					db.Transaction.findAll({
 						where: { postDate: null }
 						,include: [{
@@ -377,7 +377,7 @@ module.exports = function(db) {
 		,getByCategoryId: function(user, id, start, end) {
 			return new Promise(function(resolve, reject) {
 				// Get allowed accounts
-				db.Owner.getAllowedAccounts(user.id).then(function(allowedAccounts) {
+				db.Account.getAllowedAccounts(user,{where:{active:true}}).then(function(allowedAccounts) {
 					const startDate = moment(start, "X");
 					const endDate = moment(end, "X");
 					db.Transaction.findAll({
@@ -419,7 +419,7 @@ module.exports = function(db) {
 			return new Promise(function(resolve, reject) {
 				// Get account of summary
 				db.Summary.findById(id).then(function(summary) {
-					db.Owner.validateAccountOwner(user,id, summary.AccountId).then(function() {
+					db.Account.validateAccountAccess(user,summary.AccountId).then(function() {
 						db.Transaction.findAll({
 							where: {
 								SummaryId: id
@@ -447,7 +447,7 @@ module.exports = function(db) {
 		}
 		,getFlow: function(user, account, start, end) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, account).then(function() {
+				db.Account.validateAccountAccess(user,account).then(function() {
 					const startDate = moment(start, "X");
 					const endDate = moment(end, "X");
 					db.Summary.findAll({
@@ -492,7 +492,7 @@ module.exports = function(db) {
 		}
 		,getMoreByAccountId: function(user, id, offset, limit) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, id).then(function() {
+				db.Account.validateAccountAccess(user,id).then(function() {
 					db.Transaction.findAll({
 						where: {
 							postDate: { $ne: null }
@@ -541,7 +541,7 @@ module.exports = function(db) {
 				// Get summary of transaction
 				db.Summaries.findById(data.id).then(function(summary) {
 					// Validate account access
-					db.Owner.validateAccountOwner(user.id, summary.AccountId).then(function() {
+					db.Account.validateAccountAccess(user,summary.AccountId).then(function() {
 						db.Transaction.findById(data.id).then(function(transaction) {
 							if (transaction !== null) {
 								transaction.postDate = data.date;
@@ -567,7 +567,7 @@ module.exports = function(db) {
 		}
 		,search: function(user, data) {
 			return new Promise(function(resolve, reject) {
-				db.Owner.validateAccountOwner(user.id, data.accountId).then(function() {
+				db.Account.validateAccountAccess(user,data.accountId).then(function() {
 					db.FutureTransaction.findAll({
 						where: {
 							AccountId: data.accountId
@@ -620,7 +620,7 @@ module.exports = function(db) {
 						// Get summary of transaction
 						db.Summaries.findById(transaction.SummaryId).then(function(summary) {
 							// Validate account access
-							db.Owner.validateAccountOwner(user.id, summary.AccountId).then(function() {
+							db.Account.validateAccountAccess(user,summary.AccountId).then(function() {
 								transaction.payee = data.payee;
 								if (data.hasOwnProperty("description")) {
 									transaction.description = data.description;

@@ -23,42 +23,50 @@ $(document).ready(function() {
 
 	$("#addBillModal").on("shown.bs.modal", function() {
 		$("#newPayee").focus();
+	}).on("hidden.bs.modal", function() {
+		resetAddBill();
 	});
 
-	$("#addBillModal").on("hidden.bs.modal", function() {
-		resetAddBill();
+	$("#dltBillButton").on("click", function() {
+		const id = $("#editBillId").val();
+		deleteBill(id,$("#"+id+" td[name=payee]").text());
+		$("#editBillModal").modal("hide");
 	});
 
 	$("#editBillModal").on("shown.bs.modal", function() {
 		$("#editPayee").focus();
-	});
-
-	$("#editBillModal").on("hidden.bs.modal", function() {
+	}).on("hidden.bs.modal", function() {
 		resetEditBill();
 	});
 
 	$("#newAccount").on("change", function() {
-		var val = $(this).val().split("_");
+		const val = $(this).val().split("_");
+		let minusText = "";
+		let plusText = "";
 
 		switch (val[1]) {
 			case "Checking":
 			case "Savings":
-				$("#newMinusType").html(" Withdrawl ");
-				$("#newPlusType").html(" Deposit ");
+				minusText = "Withdrawal";
+				plusText = "Deposit";
 				break;
 			case "Credit Card":
-				$("#newMinusType").html(" Purchase ");
-				$("#newPlusType").html(" Payment ");
+				minusText = "Purchase";
+				plusText = "Payment";
 				break;
 			case "Loan":
 			case "Mortgage":
-				$("#newMinusType").html(" Increase ");
-				$("#newPlusType").html(" Payment ");
+				minusText = "Increase";
+				plusText = "Payment";
 				break;
 			default:
-				$("#newMinusType").html(" Withdrawl ");
-				$("#newPlusType").html(" Deposit ");
+				minusText = "Withdrawal";
+				plusText = "Deposit";
 		}
+		// $("#newMinusType").html(minusText);
+		// $("#newPlusType").html(plusText);
+		$(".newMinusType").html(minusText);
+		$(".newPlusType").html(plusText);
 	});
 
 	$("#editAccount").on("change", function() {
@@ -88,21 +96,15 @@ $(document).ready(function() {
 // SOCKET IO
 	socket.on("connect", function() {
 		// console.log("connected to server");
-	});
-
-	socket.on("billAdded", function(id) {
+	}).on("billAdded", function(id) {
 		// console.log("io: "+id)
 		getBills();
-	});
-
-	socket.on("billModified", function(id) {
+	}).on("billModified", function(id) {
 		// console.log("io: "+id)
 		getBills();
-	});
-
-	socket.on("billDeleted", function(id) {
+	}).on("billDeleted", function(id) {
 		getBills();
-	})
+	});
 
 // FUNCTIONS
 	function getBills() {
@@ -116,7 +118,7 @@ $(document).ready(function() {
 			} else {
 				response.forEach(function(bill) {
 					// console.log(bill);
-					var row = '<tr id="'+bill.id+'">'+
+					let row = '<tr id="'+bill.id+'">'+
 						'<td name="payee">'+bill.payee+'</td>';
 						if (bill.description !== null) {
 							row += '<td name="description">'+bill.description+'</td>';
@@ -144,13 +146,13 @@ $(document).ready(function() {
 							}
 							// row += '<td name="frequency">Weekly; every '+bill.every+' weeks</td>';
 						} else if (bill.frequency === "M") {
-							var partOne = '<td name="frequency" data-freq="M" data-every="'+bill.every+'" data-onThe="'+bill.onThe+'">Every '
+							let partOne = '<td name="frequency" data-freq="M" data-every="'+bill.every+'" data-onThe="'+bill.onThe+'">Every '
 							if (bill.every === 1) {
 								partOne += 'month';
 							} else {
 								partOne += bill.every+' months';
 							}
-							var partTwo = " on the ";
+							let partTwo = " on the ";
 							if (bill.onThe === -1) {
 								partTwo += 'last day';						
 							} else {
@@ -178,9 +180,9 @@ $(document).ready(function() {
 							'<button class="btn btn-primary btn-sm" title="Edit Bill" onclick="editBill(\''+bill.id+'\');">'+
 								'<i class="fa fa-pencil"></i>'+
 							'</button>'+
-							'<button class="btn btn-danger btn-sm" title="Delete Bill" onclick="deleteBill(\''+bill.id+'\',\''+bill.payee+'\');">'+
-								'<i class="fa fa-remove"></i>'+
-							'</button>'+
+							// '<button class="btn btn-danger btn-sm" title="Delete Bill" onclick="deleteBill(\''+bill.id+'\',\''+bill.payee+'\');">'+
+							// 	'<i class="fa fa-remove"></i>'+
+							// '</button>'+
 						'</td>'+
 					'</tr>';
 					$("#billTable").find("tbody").append(row);
@@ -197,8 +199,7 @@ $(document).ready(function() {
 		$.ajax({
 			type: "GET"
 			,url: "/api/v1/money/accounts"
-		})
-		.success(function(response) {
+		}).success(function(response) {
 			$("#addBillButton").click(function(e) {
 				insertBill();
 			});
@@ -237,12 +238,14 @@ $(document).ready(function() {
 		$("#subFreq").empty();
 		// $("#newAuto").prop("checked",false);
 		$("#newAuto").bootstrapToggle('off');
-		$("#typeWLabel").addClass("active");
-		$("#typeDLabel").removeClass("active");
+		$("#newType").val("w");
+		// $("#typeWLabel").addClass("active");
+		// $("#typeDLabel").removeClass("active");
 		$("#newAmount").val("");
 	}
 
 	function resetEditBill() {
+		$("#editBillId").val("");
 		$("#editPayee").val("");
 		$("#editDescription").val("");
 		$("#editCategory").val("none");
@@ -252,25 +255,26 @@ $(document).ready(function() {
 		$("#editSubFreq").empty();
 		// $("#editAuto").prop("checked",false);
 		$("#editAuto").bootstrapToggle('off');
-		$("#editTypeWLabel").addClass("active");
-		$("#editTypeDLabel").removeClass("active");
+		$("#editType").val("w");
+		// $("#editTypeWLabel").addClass("active");
+		// $("#editTypeDLabel").removeClass("active");
 		$("#editAmount").val("");
 	}
 
 	function setFreq() {
-		var freq = $("#newFrequency").val();
+		const freq = $("#newFrequency").val();
 		if (freq === "none") {
 			$("#subFreq").empty();
 		} else {
-			var html = "";
+			let html = "";
 			if (freq === "d") {
-				html = 'Every&nbsp;<input id="subFreqEvery" class="newBill" type="number" />&nbsp;days';
+				html = 'Every&nbsp;<input id="subFreqEvery" class="newBill form-control" type="number" />&nbsp;days';
 			} else if (freq === "w") {
-				html = 'Every&nbsp;<input id="subFreqEvery" class="newBill" type="number" />&nbsp;weeks';
+				html = 'Every&nbsp;<input id="subFreqEvery" class="newBill form-control" type="number" />&nbsp;weeks';
 			} else if (freq === "M") {
-				html = 'Every&nbsp;<input id="subFreqEvery" class="newBill" type="number" />&nbsp;months,'+
-				'&nbsp;on&nbsp;the&nbsp;<input id="subFreqOn" class="newBill" type="number" max="31" />'+
-				'&nbsp;<input type="checkbox" id="subFreqLast" />&nbsp;Last Day';
+				html = 'Every&nbsp;<input id="subFreqEvery" class="newBill form-control" type="number" />&nbsp;months,'+
+				'&nbsp;on&nbsp;the&nbsp;<input id="subFreqOn" class="newBill form-control" type="number" max="31" />'+
+				'&nbsp;<input type="checkbox" class="form-control" id="subFreqLast" />&nbsp;Last Day';
 			}
 			$("#subFreq").html(html);
 			$("#subFreqEvery").blur(function(e) {
@@ -287,19 +291,19 @@ $(document).ready(function() {
 	}
 
 	function setEditFreq() {
-		var freq = $("#editFrequency").val();
+		const freq = $("#editFrequency").val();
 		if (freq === "none") {
 			$("#editSubFreq").empty();
 		} else {
-			var html = "";
+			let html = "";
 			if (freq === "d") {
-				html = 'Every&nbsp;<input id="editSubFreqEvery" class="newBill" type="number" />&nbsp;days';
+				html = 'Every&nbsp;<input id="editSubFreqEvery" class="newBill form-control" type="number" />&nbsp;days';
 			} else if (freq === "w") {
-				html = 'Every&nbsp;<input id="editSubFreqEvery" class="newBill" type="number" />&nbsp;weeks';
+				html = 'Every&nbsp;<input id="editSubFreqEvery" class="newBill form-control" type="number" />&nbsp;weeks';
 			} else if (freq === "M") {
-				html = 'Every&nbsp;<input id="editSubFreqEvery" class="newBill" type="number" />&nbsp;months,'+
-				'&nbsp;on&nbsp;the&nbsp;<input id="editSubFreqOn" class="newBill" type="number" max="31" />'+
-				'&nbsp;<input type="checkbox" id="editSubFreqLast" />&nbsp;Last Day';
+				html = 'Every&nbsp;<input id="editSubFreqEvery" class="newBill form-control" type="number" />&nbsp;months,'+
+				'&nbsp;on&nbsp;the&nbsp;<input id="editSubFreqOn" class="newBill form-control" type="number" max="31" />'+
+				'&nbsp;<input type="checkbox" class="form-control" id="editSubFreqLast" />&nbsp;Last Day';
 			}
 			$("#editSubFreq").html(html);
 			$("#editSubFreqEvery").blur(function(e) {
@@ -317,9 +321,9 @@ $(document).ready(function() {
 
 	function insertBill() {
 		$("#addBillButton").off("click");
-		var accountVal = $("#newAccount").val().split("_");
+		const accountVal = $("#newAccount").val().split("_");
 		//Get values
-		var newBill = {
+		let newBill = {
 			payee: $("#newPayee").val()
 			,account: Number(accountVal[0])
 			,startDate: $("#newStartDate").val()
@@ -327,7 +331,7 @@ $(document).ready(function() {
 			,every: Number($("#subFreqEvery").val())
 			,amount: Number($("#newAmount").val())
 			,automatic: $("#newAuto").prop("checked")
-		}
+		};
 		if ($("#newDescription").val() !== "") {
 			newBill.description = $("#newDescription").val();
 		}
@@ -341,13 +345,14 @@ $(document).ready(function() {
 				newBill.onThe = Number($("#subFreqOn").val());
 			}
 		}
-		if ($("#typeWLabel").hasClass("active")) {
+		if ($("#newType").val() === "w") {
+		// if ($("#typeWLabel").hasClass("active")) {
 			newBill.amount = newBill.amount * -1;
 		}
 		// console.log(newBill);
 
 		// Validation
-		var errors = 0;
+		let errors = 0;
 		$(".newBill").removeClass("error");
 		if (newBill.payee === "") {
 			$("#newPayee").addClass("error");
@@ -416,8 +421,7 @@ $(document).ready(function() {
 		$.ajax({
 			type: "GET"
 			,url: "/api/v1/money/accounts"
-		})
-		.success(function(response) {
+		}).success(function(response) {
 			$.ajax({
 				type: "GET"
 				,url: "/api/v1/money/categories"
@@ -433,10 +437,10 @@ $(document).ready(function() {
 				// Set Description
 				$("#editDescription").val($("#"+id+" td[name=description]").text());
 				// Build and set Category
-				var setCategory = $("#"+id+" td[name=category]").text();
+				const setCategory = $("#"+id+" td[name=category]").text();
 				$("#editCategory").empty().append('<option value="none" />');
 				cats.forEach(function(cat) {
-					var option = '<option value="'+cat.id+'"';
+					let option = '<option value="'+cat.id+'"';
 					if (cat.name === setCategory) {
 						option += ' selected';
 					}
@@ -444,11 +448,11 @@ $(document).ready(function() {
 					$("#editCategory").append(option);
 				});
 				// Build and set Account
-				var setAccount = $("#"+id+" td[name=account]").text();
+				const setAccount = $("#"+id+" td[name=account]").text();
 				$("#editAccount").empty().append('<option value="none" />');
 				response.forEach(function(account) {
 					if (account.type !== "Investment") {
-						var option = '<option value="'+account.id+'_'+account.type+'"';
+						let option = '<option value="'+account.id+'_'+account.type+'"';
 						if (account.name === setAccount) {
 							option += ' selected';
 						}
@@ -461,27 +465,27 @@ $(document).ready(function() {
 				// Build and set Frequency and Sub Frequency
 				// var freq = $("#"+id+" td[name=frequency]").text();
 				// var freqArr = freq.split(";");
-				var subFreq = "";
+				let subFreq = "";
 				if ($("#"+id+" td[name=frequency]").data("freq") === "d") {
 					$("#editFrequency").val("d");
 					// var subFreqArr = freqArr[1].split(" ");
-					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill" type="number" value="'+$("#"+id+" td[name=frequency]").data("every")+'" />&nbsp;days';
+					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill form-control" type="number" value="'+$("#"+id+" td[name=frequency]").data("every")+'" />&nbsp;days';
 				} else if ($("#"+id+" td[name=frequency]").data("freq") === "w") {
 				// } else if (freqArr[0] === "Weekly") {
 					$("#editFrequency").val("w");
 					// var subFreqArr = freqArr[1].split(" ");
-					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill" type="number" value="'+$("#"+id+" td[name=frequency]").data("every")+'" />&nbsp;weeks';
+					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill form-control" type="number" value="'+$("#"+id+" td[name=frequency]").data("every")+'" />&nbsp;weeks';
 				} else if ($("#"+id+" td[name=frequency]").data("freq") === "M") {
 				// } else if (freqArr[0] === "Monthly") {
 					$("#editFrequency").val("M");
 					// var subFreqArr = freqArr[1].split(" ");
-					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill" type="number" value="'+$("#"+id+" td[name=frequency]").data("every")+'" />&nbsp;months,';
+					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill form-control" type="number" value="'+$("#"+id+" td[name=frequency]").data("every")+'" />&nbsp;months,';
 					if ($("#"+id+" td[name=frequency]").data("onthe") !== -1) {
-						subFreq += '&nbsp;on&nbsp;the&nbsp;<input id="editSubFreqOn" class="editBill" type="number" max="31" value="'+$("#"+id+" td[name=frequency]").data("onthe")+'" />'+
-						'&nbsp;<input type="checkbox" id="editSubFreqLast" />&nbsp;Last Day';
+						subFreq += '&nbsp;on&nbsp;the&nbsp;<input id="editSubFreqOn" class="editBill form-control" type="number" max="31" value="'+$("#"+id+" td[name=frequency]").data("onthe")+'" />'+
+						'&nbsp;<input type="checkbox" class="form-control" id="editSubFreqLast" />&nbsp;Last Day';
 					} else {
-						subFreq += '&nbsp;on&nbsp;the&nbsp;<input id="editSubFreqOn" class="editBill" type="number" max="31" />'+
-						'&nbsp;<input type="checkbox" id="editSubFreqLast" checked />&nbsp;Last Day';
+						subFreq += '&nbsp;on&nbsp;the&nbsp;<input id="editSubFreqOn" class="editBill form-control" type="number" max="31" />'+
+						'&nbsp;<input type="checkbox" class="form-control" id="editSubFreqLast" checked />&nbsp;Last Day';
 					}
 				}
 				$("#editSubFreq").html(subFreq);
@@ -494,23 +498,25 @@ $(document).ready(function() {
 					$("#editAuto").bootstrapToggle('off');
 				}
 				// Set Type and Amount
-				var amount = $("#"+id+" td[name=amount]").text();
+				const amount = $("#"+id+" td[name=amount]").text();
 				if (amount[0] === "-") {
-					$("#editTypeWLabel").addClass("active");
-					$("#editTypeDLabel").removeClass("active");
+					// $("#editTypeWLabel").addClass("active");
+					// $("#editTypeDLabel").removeClass("active");
+					$("#editType").val("w");
 					$("#editAmount").val(amount.substring(1));
 				} else {
-					$("#editTypeWLabel").removeClass("active");
-					$("#editTypeDLabel").addClass("active");
+					// $("#editTypeWLabel").removeClass("active");
+					// $("#editTypeDLabel").addClass("active");
+					$("#editType").val("d");
 					$("#editAmount").val(amount);
 				}
 				// Show modal
 				$("#editBillModal").modal("show");
-			}).error(function(jqXHR, textStatus, errorThrown) {
+			}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 				$("#infoModalBody").html("There was a problem.  Please try again.");
 				$("#infoModal").modal("show");			
 			});
-		}).error(function(jqXHR, textStatus, errorThrown) {
+		}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");			
 		});
@@ -518,9 +524,9 @@ $(document).ready(function() {
 
 	function modifyBill() {
 		$("#editBillButton").off("click");
-		var accountVal = $("#editAccount").val().split("_");
+		const accountVal = $("#editAccount").val().split("_");
 		//Get values
-		var newBill = {
+		let newBill = {
 			id: $("#editBillId").val()
 			,payee: $("#editPayee").val()
 			,description: $("#editDescription").val()
@@ -546,13 +552,14 @@ $(document).ready(function() {
 		// else {
 		// 	newBill.subFrequency = $("#editSubFreqEvery").val();
 		// }
-		if ($("#editTypeWLabel").hasClass("active")) {
+		if ($("#editType").val() === "w") {
+		// if ($("#editTypeWLabel").hasClass("active")) {
 			newBill.amount = newBill.amount * -1;
 		}
 		// console.log(newBill);
 
 		// Validation
-		var errors = 0;
+		let errors = 0;
 		$(".editBill").removeClass("error");
 		if (newBill.payee === "") {
 			$("#editPayee").addClass("error");
@@ -617,7 +624,7 @@ $(document).ready(function() {
 	}
 
 	function deleteBill(id, payee) {
-		var html = 'Are you sure you want to delete this Bill for '+payee+'?'+
+		const html = 'Are you sure you want to delete this Bill for '+payee+'?'+
 			'<br /><h5>This will not remove any existing transactions, '+
 			'<br />it will only prevent new ones from being created.</h5>';
 		$("#deleteBillId").val(id);
@@ -626,7 +633,7 @@ $(document).ready(function() {
 	}
 
 	function removeBill() {
-		var id = $("#deleteBillId").val();
+		const id = $("#deleteBillId").val();
 		$("#deleteBillModal").modal("hide");
 		$.ajax({
 			type: "DELETE"
@@ -634,7 +641,7 @@ $(document).ready(function() {
 			,data: {id: id}
 		}).success(function(response) {
 			// getBills();
-		}).error(function(jqXHR, textStatus, errorThrown) {
+		}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 			$("#infoModalBody").html("There was a problem deleting the bill.  Please try again.");
 			$("#infoModal").modal("show");
 		});

@@ -113,7 +113,7 @@ module.exports = function(db) {
 		forceUpdatePrice: function(user, data) {
 			return new Promise(function(resolve, reject) {
 				// Get accounts allowed for logged in user
-				db.Owner.getAllowedAccounts(user.id).then(function(allowedAccounts){
+				db.Account.getAllowedAccounts(user, {where:{active:true}}).then(function(allowedAccounts) {
 					// Bulk update the given price of the given ticker in all the users accounts
 					db.Position.update(
 						{ currentPrice: data.price },

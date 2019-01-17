@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const { fn, col } = Sequelize;
+const _ = require("underscore");
 
 module.exports = function(sequelize, DataTypes) {
 	let Account = sequelize.define('Account', {
@@ -92,6 +93,45 @@ module.exports = function(sequelize, DataTypes) {
 						console.log("error in validateAccountAccess: " + error);
 						reject();
 					});
+				});
+			},
+			getAllowedAccounts: function(user, params) {
+				return new Promise(function(resolve) {
+					let queryArr = [];
+					user.groups.forEach(function(group) {
+						queryArr.push(fn('JSON_CONTAINS', col('group_ids'), String(group.id)));
+					});
+					if (params) {
+						if (params.hasOwnProperty("where")) {
+							params.where.$or = [
+								{ ownerId: user.id },
+								{ $or: queryArr }
+							];
+						} else {
+							params.where = {
+								$or: [
+									{ ownerId: user.id },
+									{ $or: queryArr }
+								]
+							};
+						}
+					} else {
+						params = {
+							where: {
+								$or: [
+									{ownerId: user.id},
+									{$or: queryArr}
+								]
+							}
+						};
+					}
+					Account.findAll(params).then(function(results) {
+						resolve(_.pluck(results,"id"));
+					}).catch(function(error) {
+						console.log("error in getAllowedAccounts: " + error);
+						resolve([]);
+					})
+
 				});
 			}
 		}
