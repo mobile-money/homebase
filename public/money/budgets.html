@@ -112,20 +112,21 @@
 							</div>
 							<div class="form-group">
 								<label>Category Type</label>
-								<br />
-								<div class="btn-group" data-toggle="buttons">
-									<label id="newCatExpenseLabel" class="btn btn-default active">
-										<input type="radio" name="newCatType" id="newCatExpense" /> Expense 
-									</label>
-									<label id="newCatIncomeLabel" class="btn btn-default">
-										<input type="radio" name="newCatType" id="newCatIncome" /> Income 
-									</label>
-								</div>
+								<select id="newCatType" class="form-control">
+									<option value="e" selected>Expense</option>
+									<option value="i">Income</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Applicable Accounts</label>
+								<select multiple id="newAccounts" class="form-control"></select>
+                                <p id="new_acct_error" style="color:red;font-style:italic;display:none;">You must chose at least one Account</p>
 							</div>
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-success" title="Add Category" id="addCategoryButton"><i class="fa fa-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Category">Cancel</button>
+						<button class="btn btn-success" title="Add Category" id="addCategoryButton"><i class="fa fa-plus"></i></button>
+						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Category">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -146,20 +147,25 @@
 							</div>
 							<div class="form-group">
 								<label>Category Type</label>
-								<br />
-								<div class="btn-group" data-toggle="buttons">
-									<label id="editCatExpenseLabel" class="btn btn-default">
-										<input type="radio" name="editCatType" id="editCatExpense" /> Expense 
-									</label>
-									<label id="editCatIncomeLabel" class="btn btn-default">
-										<input type="radio" name="editCatType" id="editCatIncome" /> Income 
-									</label>
-								</div>
+								<select id="editCatType" class="form-control">
+									<option value="e" selected>Expense</option>
+									<option value="i">Income</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Applicable Accounts</label>
+								<select multiple id="editAccounts" class="form-control"></select>
 							</div>
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-primary" title="Edit Category" id="editCategoryButton"><i class="fa fa-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Category">Cancel</button>
+						<div class="mr-auto">
+							<button class="btn btn-danger" title="Delete Category" id="dltCategoryButton"><i class="fa fa-trash"></i></button>
+						</div>
+						<div class="ml-auto">
+							<button class="btn btn-primary" title="Edit Category" id="editCategoryButton"><i class="fa fa-pencil"></i></button>
+							<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Category">Cancel</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -176,7 +182,8 @@
 						<div id="deleteCategoryModalBody"></div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-danger" title="Delete Category" id="deleteCategoryButton"><i class="fa fa-trash"></i></button><button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Category">Cancel</button>
+						<button class="btn btn-danger" title="Delete Category" id="deleteCategoryButton"><i class="fa fa-trash"></i></button>
+						<button class="btn btn-default" data-dismiss="modal" aria-label="Cancel" title="Cancel Delete Category">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -206,6 +213,7 @@
 							<span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+							<li><a href="/admin/groups">Groups</a></li>
 							<li><a href="#" onClick="logOut();">Log Out</a></li>
 						</ul>
 					</li>
@@ -215,42 +223,44 @@
 
 
 		<div class="container-fluid">
-			<div class="col-sm-9">
-				<div class="row">
-					<div class="col-sm-3">
-						<select id="budgetSelect" class="form-control"></select>
+			<div class="row" style="margin-top:10px;">
+				<div class="col-sm-9">
+					<div class="row">
+						<div class="col-sm-3">
+							<button class="btn btn-success" id="createBudgetBtn">Create Budget</button>
+						</div>
+						<div class="col-sm-3">
+							<select id="budgetSelect" class="form-control"></select>
+						</div>
+						<div class="col-sm-6">
+							<select class="form-control" id="dateSelect">
+								<option id="yearSelector" value="y">Current&nbsp;Year</option>
+								<option id="monthSelector" value="m" selected>Current&nbsp;Month</option>
+								<option id="weekSelector" value="w">Current&nbsp;Week</option>
+								<option value="c">Custom</option>
+							</select>
+						</div>
 					</div>
-					<div class="col-sm-6">
-						<select class="form-control" id="dateSelect">
-							<option id="yearSelector" value="y">Current&nbsp;Year</option>
-							<option id="monthSelector" value="m" selected>Current&nbsp;Month</option>
-							<option id="weekSelector" value="w">Current&nbsp;Week</option>
-							<option value="c">Custom</option>
-						</select>
+					<div class="row">
+						<div class="col-sm-3"></div>
+						<div class="col-sm-6" id="dateFields" style="display:none;"></div>
 					</div>
-					<div class="col-sm-3" style="margin-top:5px;">
-						<button class="btn btn-success" id="createBudgetBtn">Create Budget</button>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-sm-3"></div>
-					<div class="col-sm-6" id="dateFields" style="display:none;"></div>
-				</div>
-				<div class="row">
-					<div class="col-sm-12" id="budgetBody">
-						<!--Budget Body-->
-					</div>
-				</div>
-			</div>
-			<div class="col-sm-3">
-				<div class="row">
-					<div class="col-sm-12">
-						<button class="btn btn-success" id="addCategoryBtn">Add Category</button>
+					<div class="row">
+						<div class="col-sm-12" id="budgetBody">
+							<!--Budget Body-->
+						</div>
 					</div>
 				</div>
-				<div class="row">
-					<div class="col-sm-12" id="categoryBody">
-						<!--Category Body-->
+				<div class="col-sm-3">
+					<div class="row">
+						<div class="col-sm-12">
+							<button class="btn btn-success" id="addCategoryBtn">Add Category</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12 card" id="categoryBody" style="margin-top:10px;">
+							<!--Category Body-->
+						</div>
 					</div>
 				</div>
 			</div>

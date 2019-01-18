@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-	return sequelize.define('Category', {
+	let Category = sequelize.define('Category', {
 		name: {
 			type: DataTypes.STRING
 			,allowNull: false
@@ -12,8 +12,13 @@ module.exports = function(sequelize, DataTypes) {
 			,allowNull: false
 			,defaultValue: true
 		}
+		,account_ids: {
+			type: DataTypes.JSON
+		}
 	// }
 	// ,{
 	// 	paranoid: true
 	});
-}
+
+	return Category;
+};

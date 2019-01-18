@@ -1,4 +1,4 @@
-
+let accounts = [];
 let categoryArray = [];
 let categoryLookup = {};
 // var socket = io();
@@ -10,58 +10,114 @@ $(document).ready(function() {
 	$("#monthSelector").html("Current Month ("+moment().startOf("month").format("MMM D, YYYY")+" - "+moment().endOf("month").format("MMM D, YYYY")+")");
 	$("#weekSelector").html("Current Week ("+moment().startOf("week").format("MMM D, YYYY")+" - "+moment().endOf("week").format("MMM D, YYYY")+")");
 
+	getAccounts();
 	getBudgets(null);
 });
 
 // FIELD EVENTS
-	$("#infoModalBody").on("hidden.bs.modal", function() {
-		$("#infoModalTitle").empty();
-		$("#infoModalBody").empty();
-	});
+$("#addCategoryBtn").on("click",function() {
+	$("#addCategoryModal").modal("show");
+});
 
-	$("#budgetSelect").change(function() {
-		$("#budgetBody").empty();
-		// getPeriods();
-		buildBudget();
-	});
+$("#addCategoryButton").on("click", function() {
+	let errorCount = 0;
+	const $field = $("#newCatName");
+	const categoryName = $field.val();
+	if (typeof categoryName !== "undefined" && categoryName.length > 0) {
+		$field.css("background-color", "#fff");
+	} else {
+		errorCount++;
+		$field.css("background-color", "#f2dede");
+	}
+	const acct = JSON.stringify($("#newAccounts").val());
+	if (acct !== "null") {
+		$("#new_acct_error").hide();
+	} else {
+		errorCount++;
+		$("#new_acct_error").show();
+	}
 
-	$("#dateSelect").change(function(e) {
-		// console.log(e.currentTarget.value);
-		switch (e.currentTarget.value) {
-			case "c":
-				$("#dateFields").show();
-				break;
-			case "y":
-				$("#dateFields").hide();
-				// console.log(moment().startOf("year").toDate());
-				// console.log(moment().endOf("year").toDate());
-				$("#startDate").val(moment().startOf("year").format("MMM DD, YYYY"));
-				$("#endDate").val(moment().endOf("year").format("MMM DD, YYYY"));
-				$("#endDate").trigger("changeDate");
-				break;
-			case "m":
-				$("#dateFields").hide();
-				// console.log(moment().startOf("month").toDate());
-				// console.log(moment().endOf("month").toDate());
-				$("#startDate").val(moment().startOf("month").format("MMM DD, YYYY"));
-				$("#endDate").val(moment().endOf("month").format("MMM DD, YYYY"));
-				$("#endDate").trigger("changeDate");
-				break;
-			case "w":
-				$("#dateFields").hide();
-				// console.log(moment().startOf("week").toDate());
-				// console.log(moment().endOf("week").toDate());
-				$("#startDate").val(moment().startOf("week").format("MMM DD, YYYY"));
-				$("#endDate").val(moment().endOf("week").format("MMM DD, YYYY"));
-				$("#endDate").trigger("changeDate");
-				break;
-			default:
-				$("#dateFields").hide();
-				$("#startDate").val(moment().startOf("month").format("MMM DD, YYYY"));
-				$("#endDate").val(moment().endOf("month").format("MMM DD, YYYY"));
-				$("#endDate").trigger("changeDate");
+	if (errorCount === 0) {
+		let exp = true;
+		if ($("#newCatType").val("i")) {
+			exp = false;
 		}
-	});
+		addCategory($field.val(), exp, acct);
+	}
+});
+
+$("#addCategoryModal").on("shown.bs.modal", function() {
+	$("#newCatName").focus();
+}).on("hidden.bs.modal", function() {
+	$("#newCatName").val("");
+	$("#newCatType").val("e");
+	$("#newAccounts option:selected").prop("selected", false);
+});
+
+$("#budgetSelect").on("change", function() {
+	$("#budgetBody").empty();
+	// getPeriods();
+	buildBudget();
+});
+
+$("#dateSelect").on("change", function(e) {
+	const $dateField = $("#dateFields");
+	const $startDate = $("#startDate");
+	const $endDate = $("#endDate");
+	// console.log(e.currentTarget.value);
+	switch (e.currentTarget.value) {
+		case "c":
+			$dateField.show();
+			break;
+		case "y":
+			$dateField.hide();
+			// console.log(moment().startOf("year").toDate());
+			// console.log(moment().endOf("year").toDate());
+			$startDate.val(moment().startOf("year").format("MMM DD, YYYY"));
+			$endDate.val(moment().endOf("year").format("MMM DD, YYYY")).trigger("changeDate");
+			break;
+		case "m":
+			$dateField.hide();
+			// console.log(moment().startOf("month").toDate());
+			// console.log(moment().endOf("month").toDate());
+			$startDate.val(moment().startOf("month").format("MMM DD, YYYY"));
+			$endDate.val(moment().endOf("month").format("MMM DD, YYYY")).trigger("changeDate");
+			break;
+		case "w":
+			$dateField.hide();
+			// console.log(moment().startOf("week").toDate());
+			// console.log(moment().endOf("week").toDate());
+			$startDate.val(moment().startOf("week").format("MMM DD, YYYY"));
+			$endDate.val(moment().endOf("week").format("MMM DD, YYYY")).trigger("changeDate");
+			break;
+		default:
+			$dateField.hide();
+			$startDate.val(moment().startOf("month").format("MMM DD, YYYY"));
+			$endDate.val(moment().endOf("month").format("MMM DD, YYYY")).trigger("changeDate");
+	}
+});
+
+$("#deleteCategoryModal").on("hidden.bs.modal", function() {
+	$("#deleteCategoryModalBody").empty();
+	$("#deleteCategoryButton").off("click");
+});
+
+$("#editCategoryModal").on("shown.bs.modal", function() {
+	$("#editCatName").focus();
+}).on("hidden.bs.modal", function() {
+	$("#editCatName").val("");
+	$("#editCatType").val("e");
+	$("#editCategoryButton").off("click");
+	$("#editAccounts option:selected").prop("selected", false);
+});
+
+$("#infoModalBody").on("hidden.bs.modal", function() {
+	$("#infoModalTitle").empty();
+	$("#infoModalBody").empty();
+});
+
+
+
 
 	// BUDGET
 		// CREATE
@@ -137,84 +193,152 @@ $(document).ready(function() {
 
 	// CATEGORY
 		// CREATE
-			$("#addCategoryBtn").click(function() {
-				$("#addCategoryModal").modal("show");
-			});
-
-			$("#addCategoryButton").click(function() {
-				var errorCount = 0;
-				var categoryName = $("#newCatName").val();
-				if (typeof categoryName !== "undefined" && categoryName.length > 0) {
-					$("#newCatName").css("background-color", "#fff");
-				} else {
-					errorCount++;
-					$("#newCatName").css("background-color", "#f2dede");
-				}
-
-				if (errorCount === 0) {
-					var exp = true;
-					if ($("#newCatIncomeLabel").hasClass("active")) {
-						exp = false;
-					}
-					addCategory(null, $("#newCatName").val(), exp);
-				}
-			});
-
-			$("#addCategoryModal").on("shown.bs.modal", function() {
-				$("#newCatName").focus();
-			});
-
-			$("#addCategoryModal").on("hidden.bs.modal", function() {
-				$("#newCatName").val("");
-				$("#newCatExpenseLabel").addClass("active");
-				$("#newCatIncomeLabel").removeClass("active");
-			});
-		// EDIT
-			$("#editCategoryModal").on("shown.bs.modal", function() {
-				$("#editCatName").focus();
-			});
-
-			$("#editCategoryModal").on("hidden.bs.modal", function() {
-				$("#editCatName").val("");
-				$("#editCatExpenseLabel").removeClass("active");
-				$("#editCatIncomeLabel").removeClass("active");
-				$("#editCategoryButton").off("click");
-			});
-		// DELETE
-			$("#deleteCategoryModal").on("hidden.bs.modal", function() {
-				$("#deleteCategoryModalBody").empty();
-				$("#deleteCategoryButton").off("click");
-			});
 
 // SOCKET IO
 
-	socket.on("categoryAdded", function(category) {
+	socket.on("categoryAdded", function(/*category*/) {
 		getCategories();
-	});
-
-	socket.on("categoryUpdated", function(category) {
+	}).on("categoryUpdated", function(/*category*/) {
 		getBudgets(null);
-	});
-
-	socket.on("categoryDeleted", function(id) {
+	}).on("categoryDeleted", function(/*id*/) {
 		getBudgets(null);
-	});
-
-	socket.on("budgetAdded", function(budget) {
+	}).on("budgetAdded", function(budget) {
 		getBudgets(budget.id);
-	});
-
-	socket.on("budgetUpdated", function(id) {
+	}).on("budgetUpdated", function(id) {
 		if (id == $("#budgetSelect").val()) {
 			buildBudget();
 		}
-	});
-
-	socket.on("budgetDeleted", function() {
+	}).on("budgetDeleted", function() {
 		getBudgets(null);
 	});
 
 // FUNCTIONS
+function addCategory(name, expense, accounts) {
+    $.ajax({
+        type: "POST"
+        ,url: "/api/v1/money/categories"
+        ,data: {
+            name: name
+            ,expense: expense
+            ,account_ids: accounts
+        }
+    }).success(function() {
+        $("#addCategoryModal").modal("hide");
+        return false;
+    }).error(function(/*jqXHR, textStatus, errorThrown*/) {
+        $("#infoModalBody").html("There was a problem creating the Category.  Please try again.");
+        $("#infoModal").modal("show");
+    });
+    return false;
+}
+
+function categoryTable(id) {
+    $.ajax({
+        type: "GET"
+        ,url: "/api/v1/money/transactions/category/"+id+"/"+moment($("#startDate").datepicker("getUTCDate")).format('X')+'/'+moment($("#endDate").datepicker("getUTCDate")).format('X')
+    }).success(function(data) {
+        // console.log(data);
+        let table = '<table class="table-striped table-condensed" style="font-size:0.9em;">'+
+            '<thead>'+
+            '<tr>'+
+            '<th>Date</th>'+
+            '<th>Payee</th>'+
+            '<th>Description</th>'+
+            '<th>Amount</th>'+
+            '<th>Account</th>'+
+            '</tr>'+
+            '</thead>'+
+            '<tbody>';
+        data.forEach(function(trans) {
+            table += '<tr>'+
+                '<td>'+moment.utc(trans.transactionDate).format("MMM DD, YYYY")+'</td>'+
+                '<td>'+trans.payee+'</td>'+
+                '<td>';
+            if (trans.description) {
+                table += trans.description;
+            }
+            table += '</td>'+
+                '<td>'+Number(trans.amount).toFixed(2)+'</td>'+
+                // '<td>'+Math.abs(Number(trans.amount)).toFixed(2)+'</td>'+
+                '<td>'+trans.Summary.Account.name+'</td>'+
+                '</tr>';
+        });
+        table += '</tbody></table>';
+        $("#infoModalTitle").html(data[0].Category.name);
+        $("#infoModalBody").html(table);
+        $("#infoModal").modal("show");
+    }).error(function(/*jqXHR, textStatus, errorThrown*/) {
+        $("#infoModalBody").html("There was a problem.  Please try again.");
+        $("#infoModal").modal("show");
+    });
+}
+
+function getCategories() {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            type: "GET"
+            ,url: "/api/v1/money/categories"
+        }).success(function(categories) {
+            // console.log(categories);
+            const $catBody = $("#categoryBody");
+            $catBody.empty();
+            const tableHead = '<table class="table table-striped table-sm"><thead><th class="col-md-10"></th><th class="col-md-1"></th><th class="col-md-1"></th></thead>';
+            let expenses = '<tr><td colspan="3" style="font-size:1.2em;"><strong>Expenses</strong></td></tr>';
+            let incomes = '<tr><td colspan="3" style="font-size:1.2em;"><strong>Incomes</strong></td></tr>';
+            categoryArray = categories;
+            for (let i=0, len=categoryArray.length; i<len; i++) {
+                let appAcctTip = ["Applicable Accounts:"];
+                JSON.parse(categories[i].account_ids).forEach(function(acct) {
+                    // console.log(_.findWhere(accounts,{id: acct}).name);
+                    if (typeof(_.findWhere(accounts,{id: acct})) !== "undefined") {
+                        const name = _.findWhere(accounts,{id: acct}).name;
+                        if (name.length > 20) {
+                            appAcctTip.push(name.substring(0,7)+"...."+name.substring((name.length-7),name.length));
+                        } else {
+                            appAcctTip.push(name);
+                        }
+                    }
+                });
+                if (categories[i].expense === true) {
+                    expenses += '<tr>'+
+                        '<td>'+categories[i].name+'</td>'+
+                        '<td><i class="fa fa-archive" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+appAcctTip.join("<br />")+'"></i></td>' +
+                        '<td>'+
+                        '<button class="badge badge-secondary" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="fa fa-pencil"></i></button>'+
+                        // '<button class="btn btn-danger btn-sm" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="fa fa-trash"></i></button>'+
+                        '</td>'+
+                        '</tr>';
+                } else {
+                    incomes += '<tr>'+
+                        '<td>'+categories[i].name+'</td>'+
+                        '<td><i class="fa fa-archive" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+appAcctTip.join("<br />")+'"></i></td>' +
+                        '<td>'+
+                        '<button class="badge badge-secondary" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="fa fa-pencil"></i></button>'+
+                        // '<button class="btn btn-danger btn-sm" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="fa fa-trash"></i></button>'+
+                        '</td>'+
+                        '</tr>';
+                }
+                categoryLookup[categoryArray[i].id] = categoryArray[i];
+            }
+            const tableEnd = '</table>';
+            const content = tableHead+expenses+incomes+tableEnd;
+            $catBody.append(content);
+            $('[data-toggle="tooltip"]').tooltip();
+            resolve();
+        }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+            $("#categoryBody").empty();
+            categoryArray = [];
+            categoryLookup = {};
+            if (jqXHR.status === 404) {
+                reject();
+            } else {
+                $("#infoModalBody").html("There was a problem.  Please try again.");
+                $("#infoModal").modal("show");
+                reject(jqXHR);
+            }
+        });
+    });
+}
 
 	function favoriteBudget() {
 		var selectedBudget = $("#budgetSelect").val();
@@ -227,103 +351,124 @@ $(document).ready(function() {
 		});
 	}
 
-	function getBudgets(id) {
-		getCategories().then(function() {
-			$("#budgetSelect").empty();
-			$("#budgetBody").empty();
-			$.ajax({
-				type: "GET"
-				,url: "/api/v1/money/budgets"
-			}).success(function(results) {
-				results.forEach(function(budget) {
-					let option = '<option value="'+budget.id+'"';
-					if (id !== null) {
-						if (id === budget.id) {
-							option += ' selected';
-						}
-					} else {
-						if (budget.favorite === true) {
-							option += ' selected';
-						}
-					}
-					option += '>'+budget.name+'</option>';
-					$("#budgetSelect").append(option);
-				});
-				if ($("#budgetSelect").val() !== null) {
-					var html = '<div class="col-md-6">'+
-						'<div class="form-group">'+
-							'<input type="text" class="datepicker form-control" id="startDate" value="'+moment().startOf("month").format("MMM DD, YYYY")+'" />'+
-							'<label>From</label>'+
-						'</div>'+
-					'</div>'+
-					'<div class="col-md-6">'+
-						'<div class="form-group">'+
-							'<input type="text" class="datepicker form-control" id="endDate" value="'+moment().endOf("month").format("MMM DD, YYYY")+'" />'+
-							'<label>To</label>'+
-						'</div>'+
-					'</div>';
-					$("#dateFields").html(html);
-					$("#startDate").datepicker({format: 'M dd, yyyy', endDate: moment().endOf("month").toDate(), title: "Start Date", autoclose: true}).on("changeDate", function(e) {
-						$("#endDate").data("datepicker").setStartDate(e.date);
-						buildBudget();
-					});
-					$("#endDate").datepicker({format: 'M dd, yyyy', startDate: moment().startOf("month").toDate(), title: "End Date", autoclose: true}).on("changeDate", function(e) {
-						$("#startDate").data("datepicker").setEndDate(e.date);
-						buildBudget();
-					});
-					buildBudget();
-					// getPeriods();
-				}
-			}).error(function(jqXHR/*, textStatus, errorThrown*/) {
-				if (jqXHR.status === 404) {
-					return false;
-				} else {
-					$("#infoModalBody").html("There was a problem.  Please try again.");
-					$("#infoModal").modal("show");
-				}
-			});
-		}).catch(function() {
-			$("#budgetSelect").empty();
-		$("#budgetBody").empty();
+	function getAccounts() {
 		$.ajax({
 			type: "GET"
-			,url: "/api/v1/money/budgets"
+			,url: "/api/v1/money/accounts"
 		}).success(function(results) {
-			results.forEach(function(budget) {
-				let option = '<option value="'+budget.id+'"';
-				if (id === budget.id) {
-					option += ' selected';
-				}
-				option += '>'+budget.name+'</option>';
-				$("#budgetSelect").append(option);
+			accounts = results;
+			// console.log(results);
+			results.forEach(function(account){
+				$("#newAccounts").append($('<option>',{value: account.id, text: account.name}));
+				$("#editAccounts").append($('<option>',{value: account.id, text: account.name}));
 			});
-			if ($("#budgetSelect").val() !== null) {
-				let html = '<div class="col-md-6">'+
-					'<input type="text" class="datepicker form-control" id="startDate" value="'+moment().startOf("month").format("MMM DD, YYYY")+'" />'+
-				'</div>'+
-				'<div class="col-md-6">'+
-					'<input type="text" class="datepicker form-control" id="endDate" value="'+moment().endOf("month").format("MMM DD, YYYY")+'" />'+
-				'</div>';
-				$("#dateFields").html(html);
-				$("#startDate").datepicker({format: 'M dd, yyyy', endDate: moment().endOf("month").toDate(), title: "Start Date", autoclose: true}).on("changeDate", function(e) {
-					$("#endDate").data("datepicker").setStartDate(e.date);
-					buildBudget();
-				});
-				$("#endDate").datepicker({format: 'M dd, yyyy', startDate: moment().startOf("month").toDate(), title: "End Date", autoclose: true}).on("changeDate", function(e) {
-					$("#startDate").data("datepicker").setEndDate(e.date);
-					buildBudget();
-				});
-				buildBudget();
-			}
-		}).error(function(jqXHR/*, textStatus, errorThrown*/) {
-			if (jqXHR.status === 404) {
-				return false;
-			} else {
-				$("#infoModalBody").html("There was a problem.  Please try again.");
-				$("#infoModal").modal("show");
-			}
+		}).error(function(/*jqXHR, textStatus, errorThrown*/) {
+			// if (jqXHR.status === 404) {
+			// 	return false;
+			// } else {
+			// 	$("#infoModalBody").html("There was a problem.  Please try again.");
+			// 	$("#infoModal").modal("show");
+			// }
 		});
-	});
+	}
+
+	function getBudgets(id) {
+		getCategories().then(function() {
+			// $("#budgetSelect").empty();
+			// $("#budgetBody").empty();
+			// $.ajax({
+			// 	type: "GET"
+			// 	,url: "/api/v1/money/budgets"
+			// }).success(function(results) {
+			// 	results.forEach(function(budget) {
+			// 		let option = '<option value="'+budget.id+'"';
+			// 		if (id !== null) {
+			// 			if (id === budget.id) {
+			// 				option += ' selected';
+			// 			}
+			// 		} else {
+			// 			if (budget.favorite === true) {
+			// 				option += ' selected';
+			// 			}
+			// 		}
+			// 		option += '>'+budget.name+'</option>';
+			// 		$("#budgetSelect").append(option);
+			// 	});
+			// 	if ($("#budgetSelect").val() !== null) {
+			// 		let html = '<div class="col-md-6">'+
+			// 			'<div class="form-group">'+
+			// 				'<input type="text" class="datepicker form-control" id="startDate" value="'+moment().startOf("month").format("MMM DD, YYYY")+'" />'+
+			// 				'<label>From</label>'+
+			// 			'</div>'+
+			// 		'</div>'+
+			// 		'<div class="col-md-6">'+
+			// 			'<div class="form-group">'+
+			// 				'<input type="text" class="datepicker form-control" id="endDate" value="'+moment().endOf("month").format("MMM DD, YYYY")+'" />'+
+			// 				'<label>To</label>'+
+			// 			'</div>'+
+			// 		'</div>';
+			// 		$("#dateFields").html(html);
+			// 		$("#startDate").datepicker({format: 'M dd, yyyy', endDate: moment().endOf("month").toDate(), title: "Start Date", autoclose: true}).on("changeDate", function(e) {
+			// 			$("#endDate").data("datepicker").setStartDate(e.date);
+			// 			buildBudget();
+			// 		});
+			// 		$("#endDate").datepicker({format: 'M dd, yyyy', startDate: moment().startOf("month").toDate(), title: "End Date", autoclose: true}).on("changeDate", function(e) {
+			// 			$("#startDate").data("datepicker").setEndDate(e.date);
+			// 			buildBudget();
+			// 		});
+			// 		buildBudget();
+			// 		// getPeriods();
+			// 	}
+			// }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+			// 	if (jqXHR.status === 404) {
+			// 		return false;
+			// 	} else {
+			// 		$("#infoModalBody").html("There was a problem.  Please try again.");
+			// 		$("#infoModal").modal("show");
+			// 	}
+			// });
+		}).catch(function() {
+			// $("#budgetSelect").empty();
+			// $("#budgetBody").empty();
+			// $.ajax({
+			// 	type: "GET"
+			// 	,url: "/api/v1/money/budgets"
+			// }).success(function(results) {
+			// 	results.forEach(function(budget) {
+			// 		let option = '<option value="'+budget.id+'"';
+			// 		if (id === budget.id) {
+			// 			option += ' selected';
+			// 		}
+			// 		option += '>'+budget.name+'</option>';
+			// 		$("#budgetSelect").append(option);
+			// 	});
+			// 	if ($("#budgetSelect").val() !== null) {
+			// 		let html = '<div class="col-md-6">'+
+			// 			'<input type="text" class="datepicker form-control" id="startDate" value="'+moment().startOf("month").format("MMM DD, YYYY")+'" />'+
+			// 		'</div>'+
+			// 		'<div class="col-md-6">'+
+			// 			'<input type="text" class="datepicker form-control" id="endDate" value="'+moment().endOf("month").format("MMM DD, YYYY")+'" />'+
+			// 		'</div>';
+			// 		$("#dateFields").html(html);
+			// 		$("#startDate").datepicker({format: 'M dd, yyyy', endDate: moment().endOf("month").toDate(), title: "Start Date", autoclose: true}).on("changeDate", function(e) {
+			// 			$("#endDate").data("datepicker").setStartDate(e.date);
+			// 			buildBudget();
+			// 		});
+			// 		$("#endDate").datepicker({format: 'M dd, yyyy', startDate: moment().startOf("month").toDate(), title: "End Date", autoclose: true}).on("changeDate", function(e) {
+			// 			$("#startDate").data("datepicker").setEndDate(e.date);
+			// 			buildBudget();
+			// 		});
+			// 		buildBudget();
+			// 	}
+			// }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+			// 	if (jqXHR.status === 404) {
+			// 		return false;
+			// 	} else {
+			// 		$("#infoModalBody").html("There was a problem.  Please try again.");
+			// 		$("#infoModal").modal("show");
+			// 	}
+			// });
+		});
 	}
 
 	function getPeriods() {
@@ -537,120 +682,8 @@ $(document).ready(function() {
 		});
 	}
 
-	function categoryTable(id) {
-		$.ajax({
-			type: "GET"
-			,url: "/api/v1/money/transactions/category/"+id+"/"+moment($("#startDate").datepicker("getUTCDate")).format('X')+'/'+moment($("#endDate").datepicker("getUTCDate")).format('X')
-		})
-		.success(function(data) {
-			console.log(data);
-			var table = '<table class="table-striped table-condensed" style="font-size:0.9em;">'+
-				'<thead>'+
-					'<tr>'+
-						'<th>Date</th>'+
-						'<th>Payee</th>'+
-						'<th>Description</th>'+
-						'<th>Amount</th>'+
-						'<th>Account</th>'+
-					'</tr>'+
-				'</thead>'+
-				'<tbody>';
-			data.forEach(function(trans) {
-				table += '<tr>'+
-					'<td>'+moment.utc(trans.transactionDate).format("MMM DD, YYYY")+'</td>'+
-					'<td>'+trans.payee+'</td>'+
-					'<td>';
-					if (trans.description) {
-						table += trans.description;
-					}
-					table += '</td>'+
-					'<td>'+Number(trans.amount).toFixed(2)+'</td>'+
-					// '<td>'+Math.abs(Number(trans.amount)).toFixed(2)+'</td>'+
-					'<td>'+trans.Summary.Account.name+'</td>'+
-				'</tr>';
-			});
-			table += '</tbody></table>';
-			$("#infoModalTitle").html(data[0].Category.name);
-			$("#infoModalBody").html(table);
-			$("#infoModal").modal("show");
-		}).error(function(jqXHR, textStatus, errorThrown) {
-			$("#infoModalBody").html("There was a problem.  Please try again.");
-			$("#infoModal").modal("show");
-		});
-	}
 
-	function getCategories() {
-		return new Promise(function(resolve, reject) {
-			$.ajax({
-				type: "GET"
-				,url: "/api/v1/money/categories"
-			})
-			.success(function(categories) {
-				$("#categoryBody").empty();
-				var tableHead = '<table class="table table-striped"><thead><th class="col-md-8"></th><th class="col-md-4"></th></thead>';
-				var expenses = '<tr><td colspan="2"><strong>Expenses</strong></td></tr>';
-				var incomes = '<tr><td colspan="2"><strong>Incomes</strong></td></tr>';
-				categoryArray = categories;
-				for (var i = 0, len = categoryArray.length; i < len; i++) {
-					if (categories[i].expense === true) {
-						expenses += '<tr>'+
-							'<td>'+categories[i].name+'</td>'+
-							'<td>'+
-								'<button class="btn btn-primary btn-sm" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="fa fa-pencil"></i></button>'+
-								'<button class="btn btn-danger btn-sm" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="fa fa-trash"></i></button>'+
-							'</td>'+
-						'</tr>';
-					} else {
-						incomes += '<tr>'+
-							'<td>'+categories[i].name+'</td>'+
-							'<td>'+
-								'<button class="btn btn-primary btn-sm" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="fa fa-pencil"></i></button>'+
-								'<button class="btn btn-danger btn-sm" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="fa fa-trash"></i></button>'+
-							'</td>'+
-						'</tr>';
-					}
-				    categoryLookup[categoryArray[i].id] = categoryArray[i];
-				}
-				var tableEnd = '</table>';
-				var content = tableHead+expenses+incomes+tableEnd;
-				$("#categoryBody").append(content);
-				resolve();
-			})
-			.error(function(jqXHR, textStatus, errorThrown) {
-				$("#categoryBody").empty();
-				categoryArray = [];
-				categoryLookup = {};
-				if (jqXHR.status === 404) {
-					reject();
-				} else {
-					$("#infoModalBody").html("There was a problem.  Please try again.");
-					$("#infoModal").modal("show");
-					reject(jqXHR);
-				}
-			});
-		});
-	}
 
-	function addCategory(user, name, expense) {
-		$.ajax({
-			type: "POST"
-			,url: "/api/v1/money/categories"
-			,data: {
-				user: user
-				,name: name
-				,expense: expense
-			}
-		})
-		.success(function() {
-			$("#addCategoryModal").modal("hide");
-			return false;
-		})
-		.error(function(jqXHR, textStatus, errorThrown) {
-			$("#infoModalBody").html("There was a problem creating the Category.  Please try again.");
-			$("#infoModal").modal("show");
-		});
-		return false;
-	}
 
 	function editCategory(id) {
 		$("#editCatName").val(categoryLookup[id].name);

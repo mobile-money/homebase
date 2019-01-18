@@ -33,7 +33,7 @@ module.exports = function(db, admin) {
 				}, function() {
 					reject('error finding user: ' + error);
 				}).catch(function(error) {
-					console.log("catch error on account controller create method: " + error);
+					console.log("catch error on Account controller create method: " + error);
 					reject();
 				});
 			});
