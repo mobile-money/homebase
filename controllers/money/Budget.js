@@ -1,23 +1,30 @@
-var _ = require("underscore");
-var moment = require("moment");
+const _ = require("underscore");
+const moment = require("moment");
+const Sequelize = require('sequelize');
+const { fn, col } = Sequelize;
 
-module.exports = function(db) {
+module.exports = function(db, admin) {
 	return {
-		getAll: function() {
+		getAll: function(user) {
 			return new Promise(function(resolve, reject) {
+				let queryArr = [];
+				user.groups.forEach(function(group) {
+					queryArr.push(fn('JSON_CONTAINS', col('group_ids'), String(group.id)));
+				});
+
 				db.Budget.findAll({
+					where: {
+						$or: [
+							{ ownerId: user.id },
+							{ $or: queryArr }
+						]
+					},
 					order: [["name", "ASC"]]
-				})
-				.then(
-					function(results) {
-						resolve(results);
-					}
-				)
-				.catch(
-					function(error) {
-						reject(error);
-					}
-				);
+				}).then(function(results) {
+					resolve(results);
+				}).catch(function(error) {
+					reject(error);
+				});
 			});
 		}
 		,getById: function(id) {
@@ -35,22 +42,25 @@ module.exports = function(db) {
 				);
 			});
 		}
-		,add: function(data) {
+		,add: function(user, data) {
 			return new Promise(function(resolve, reject) {
-				db.Budget.create({
-					name: data.name
-					,amounts: data.amounts
-				})
-				.then(
-					function(budget) {
-						resolve(budget);
-					}
-				)
-				.catch(
-					function(error) {
-						reject(error);
-					}
-				);
+				admin.User.findById(user.id).then(function(/*foundUser*/) {
+					let budget = {
+						name: data.name
+						,amounts: data.amounts
+						,ownerId: user.id
+					};
+					// Make sure groups is array of INTs
+					budget.group_ids = _.map(data.group_ids, function(val) { return Number(val); });
+					db.Budget.create(budget).then(function(newBudget) {
+						resolve(newBudget);
+					});
+				}, function() {
+					reject('error finding user: ' + error);
+				}).catch(function(error) {
+					console.log("catch error on Budget controller add method: " + error);
+					reject();
+				});
 			});
 		}
 		,update: function(data) {

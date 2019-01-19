@@ -47,10 +47,15 @@
 							</div>
 							<div><strong>Expenses</strong><table id="newBudExpenses"><thead><tr style="font-size:0.7em;font-weight:bold;text-align:center;"><td>Category</td><td>Amount</td><td>Time Span</td></tr></thead><tbody></tbody></table></div>
 							<div><br /><strong>Incomes</strong><table id="newBudIncomes"><thead><tr style="font-size:0.7em;font-weight:bold;text-align:center;"><td>Category</td><td>Amount</td><td>Time Span</td></tr></thead><tbody></tbody></table></div>
-						</div>
+                            <div class="form-group">
+                                <label>Group Access</label>
+                                <select multiple id="newGroups" class="form-control"></select>
+                            </div>
+                        </div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-success" title="Create Budget" id="createBudgetButton"><i class="fa fa-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Create Budget">Cancel</button>
+						<button class="btn btn-success" title="Create Budget" id="createBudgetButton"><i class="fa fa-plus"></i></button>
+                        <button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Create Budget">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -141,27 +146,40 @@
 					</div>
 					<div class="modal-body">
 						<div id="editCategoryModalBody">
-							<div class="form-group">
-								<label>Category Name</label>
-								<input id="editCatName" class="form-control" type="text" placeholder="Category Name" maxlength=48 />
-							</div>
-							<div class="form-group">
-								<label>Category Type</label>
-								<select id="editCatType" class="form-control">
-									<option value="e" selected>Expense</option>
-									<option value="i">Income</option>
-								</select>
-							</div>
-							<div class="form-group">
-								<label>Applicable Accounts</label>
+                            <input type="hidden" id="editCatId" />
+                            <div class="form-group">
+                                <label>Category Name</label>
+                                <p id="editCatName"></p>
+                                <!--<input id="editCatName" class="form-control" type="text" placeholder="Category Name" maxlength=48 />-->
+                            </div>
+                            <div class="form-group">
+                                <label>Category Type</label>
+                                <p id="editCatType"></p>
+                                <!--<select id="editCatType" class="form-control">-->
+                                    <!--<option value="e" selected>Expense</option>-->
+                                    <!--<option value="i">Income</option>-->
+                                <!--</select>-->
+                            </div>
+                            <div class="form-group">
+                                <label>Modification Type</label>
+                                <select id="editType" class="form-control">
+                                    <option value="" selected>---</option>
+                                    <option value="add">Add Account(s)</option>
+                                    <option value="remove">Remove Account(s)</option>
+                                </select>
+                                <p id="edit_acct_type_error" style="color:red;font-style:italic;display:none;">You must chose the type of update</p>
+                            </div>
+                            <div class="form-group" id="editAccountsDiv" style="display:none;">
+								<label>Accounts</label>
 								<select multiple id="editAccounts" class="form-control"></select>
+                                <p id="edit_acct_error" style="color:red;font-style:italic;display:none;">You must chose at least one Account</p>
 							</div>
 						</div>
 					</div>
 					<div class="modal-footer">
-						<div class="mr-auto">
-							<button class="btn btn-danger" title="Delete Category" id="dltCategoryButton"><i class="fa fa-trash"></i></button>
-						</div>
+						<!--<div class="mr-auto">-->
+							<!--<button class="btn btn-danger" title="Delete Category" id="dltCategoryButton"><i class="fa fa-trash"></i></button>-->
+						<!--</div>-->
 						<div class="ml-auto">
 							<button class="btn btn-primary" title="Edit Category" id="editCategoryButton"><i class="fa fa-pencil"></i></button>
 							<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Category">Cancel</button>

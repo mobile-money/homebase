@@ -17,7 +17,7 @@ $(document).ready(function() {
 	$("#positionSection").empty();
 	$("#newPayee").focus();
 
-	getCategories();
+	// getCategories();
 	getAccounts();
 	// getTransactions(null, null);
 });
@@ -824,9 +824,10 @@ function getBills() {
 }
 
 function getCategories() {
+    // console.log("acct id: " + $("#accountSelect").val());
     $.ajax({
         type: "GET"
-        ,url: "/api/v1/money/categories"
+        ,url: "/api/v1/money/categories/"+$("#accountSelect").val()
     }).success(function(response) {
         categoryArray = response;
         $("#newCategory").html('<option id="defaultCategory" />');
@@ -997,6 +998,7 @@ function getTransactions(offset, limit, transId) {
     $("#page-load").show();
     const $tableElem = $("#transactionTable");
     $("#searchDiv").show();
+    getCategories();
     clearSearch();
     setupTable();
     if (offset === null) { offset = 0; }

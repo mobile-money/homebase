@@ -10,8 +10,10 @@ $(document).ready(function() {
 	$("#monthSelector").html("Current Month ("+moment().startOf("month").format("MMM D, YYYY")+" - "+moment().endOf("month").format("MMM D, YYYY")+")");
 	$("#weekSelector").html("Current Week ("+moment().startOf("week").format("MMM D, YYYY")+" - "+moment().endOf("week").format("MMM D, YYYY")+")");
 
-	getAccounts();
-	getBudgets(null);
+	getGroups();
+	getAccounts().then(function() {
+        getBudgets(null);
+    });
 });
 
 // FIELD EVENTS
@@ -60,6 +62,63 @@ $("#budgetSelect").on("change", function() {
 	buildBudget();
 });
 
+$("#createBudgetBtn").on("click", function() {
+    categoryArray.forEach(function(category) {
+        let row = '<tr>'+
+            '<td style="padding-top:5px;padding-right:10px;">'+category.name+'</td>'+
+            '<td style="padding-top:5px;padding-right:10px;">'+
+            '<input id="'+category.id+'" type="number" min="0" max="1000000" step="1" class="form-control currency budgetAmount" />'+
+            '</td>'+
+            '<td style="padding-top:5px;">'+
+            '<select id="time_'+category.id+'" class="form-control">'+
+            '<option value="1">Daily</option>'+
+            '<option value="7">Weekly (7 days)</option>'+
+            '<option value="30" selected>Monthly (30 days)</option>'+
+            '<option value="365">Yearly (365 days)</option>'+
+            '</select>'+
+            '</td>'+
+            '</tr>';
+        if (category.expense === true) {
+            $("#newBudExpenses tbody").append(row);
+        } else {
+            $("#newBudIncomes tbody").append(row);
+        }
+    });
+    $("#createBudgetModal").modal("show");
+});
+
+$("#createBudgetButton").on("click", function(){
+    let errorCount = 0;
+    const $budgetName = $("#newBudName");
+    if (typeof $budgetName.val() !== "undefined" && $budgetName.val().length > 0) {
+        $budgetName.css("background-color", "#fff");
+    } else {
+        errorCount++;
+        $budgetName.css("background-color", "#f2dede");
+    }
+
+    if (errorCount === 0) {
+        let data = {};
+        $.each($(".budgetAmount"), function(index, obj) {
+            if (obj.value !== "") {
+                data[obj.id] = {value: obj.value, time: $("#time_"+obj.id).val()};
+                // data[obj.id] = obj.value;
+            }
+        });
+        // console.log(data);
+        addBudget($budgetName.val(), JSON.stringify(data));
+    }
+});
+
+$("#createBudgetModal").on("shown.bs.modal", function() {
+    $("#newBudName").focus();
+}).on("hidden.bs.modal", function() {
+    $("#newBudName").val("");
+    $("#newBudExpenses tbody").empty();
+    $("#newBudIncomes tbody").empty();
+    $("#newGroups option:selected").prop("selected", false);
+});
+
 $("#dateSelect").on("change", function(e) {
 	const $dateField = $("#dateFields");
 	const $startDate = $("#startDate");
@@ -102,97 +161,69 @@ $("#deleteCategoryModal").on("hidden.bs.modal", function() {
 	$("#deleteCategoryButton").off("click");
 });
 
+$("#editBudgetModal").on("shown.bs.modal", function() {
+    $("#editBudName").focus();
+}).on("hidden.bs.modal", function() {
+    $("#editBudName").val("");
+    $("#editBudExpenses").empty();
+    $("#editBudIncomes").empty();
+    $("#editBudgetButton").off("click");
+    $("#editGroups option:selected").prop("selected", false);
+});
+
 $("#editCategoryModal").on("shown.bs.modal", function() {
 	$("#editCatName").focus();
 }).on("hidden.bs.modal", function() {
-	$("#editCatName").val("");
-	$("#editCatType").val("e");
+	$("#editCatId").val("");
+	$("#editCatName").html("");
+	$("#editCatType").html("");
+	$("#editType").val("");
+    $("#editAccountsDiv").hide();
 	$("#editCategoryButton").off("click");
 	$("#editAccounts option:selected").prop("selected", false);
+    $("#edit_acct_type_error").hide();
+    $("#edit_acct_error").hide();
+    accounts.forEach(function(account){
+        $("#editAccounts").append($('<option>',{value: account.id, text: account.name}));
+    });
+});
+
+$("#editType").on("change", function(e) {
+    const id = $("#editCatId").val();
+    const currentCat = categoryLookup[id];
+    $("#editAccounts").children().remove();
+    accounts.forEach(function(account){
+        $("#editAccounts").append($('<option>',{value: account.id, text: account.name}));
+    });
+    // console.log(id);
+    // console.log(currentCat);
+    if (e.target.value === "add") {
+        // $("#editAccounts").val([3,4]);
+        $("#editAccounts > option").each(function() {
+            if (_.indexOf(JSON.parse(currentCat.account_ids), Number(this.value)) !== -1) {
+                this.remove();
+            }
+            // console.log(this.value);
+        });
+        $("#editAccountsDiv").show();
+    } else if (e.target.value === "remove") {
+        // $("#editAccounts").val(JSON.parse(currentCat.account_ids));
+        $("#editAccounts > option").each(function() {
+            if (_.indexOf(JSON.parse(currentCat.account_ids), Number(this.value)) === -1) {
+                this.remove();
+            }
+            // console.log(this.value);
+        });
+        $("#editAccountsDiv").show();
+    } else {
+        $("#editAccountsDiv").hide();
+    }
 });
 
 $("#infoModalBody").on("hidden.bs.modal", function() {
 	$("#infoModalTitle").empty();
 	$("#infoModalBody").empty();
 });
-
-
-
-
-	// BUDGET
-		// CREATE
-			$("#createBudgetBtn").click(function() {
-				categoryArray.forEach(function(category) {
-					var row = '<tr>'+
-						'<td style="padding-top:5px;padding-right:10px;">'+category.name+'</td>'+
-						'<td style="padding-top:5px;padding-right:10px;">'+
-							'<input id="'+category.id+'" type="number" min="0" max="1000000" step="1" class="form-control currency budgetAmount" />'+
-						'</td>'+
-						'<td style="padding-top:5px;">'+
-							'<select id="time_'+category.id+'" class="form-control">'+
-								'<option value="1">Daily</option>'+
-								'<option value="7">Weekly (7 days)</option>'+
-								'<option value="30" selected>Monthly (30 days)</option>'+
-								'<option value="365">Yearly (365 days)</option>'+
-							'</select>'+
-						'</td>'+
-					'</tr>';
-					if (category.expense === true) {
-						$("#newBudExpenses tbody").append(row);
-					} else {
-						$("#newBudIncomes tbody").append(row);
-					}
-				});
-				$("#createBudgetModal").modal("show");
-			});
-
-			$("#createBudgetButton").click(function(){
-				var errorCount = 0;
-				var budgetName = $("#newBudName").val();
-				if (typeof budgetName !== "undefined" && budgetName.length > 0) {
-					$("#newBudName").css("background-color", "#fff");
-				} else {
-					errorCount++;
-					$("#newBudName").css("background-color", "#f2dede");
-				}
-
-				if (errorCount === 0) {
-					var data = {};
-					$.each($(".budgetAmount"), function(index, obj) {
-						if (obj.value !== "") {
-							data[obj.id] = {value: obj.value, time: $("#time_"+obj.id).val()};
-							// data[obj.id] = obj.value;				
-						}
-					});
-					// console.log(data);
-					var dataString = JSON.stringify(data);
-					addBudget(budgetName, dataString);
-				}
-			});
-
-			$("#createBudgetModal").on("shown.bs.modal", function() {
-				$("#newBudName").focus();
-			});
-
-			$("#createBudgetModal").on("hidden.bs.modal", function() {
-				$("#newBudName").val("");
-				$("#newBudExpenses tbody").empty();
-				$("#newBudIncomes tbody").empty();
-			});
-			// EDIT
-				$("#editBudgetModal").on("shown.bs.modal", function() {
-					$("#editBudName").focus();
-				});
-
-				$("#editBudgetModal").on("hidden.bs.modal", function() {
-					$("#editBudName").val("");
-					$("#editBudExpenses").empty();
-					$("#editBudIncomes").empty();
-					$("#editBudgetButton").off("click");
-				});
-
-	// CATEGORY
-		// CREATE
 
 // SOCKET IO
 
@@ -205,7 +236,7 @@ $("#infoModalBody").on("hidden.bs.modal", function() {
 	}).on("budgetAdded", function(budget) {
 		getBudgets(budget.id);
 	}).on("budgetUpdated", function(id) {
-		if (id == $("#budgetSelect").val()) {
+		if (Number(id) === Number($("#budgetSelect").val())) {
 			buildBudget();
 		}
 	}).on("budgetDeleted", function() {
@@ -213,6 +244,24 @@ $("#infoModalBody").on("hidden.bs.modal", function() {
 	});
 
 // FUNCTIONS
+function addBudget(name, amounts) {
+    $.ajax({
+        type: "POST"
+        ,url: "/api/v1/money/budgets"
+        ,data: {
+            name: name
+            ,amounts: amounts
+            ,group_ids: JSON.stringify($("#newGroups").val())
+        }
+    }).success(function(/*response*/) {
+        $("#createBudgetModal").modal("hide");
+        return false;
+    }).error(function(/*jqXHR, textStatus, errorThrown*/) {
+        $("#infoModalBody").html("There was a problem creating the Budget.  Please try again.");
+        $("#infoModal").modal("show");
+    });
+}
+
 function addCategory(name, expense, accounts) {
     $.ajax({
         type: "POST"
@@ -270,6 +319,148 @@ function categoryTable(id) {
     }).error(function(/*jqXHR, textStatus, errorThrown*/) {
         $("#infoModalBody").html("There was a problem.  Please try again.");
         $("#infoModal").modal("show");
+    });
+}
+
+function editCategory(id) {
+    $("#editCatId").val(id);
+    $("#editCatName").html(categoryLookup[id].name);
+    // $("#editCatName").val(categoryLookup[id].name);
+    const $editCatType = $("#editCatType");
+    if (categoryLookup[id].expense === true) {
+        $editCatType.html("Expense");
+        // $("#editCatExpenseLabel").addClass("active");
+    } else {
+        $editCatType.html("Income");
+        // $("#editCatIncomeLabel").addClass("active");
+    }
+    $("#editCategoryButton").click(function() {
+        modifyCategory(id);
+    });
+    $("#editCategoryModal").modal("show");
+}
+
+function getAccounts() {
+    return new Promise(function(resolve) {
+        $.ajax({
+            type: "GET"
+            ,url: "/api/v1/money/accounts"
+        }).success(function(results) {
+            // console.log(results);
+            accounts = results;
+            results.forEach(function(account){
+                $("#newAccounts").append($('<option>',{value: account.id, text: account.name}));
+                $("#editAccounts").append($('<option>',{value: account.id, text: account.name}));
+            });
+            resolve();
+        }).error(function(/*jqXHR, textStatus, errorThrown*/) {
+            // if (jqXHR.status === 404) {
+            // 	return false;
+            // } else {
+            // 	$("#infoModalBody").html("There was a problem.  Please try again.");
+            // 	$("#infoModal").modal("show");
+            // }
+            resolve();
+        });
+    });
+}
+
+function getBudgets(id) {
+    getCategories().then(function() {
+        $("#budgetSelect").empty();
+        $("#budgetBody").empty();
+        $.ajax({
+            type: "GET"
+            ,url: "/api/v1/money/budgets"
+        }).success(function(results) {
+            results.forEach(function(budget) {
+                let option = '<option value="'+budget.id+'"';
+                if (id !== null) {
+                    if (id === budget.id) {
+                        option += ' selected';
+                    }
+                } else {
+                    if (budget.favorite === true) {
+                        option += ' selected';
+                    }
+                }
+                option += '>'+budget.name+'</option>';
+                $("#budgetSelect").append(option);
+            });
+            if ($("#budgetSelect").val() !== null) {
+                let html = '<div class="col-md-6">'+
+                    '<div class="form-group">'+
+                    '<input type="text" class="datepicker form-control" id="startDate" value="'+moment().startOf("month").format("MMM DD, YYYY")+'" />'+
+                    '<label>From</label>'+
+                    '</div>'+
+                    '</div>'+
+                    '<div class="col-md-6">'+
+                    '<div class="form-group">'+
+                    '<input type="text" class="datepicker form-control" id="endDate" value="'+moment().endOf("month").format("MMM DD, YYYY")+'" />'+
+                    '<label>To</label>'+
+                    '</div>'+
+                    '</div>';
+                $("#dateFields").html(html);
+                $("#startDate").datepicker({format: 'M dd, yyyy', endDate: moment().endOf("month").toDate(), title: "Start Date", autoclose: true}).on("changeDate", function(e) {
+                    $("#endDate").data("datepicker").setStartDate(e.date);
+                    buildBudget();
+                });
+                $("#endDate").datepicker({format: 'M dd, yyyy', startDate: moment().startOf("month").toDate(), title: "End Date", autoclose: true}).on("changeDate", function(e) {
+                    $("#startDate").data("datepicker").setEndDate(e.date);
+                    buildBudget();
+                });
+                buildBudget();
+                // getPeriods();
+            }
+        }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+            if (jqXHR.status === 404) {
+                return false;
+            } else {
+                $("#infoModalBody").html("There was a problem.  Please try again.");
+                $("#infoModal").modal("show");
+            }
+        });
+    }).catch(function() {
+        $("#budgetSelect").empty();
+        $("#budgetBody").empty();
+        $.ajax({
+            type: "GET"
+            ,url: "/api/v1/money/budgets"
+        }).success(function(results) {
+            results.forEach(function(budget) {
+                let option = '<option value="'+budget.id+'"';
+                if (id === budget.id) {
+                    option += ' selected';
+                }
+                option += '>'+budget.name+'</option>';
+                $("#budgetSelect").append(option);
+            });
+            if ($("#budgetSelect").val() !== null) {
+                let html = '<div class="col-md-6">'+
+                    '<input type="text" class="datepicker form-control" id="startDate" value="'+moment().startOf("month").format("MMM DD, YYYY")+'" />'+
+                    '</div>'+
+                    '<div class="col-md-6">'+
+                    '<input type="text" class="datepicker form-control" id="endDate" value="'+moment().endOf("month").format("MMM DD, YYYY")+'" />'+
+                    '</div>';
+                $("#dateFields").html(html);
+                $("#startDate").datepicker({format: 'M dd, yyyy', endDate: moment().endOf("month").toDate(), title: "Start Date", autoclose: true}).on("changeDate", function(e) {
+                    $("#endDate").data("datepicker").setStartDate(e.date);
+                    buildBudget();
+                });
+                $("#endDate").datepicker({format: 'M dd, yyyy', startDate: moment().startOf("month").toDate(), title: "End Date", autoclose: true}).on("changeDate", function(e) {
+                    $("#startDate").data("datepicker").setEndDate(e.date);
+                    buildBudget();
+                });
+                buildBudget();
+            }
+        }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+            if (jqXHR.status === 404) {
+                return false;
+            } else {
+                $("#infoModalBody").html("There was a problem.  Please try again.");
+                $("#infoModal").modal("show");
+            }
+        });
     });
 }
 
@@ -340,6 +531,72 @@ function getCategories() {
     });
 }
 
+function getGroups() {
+    $.ajax({
+        type: "GET"
+        ,url: '/api/v1/group'
+    }).success(function(response) {
+        // console.log(response);
+        response.forEach(function(group){
+            $("#newGroups").append($('<option>',{value: group.id, text: group.name}));
+            $("#editGroups").append($('<option>',{value: group.id, text: group.name}));
+        });
+    }).error(function(jqXHR) {
+        // console.log(jqXHR);
+    });
+}
+
+function modifyCategory(id) {
+    const action = $("#editType").val();
+    const accts = $("#editAccounts").val();
+    console.log(accts);
+    let errorCount = 0;
+    if (action === "") {
+        $("#edit_acct_type_error").show();
+        errorCount++;
+    } else { $("#edit_acct_type_error").hide(); }
+    if (accts === null) {
+        $("#edit_acct_error").show();
+        errorCount++;
+    } else { $("#edit_acct_error").hide(); }
+
+    if (errorCount === 0) {
+        $.ajax({
+            type: "PUT"
+            ,url: "/api/v1/money/categories/"+id
+            ,data: {
+                action: action,
+                account_ids: JSON.stringify(accts)
+            }
+        }).success(function(/*category*/) {
+            $("#editCategoryModal").modal("hide");
+            return false;
+        }).error(function(/*jqXHR, textStatus, errorThrown*/) {
+            $("#infoModalBody").html("There was a problem updating the Category.  Please try again.");
+            $("#infoModal").modal("show");
+        });
+    }
+}
+
+// function removeCategory(id) {
+// 	$("#deleteCategoryModal").modal("hide");
+// 	$.ajax({
+// 		type: "DELETE"
+// 		,url: "/api/v1/money/categories/"+id
+// 	})
+// 	.success(function() {
+// 		return false;
+// 	})
+// 	.error(function(jqXHR, textStatus, errorThrown) {
+// 		if (jqXHR.status === 404) {
+// 			return false;
+// 		} else {
+// 			$("#infoModalBody").html("There was a problem deleting the Category.  Please try again.");
+// 			$("#infoModal").modal("show");
+// 		}
+// 	});
+// }
+
 	function favoriteBudget() {
 		var selectedBudget = $("#budgetSelect").val();
 		$.ajax({
@@ -351,125 +608,7 @@ function getCategories() {
 		});
 	}
 
-	function getAccounts() {
-		$.ajax({
-			type: "GET"
-			,url: "/api/v1/money/accounts"
-		}).success(function(results) {
-			accounts = results;
-			// console.log(results);
-			results.forEach(function(account){
-				$("#newAccounts").append($('<option>',{value: account.id, text: account.name}));
-				$("#editAccounts").append($('<option>',{value: account.id, text: account.name}));
-			});
-		}).error(function(/*jqXHR, textStatus, errorThrown*/) {
-			// if (jqXHR.status === 404) {
-			// 	return false;
-			// } else {
-			// 	$("#infoModalBody").html("There was a problem.  Please try again.");
-			// 	$("#infoModal").modal("show");
-			// }
-		});
-	}
 
-	function getBudgets(id) {
-		getCategories().then(function() {
-			// $("#budgetSelect").empty();
-			// $("#budgetBody").empty();
-			// $.ajax({
-			// 	type: "GET"
-			// 	,url: "/api/v1/money/budgets"
-			// }).success(function(results) {
-			// 	results.forEach(function(budget) {
-			// 		let option = '<option value="'+budget.id+'"';
-			// 		if (id !== null) {
-			// 			if (id === budget.id) {
-			// 				option += ' selected';
-			// 			}
-			// 		} else {
-			// 			if (budget.favorite === true) {
-			// 				option += ' selected';
-			// 			}
-			// 		}
-			// 		option += '>'+budget.name+'</option>';
-			// 		$("#budgetSelect").append(option);
-			// 	});
-			// 	if ($("#budgetSelect").val() !== null) {
-			// 		let html = '<div class="col-md-6">'+
-			// 			'<div class="form-group">'+
-			// 				'<input type="text" class="datepicker form-control" id="startDate" value="'+moment().startOf("month").format("MMM DD, YYYY")+'" />'+
-			// 				'<label>From</label>'+
-			// 			'</div>'+
-			// 		'</div>'+
-			// 		'<div class="col-md-6">'+
-			// 			'<div class="form-group">'+
-			// 				'<input type="text" class="datepicker form-control" id="endDate" value="'+moment().endOf("month").format("MMM DD, YYYY")+'" />'+
-			// 				'<label>To</label>'+
-			// 			'</div>'+
-			// 		'</div>';
-			// 		$("#dateFields").html(html);
-			// 		$("#startDate").datepicker({format: 'M dd, yyyy', endDate: moment().endOf("month").toDate(), title: "Start Date", autoclose: true}).on("changeDate", function(e) {
-			// 			$("#endDate").data("datepicker").setStartDate(e.date);
-			// 			buildBudget();
-			// 		});
-			// 		$("#endDate").datepicker({format: 'M dd, yyyy', startDate: moment().startOf("month").toDate(), title: "End Date", autoclose: true}).on("changeDate", function(e) {
-			// 			$("#startDate").data("datepicker").setEndDate(e.date);
-			// 			buildBudget();
-			// 		});
-			// 		buildBudget();
-			// 		// getPeriods();
-			// 	}
-			// }).error(function(jqXHR/*, textStatus, errorThrown*/) {
-			// 	if (jqXHR.status === 404) {
-			// 		return false;
-			// 	} else {
-			// 		$("#infoModalBody").html("There was a problem.  Please try again.");
-			// 		$("#infoModal").modal("show");
-			// 	}
-			// });
-		}).catch(function() {
-			// $("#budgetSelect").empty();
-			// $("#budgetBody").empty();
-			// $.ajax({
-			// 	type: "GET"
-			// 	,url: "/api/v1/money/budgets"
-			// }).success(function(results) {
-			// 	results.forEach(function(budget) {
-			// 		let option = '<option value="'+budget.id+'"';
-			// 		if (id === budget.id) {
-			// 			option += ' selected';
-			// 		}
-			// 		option += '>'+budget.name+'</option>';
-			// 		$("#budgetSelect").append(option);
-			// 	});
-			// 	if ($("#budgetSelect").val() !== null) {
-			// 		let html = '<div class="col-md-6">'+
-			// 			'<input type="text" class="datepicker form-control" id="startDate" value="'+moment().startOf("month").format("MMM DD, YYYY")+'" />'+
-			// 		'</div>'+
-			// 		'<div class="col-md-6">'+
-			// 			'<input type="text" class="datepicker form-control" id="endDate" value="'+moment().endOf("month").format("MMM DD, YYYY")+'" />'+
-			// 		'</div>';
-			// 		$("#dateFields").html(html);
-			// 		$("#startDate").datepicker({format: 'M dd, yyyy', endDate: moment().endOf("month").toDate(), title: "Start Date", autoclose: true}).on("changeDate", function(e) {
-			// 			$("#endDate").data("datepicker").setStartDate(e.date);
-			// 			buildBudget();
-			// 		});
-			// 		$("#endDate").datepicker({format: 'M dd, yyyy', startDate: moment().startOf("month").toDate(), title: "End Date", autoclose: true}).on("changeDate", function(e) {
-			// 			$("#startDate").data("datepicker").setEndDate(e.date);
-			// 			buildBudget();
-			// 		});
-			// 		buildBudget();
-			// 	}
-			// }).error(function(jqXHR/*, textStatus, errorThrown*/) {
-			// 	if (jqXHR.status === 404) {
-			// 		return false;
-			// 	} else {
-			// 		$("#infoModalBody").html("There was a problem.  Please try again.");
-			// 		$("#infoModal").modal("show");
-			// 	}
-			// });
-		});
-	}
 
 	function getPeriods() {
 		$.ajax({
@@ -507,21 +646,22 @@ function getCategories() {
 	}
 
 	function buildBudget() {
-		var budgetDays = (moment($("#endDate").datepicker("getDate")).diff(moment($("#startDate").datepicker("getDate")), "days") + 1);
+        const $endDate = $("#endDate");
+        const $startDate = $("#startDate");
+		let budgetDays = (moment($endDate.datepicker("getDate")).diff(moment($startDate.datepicker("getDate")), "days") + 1);
 		$.ajax({
 			type: "GET"
 			// ,url: "/api/v1/money/budgets/full/1/"+$("#periodSelect").val()
-			,url: "/api/v1/money/budgets/full/"+$("#budgetSelect").val()+"/"+moment($("#startDate").datepicker("getUTCDate")).format('X')+'/'+moment($("#endDate").datepicker("getUTCDate")).format('X')
-		})
-		.success(function(data) {
+			,url: "/api/v1/money/budgets/full/"+$("#budgetSelect").val()+"/"+moment($startDate.datepicker("getUTCDate")).format('X')+'/'+moment($endDate.datepicker("getUTCDate")).format('X')
+		}).success(function(data) {
 			// console.log(data);
 			// console.log(budgetDays);
-			var totalExpense = 0;
-			var totalIncome = 0;
-			var budgetedExpense = 0;
-			var budgetedIncome = 0;
-			var budget = JSON.parse(data.budget.amounts);
-			var head = '<div class="col-md-12">'+
+			let totalExpense = 0;
+			let totalIncome = 0;
+			let budgetedExpense = 0;
+			let budgetedIncome = 0;
+			let budget = JSON.parse(data.budget.amounts);
+			let head = '<div class="col-md-12">'+
 				'<h1 id="budgetName" style="display:inline-block;margin-right:10px;">'+
 					data.budget.name+
 				'</h1>'+
@@ -529,7 +669,7 @@ function getCategories() {
 					if (data.budget.favorite === true) {
 						head += ' disabled><i id="favBudgetIcon" class="fa fa-star text-warning"></i>';
 					} else {
-						head += ' onclick="favoriteBudget();"><i id="favBudgetIcon" class="fa fa-star-empty text-warning"></i>';
+						head += ' onclick="favoriteBudget();"><i id="favBudgetIcon" class="fa fa-star-half text-warning"></i>';
 					}
 				head += '</button>'+
 				'<button class="btn btn-primary btn-sm" id="budgetEditBtn" title="Edit Budget" style="margin-right:5px;">'+
@@ -539,18 +679,18 @@ function getCategories() {
 					'<i class="fa fa-trash"></i>'+
 				'</button>'+
 			'</div>';
-			var startTable = '<div class="col-md-12"><table class="table table-striped"><thead><th class="col-md-2"></th><th class="col-md-1"></th><th class="col-md-8"></th><th class="col-md-1"></th></thead><tbody>';
-			var expenses = '<tr><td colspan="4"><strong>Expenses</strong></td></tr>';
-			var incomes = '<tr><td colspan="4"><strong>Incomes</strong></td></tr>';
+			let startTable = '<div class="col-md-12"><table class="table table-striped"><thead><th class="col-md-2"></th><th class="col-md-1"></th><th class="col-md-8"></th><th class="col-md-1"></th></thead><tbody>';
+			let expenses = '<tr><td colspan="4"><strong>Expenses</strong></td></tr>';
+			let incomes = '<tr><td colspan="4"><strong>Incomes</strong></td></tr>';
 
 			categoryArray.forEach(function(category) {
 				if (category.id != 1) {
                     if (budget.hasOwnProperty(category.id)) {
-                        var calcWidth = 0;
-                        var barWidth = 0;
-                        var thisBudget = budget[category.id.toString()];
-                        var budgetRatio = budgetDays / Number(thisBudget.time);
-                        var adjustedBudget = Math.ceil(thisBudget.value * budgetRatio);
+                        let calcWidth = 0;
+                        let barWidth = 0;
+                        let thisBudget = budget[category.id.toString()];
+                        let budgetRatio = budgetDays / Number(thisBudget.time);
+                        let adjustedBudget = Math.ceil(thisBudget.value * budgetRatio);
                         // console.log(adjustedBudget);
                         // var thisBudget = _.where(budget, {id: category.id.toString()});
                         // console.log(thisBudget);
@@ -565,7 +705,7 @@ function getCategories() {
                             } else {
                                 barWidth = calcWidth;
                             }
-                            var barColorClass = "progress-bar-success";
+                            let barColorClass = "progress-bar-success";
                             if (calcWidth > 100) {
                                 barColorClass = "progress-bar-danger";
                             } else if (calcWidth > 70) {
@@ -592,7 +732,7 @@ function getCategories() {
                             } else {
                                 barWidth = calcWidth;
                             }
-                            var barColorClass = "progress-bar-danger";
+                            let barColorClass = "progress-bar-danger";
                             if (calcWidth > 100) {
                                 barColorClass = "progress-bar-success";
                             } else if (calcWidth > 70) {
@@ -615,22 +755,22 @@ function getCategories() {
                 }
 			});
 
-			var budgetBar = '<div class="col-md-6" style="font-size:0.7em;">Budgeted&nbsp;&#43;&#47;&#45;<br /><div class="progress">';
-			var largestB = 0;
+			let budgetBar = '<div class="col-md-6" style="font-size:0.7em;">Budgeted&nbsp;&#43;&#47;&#45;<br /><div class="progress">';
+			let largestB = 0;
 			if (budgetedIncome >= budgetedExpense) {
 				largestB = budgetedIncome;
 			} else {
 				largestB = budgetedExpense;
 			}
-			var diffB = budgetedIncome - budgetedExpense;
+			let diffB = budgetedIncome - budgetedExpense;
 			if (diffB > 0) {
-				var plusWidth = Math.floor((diffB / largestB) * 100);
+				let plusWidth = Math.floor((diffB / largestB) * 100);
 				budgetBar += '<div class="progress-bar" role="progressbar" style="width:50%;background:transparent;"></div>'+
 					'<div class="progress-bar progress-bar-success" role="progressbar" style="font-size:0.9em;width:'+plusWidth+'%;min-width:10%;">'+
 						"+$"+diffB.toFixed(2)+
 					'</div>';
 			} else if (diffB < 0) {
-				var minusWidth = Math.floor((Math.abs(diffB) / largestB) * 100);
+				let minusWidth = Math.floor((Math.abs(diffB) / largestB) * 100);
 				budgetBar += '<div class="progress-bar" role="progressbar" style="width:'+(50 - minusWidth)+'%;max-width:40%;background:transparent;"></div>'+
 					'<div class="progress-bar progress-bar-danger" role="progressbar" style="font-size:0.9em;width:'+minusWidth+'%;min-width:10%;">'+
 						"-$"+Math.abs(diffB.toFixed(2))+
@@ -641,14 +781,14 @@ function getCategories() {
 			}
 			budgetBar += '</div></div>';
 
-			var statusBar = '<div class="col-md-6" style="font-size:0.7em;">Current&nbsp;&#43;&#47;&#45;<br /><div class="progress">';
-			var largest = 0;
+			let statusBar = '<div class="col-md-6" style="font-size:0.7em;">Current&nbsp;&#43;&#47;&#45;<br /><div class="progress">';
+			let largest = 0;
 			if (totalIncome >= totalExpense) {
 				largest = totalIncome;
 			} else {
 				largest = totalExpense;
 			}
-			var diff = totalIncome - totalExpense;
+			let diff = totalIncome - totalExpense;
 			if (diff > 0) {
 				var plusWidth = Math.floor((diff / largest) * 100);
 				statusBar += '<div class="progress-bar" role="progressbar" style="width:50%;background:transparent;"></div>'+
@@ -656,7 +796,7 @@ function getCategories() {
 						"+$"+diff.toFixed(2)+
 					'</div>';
 			} else if(diff < 0) {
-				var minusWidth = Math.floor((Math.abs(diff) / largest) * 100);
+				let minusWidth = Math.floor((Math.abs(diff) / largest) * 100);
 				statusBar += '<div class="progress-bar" role="progressbar" style="max-width:40%;width:'+(50 - minusWidth)+'%;background:transparent;"></div>'+
 					'<div class="progress-bar progress-bar-danger" role="progressbar" style="font-size:0.9em;width:'+minusWidth+'%;min-width:10%;">'+
 						"-$"+Math.abs(diff.toFixed(2))+
@@ -666,8 +806,8 @@ function getCategories() {
 				statusBar += '<div class="progress-bar" role="progressbar" style="font-size:0.9em;width:100%;">Right On!</div>';
 			}
 			statusBar += '</div></div>';
-			var endTable = '</tbody></table></div>';
-			var page = head+'<div class="col-md-12">'+budgetBar+statusBar+"</div>"+startTable+expenses+incomes+endTable;
+			let endTable = '</tbody></table></div>';
+			let page = head+'<div class="col-md-12">'+budgetBar+statusBar+"</div>"+startTable+expenses+incomes+endTable;
 			$("#budgetBody").html(page);
 			$("#budgetEditBtn").click(function() {
 				editBudget(data.budget);
@@ -675,8 +815,7 @@ function getCategories() {
 			$("#budgetDeleteBtn").click(function() {
 				deleteBudget($("#budgetSelect").val());
 			});
-		})
-		.error(function(jqXHR, textStatus, errorThrown) {
+		}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
 		});
@@ -685,52 +824,7 @@ function getCategories() {
 
 
 
-	function editCategory(id) {
-		$("#editCatName").val(categoryLookup[id].name);
-		if (categoryLookup[id].expense === true) {
-			$("#editCatExpenseLabel").addClass("active");
-		} else {
-			$("#editCatIncomeLabel").addClass("active");
-		}
-		$("#editCategoryButton").click(function() {
-			modifyCategory(id);
-		});
-		$("#editCategoryModal").modal("show");
-	}
 
-	function modifyCategory(id) {
-		var errorCount = 0;
-		var categoryName = $("#editCatName").val();
-		if (typeof categoryName !== "undefined" && categoryName.length > 0) {
-			$("#editCatName").css("background-color", "#fff");
-		} else {
-			errorCount++;
-			$("#editCatName").css("background-color", "#f2dede");
-		}
-
-		if (errorCount === 0) {
-			var exp = true;
-			if ($("#editCatIncomeLabel").hasClass("active")) {
-				exp = false;
-			}
-			$.ajax({
-				type: "PUT"
-				,url: "/api/v1/money/categories/"+id
-				,data: {
-					name: categoryName
-					,expense: exp
-				}
-			})
-			.success(function(category) {
-				$("#editCategoryModal").modal("hide");
-				return false;
-			})
-			.error(function(jqXHR, textStatus, errorThrown) {
-				$("#infoModalBody").html("There was a problem updating the Category.  Please try again.");
-				$("#infoModal").modal("show");
-			});
-		}
-	}
 
 	function deleteCategory(id) {
 		var name = categoryLookup[id].name;
@@ -741,43 +835,7 @@ function getCategories() {
 		$("#deleteCategoryModal").modal("show");
 	}
 
-	function removeCategory(id) {
-		$("#deleteCategoryModal").modal("hide");
-		$.ajax({
-			type: "DELETE"
-			,url: "/api/v1/money/categories/"+id
-		})
-		.success(function() {
-			return false;
-		})
-		.error(function(jqXHR, textStatus, errorThrown) {
-			if (jqXHR.status === 404) {
-				return false;
-			} else {
-				$("#infoModalBody").html("There was a problem deleting the Category.  Please try again.");
-				$("#infoModal").modal("show");
-			}
-		});
-	}
 
-	function addBudget(name, amounts) {
-		$.ajax({
-			type: "POST"
-			,url: "/api/v1/money/budgets"
-			,data: {
-				name: name
-				,amounts: amounts
-			}
-		})
-		.success(function(response) {
-			$("#createBudgetModal").modal("hide");
-			return false;
-		})
-		.error(function(jqXHR, textStatus, errorThrown) {
-			$("#infoModalBody").html("There was a problem creating the Budget.  Please try again.");
-			$("#infoModal").modal("show");
-		});
-	}
 
 	function editBudget(budget) {
 		$("#editBudName").val(budget.name);

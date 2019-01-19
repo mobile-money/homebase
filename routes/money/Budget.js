@@ -2,42 +2,45 @@ module.exports = function(app, Budget, _, io) {
 	// Create budget
 	app.post("/api/v1/money/budgets", function(req, res) {
 		console.log("budget add requested");
-		var body = _.pick(req.body, 'name', 'amounts');
-		Budget.add(body)
-		.then(
-			function(budget) {
-				console.log("budget added");
-				io.emit("budgetAdded", budget);
-				res.status(204).send();
-			}
-			,function(error) {
-				console.log("budget add error: "+error);
+		let body = _.pick(req.body, 'name', 'amounts', 'group_ids');
+		if (body.group_ids === 'null') {
+			body.group_ids = [];
+		} else {
+			body.group_ids = JSON.parse(body.group_ids);
+		}
+		Budget.add(req.user,body).then(function(budget) {
+			console.log("budget added");
+			io.emit("budgetAdded", budget);
+			res.status(204).send();
+		}).catch(function(error) {
+			console.log("budget creation error: "+error);
+			if (error === "unauthorized") {
+				res.status(401).send();
+			} else {
 				res.status(500).send();
 			}
-		);
+		});
 	});
 
 	// Get all budgets
 	app.get("/api/v1/money/budgets/", function(req, res) {
 		console.log("budgets requested");
-		Budget.getAll()
-		.then(
-			function(results) {
-				if (results.length > 0) {
-					console.log("budgets retrieved");
-					res.json(results);
-				} else {
-					console.log("no budgets found");
-					res.status(404).send();
-				}
+		Budget.getAll(req.user).then(function(results) {
+			if (results.length > 0) {
+				console.log("budgets retrieved");
+				res.json(results);
+			} else {
+				console.log("no budgets found");
+				res.status(404).send();
 			}
-		)
-		.catch(
-			function(error) {
-				console.log("budgets retrieval error: "+error);
+		}).catch(function(error) {
+			console.log("budgets retrieval error: "+error);
+			if (error === "unauthorized") {
+				res.status(401).send();
+			} else {
 				res.status(500).send();
 			}
-		);
+		});
 	});
 
 	// Get budget by ID

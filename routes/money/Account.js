@@ -32,8 +32,7 @@ module.exports = function(app, Account, _, io) {
 			console.log("account created");
 			io.emit("accountAdded", account.id);
 			res.status(201).send();
-		}).catch(
-		function(error) {
+		}).catch(function(error) {
 			console.log("account creation error: "+error);
 			if (error === "unauthorized") {
 				res.status(401).send();

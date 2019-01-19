@@ -6,13 +6,13 @@ module.exports = function(db, admin) {
 	return {
 		create: function(user, newAccount) {
 			return new Promise(function(resolve, reject) {
-				admin.User.findById(user.id).then(function(foundUser) {
+				admin.User.findById(user.id).then(function(/*foundUser*/) {
 					let acct = {
 						name: newAccount.name.trim()
 						,type: newAccount.type.trim()
 						,default: newAccount.default
+                        ,ownerId: user.id
 					};
-					acct.ownerId = user.id;
 					// Make sure groups is array of INTs
 					acct.group_ids = _.map(newAccount.group_ids, function(val) { return Number(val); });
 					db.Account.create(acct).then(function(account) {
