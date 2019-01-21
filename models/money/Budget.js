@@ -1,3 +1,5 @@
+const Sequelize = require('sequelize');
+const { fn, col } = Sequelize;
 module.exports = function(sequelize, DataTypes) {
 	let Budget = sequelize.define('Budget', {
 		name: {
@@ -23,6 +25,9 @@ module.exports = function(sequelize, DataTypes) {
 		,group_ids: {
 			type: DataTypes.JSON
 		}
+		,account_ids: {
+			type: DataTypes.JSON
+		}
 	},{
 		classMethods: {
 			validateBudgetAccess: function(user, budget_id) {
@@ -32,12 +37,13 @@ module.exports = function(sequelize, DataTypes) {
 					let params = {
 						id: budget_id,
 						$or: [
-							{ ownerId: user.id },
+							{ ownerId: user.id }
 						]
 					};
 					user.groups.forEach(function(group) {
 						params.$or.push(fn('JSON_CONTAINS', col('group_ids'), String(group.id)));
 					});
+					// console.log("params: "+params);
 					Budget.findAll({
 						where: params
 					}).then(function(budget) {
@@ -46,10 +52,12 @@ module.exports = function(sequelize, DataTypes) {
 								resolve();
 							} else {
 								// somethings off, only one budget should be returned
+								// console.log("too many");
 								reject()
 							}
 						} else {
-							// no such car found
+							// no such budget found
+							// console.log("nothing");
 							reject();
 						}
 					}).catch(function(error) {

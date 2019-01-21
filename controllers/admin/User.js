@@ -1,9 +1,55 @@
+const bcrypt = require("bcryptjs");
 const cryptojs = require("crypto-js");
 const _ = require("underscore");
 const moment = require("moment");
 
 module.exports = function(db) {
 	return {
+		changeName: function(user, data) {
+			return new Promise(function(resolve, reject) {
+				db.User.update({
+					firstName: data.firstName,
+					lastName: data.lastName
+				}, {
+					where: { id: user.id }
+				}).then(function() {
+					resolve();
+				}).catch(function(error) {
+					console.log("catch error on User controller changeName method: " + error);
+					reject();
+				});
+			});
+		},
+		changePassword: function(user, data) {
+			return new Promise(function(resolve, reject) {
+				// Get the current user
+				db.User.findOne({where: { id: user.id } }).then(function(foundUser) {
+					if (foundUser !== null) {
+						db.User.authenticate({email: foundUser.email, password: data.currentPassword}).then(function(authUser) {
+							let salt = bcrypt.genSaltSync(10);
+							let hashedPassword = bcrypt.hashSync(data.newPassword, salt);
+							authUser.salt = salt;
+							authUser.password_hash = hashedPassword;
+							authUser.save().then(function() {
+								resolve();
+							});
+							// this.setDataValue("password", value);
+							// this.setDataValue("salt", salt);
+							// this.setDataValue("password_hash", hashedPassword);
+						}, function(error) {
+							console.log("error authenticating user: " + error);
+							reject("bad_password");
+						});
+					} else {
+						console.log("user not found");
+						reject();
+					}
+				}).catch(function(error) {
+					console.log("catch error on User controller changePassword method: " + error);
+					reject();
+				});
+			});
+		},
 		create: function(data) {
 			return new Promise(function(resolve, reject) {
 				// Check for exiting account (email)
@@ -34,7 +80,7 @@ module.exports = function(db) {
 
 			});
 		}
-		,getOther: function(user) {
+		,getOther: function(/*user*/) {
 			return new Promise(function(resolve, reject) {
 				db.User.findAll({
 					// where: {

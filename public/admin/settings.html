@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>Account Settings</title>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+		<link rel="stylesheet" href="../shared/css/style.css">
+		<link rel="shortcut icon" href="../shared/img/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="../shared/img/favicon.ico" type="image/x-icon">
+	</head>
+	<body style="display: none;">
+		<!--Start Info Modal-->
+		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div id="infoModalBody"></div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-info" data-dismiss="modal" aria-label="OK" title="OK">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Info Modal-->
+
+		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+			<a class="navbar-brand" href="/homebase">
+				<img src="../shared/img/brand.png" style="height:1em;"  alt="brand"/>
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item"><a class="nav-link" href="/money/accounts">Accounts</a></li>
+					<li class="nav-item"><a class="nav-link" href="/automobile/cars">Cars</a></li>
+					<li class="nav-item"><a class="nav-link" href="/health/people">People</a></li>
+				</ul>
+				<ul class="navbar-nav ml-auto">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							Hello, <span id="user_name"></span>
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+							<li><a href="/admin/settings">My Account</a></li>
+							<li><a href="/admin/groups">Groups</a></li>
+							<li><a href="#" onClick="logOut();">Log Out</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div><!-- /.navbar-collapse -->
+		</nav>
+
+		<div class="container-fluid">
+			<div class='row justify-content-center'>
+				<div class="col-4 card" style="padding:10px;margin:10px;">
+					<h3>Change Password</h3>
+					<div class="form-group">
+						<label for="currentPassword">Current Password</label>
+						<input type="password" class="form-control" id="currentPassword" />
+						<p id="currentPasswordError" style="color:red;font-style:italic;"></p>
+					</div>
+					<div class="form-group">
+						<label for="newPassword">New Password</label>
+						<input type="password" class="form-control" id="newPassword" />
+						<p id="newPasswordError" style="color:red;font-style:italic;"></p>
+					</div>
+					<div class="form-group">
+						<label for="confirmNewPassword">Confirm New Password</label>
+						<input type="password" class="form-control" id="confirmNewPassword" />
+						<p id="confirmNewPasswordError" style="color:red;font-style:italic;"></p>
+					</div>
+					<button class="btn btn-primary" id="changePasswordButton">Change Password</button>
+				</div>
+			</div>
+			<div class='row justify-content-center'>
+				<div class="col-4 card" style="padding:10px;margin:10px;">
+					<h3>Change Name</h3>
+					<div class="form-group">
+						<label for="firstName">First Name</label>
+						<input type="text" class="form-control" id="firstName" maxlength="24" />
+						<p id="firstNameError" style="color:red;font-style:italic;"></p>
+					</div>
+					<div class="form-group">
+						<label for="lastName">Last Name</label>
+						<input type="text" class="form-control" id="lastName" maxlength="24" />
+						<p id="lastNameError" style="color:red;font-style:italic;"></p>
+					</div>
+					<button class="btn btn-primary" id="changeNameButton">Change Name</button>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="../shared/js/jquery.color-2.1.2.min.js"></script>
+		<!--<script type="text/javascript" src="../shared/js/socket.io-2.1.1.js"></script>-->
+		<!-- Latest compiled and minified JavaScript -->
+		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../shared/js/underscore-1.8.3.js"></script>
+		<script type="text/javascript" src="js/global.js"></script>
+		<script type="text/javascript" src="js/settings.js"></script>
+	</body>
+</html>

@@ -48,6 +48,10 @@
 							<div><strong>Expenses</strong><table id="newBudExpenses"><thead><tr style="font-size:0.7em;font-weight:bold;text-align:center;"><td>Category</td><td>Amount</td><td>Time Span</td></tr></thead><tbody></tbody></table></div>
 							<div><br /><strong>Incomes</strong><table id="newBudIncomes"><thead><tr style="font-size:0.7em;font-weight:bold;text-align:center;"><td>Category</td><td>Amount</td><td>Time Span</td></tr></thead><tbody></tbody></table></div>
                             <div class="form-group">
+                                <label>Applicable Account(s)</label>
+                                <select multiple id="newBudAccounts" class="form-control"></select>
+                            </div>
+                            <div class="form-group">
                                 <label>Group Access</label>
                                 <select multiple id="newGroups" class="form-control"></select>
                             </div>
@@ -76,7 +80,15 @@
 							</div>
 							<div><strong>Expenses</strong><table id="editBudExpenses"><thead><tr style="font-size:0.7em;font-weight:bold;text-align:center;"><td>Category</td><td>Amount</td><td>Time Span</td></tr></thead><tbody></tbody></table></div>
 							<div><br /><strong>Incomes</strong><table id="editBudIncomes"><thead><tr style="font-size:0.7em;font-weight:bold;text-align:center;"><td>Category</td><td>Amount</td><td>Time Span</td></tr></thead><tbody></tbody></table></div>
-						</div>
+                            <div class="form-group">
+                                <label>Applicable Account(s)</label>
+                                <select multiple id="editBudAccounts" class="form-control"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Group Access</label>
+                                <select multiple id="editGroups" class="form-control"></select>
+                            </div>
+                        </div>
 					</div>
 					<div class="modal-footer">
 						<button class="btn btn-primary" title="Edit Budget" id="editBudgetButton"><i class="fa fa-pencil"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Edit Budget">Cancel</button>
@@ -231,6 +243,7 @@
 							<span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu dropdown-menu-right text-center" aria-labelledby="userDropdown">
+                            <li><a href="/admin/settings">My Account</a></li>
 							<li><a href="/admin/groups">Groups</a></li>
 							<li><a href="#" onClick="logOut();">Log Out</a></li>
 						</ul>
@@ -245,7 +258,7 @@
 				<div class="col-sm-9">
 					<div class="row">
 						<div class="col-sm-3">
-							<button class="btn btn-success" id="createBudgetBtn">Create Budget</button>
+							<button class="btn btn-success btn-sm" id="createBudgetBtn">Create Budget</button>
 						</div>
 						<div class="col-sm-3">
 							<select id="budgetSelect" class="form-control"></select>
@@ -259,9 +272,8 @@
 							</select>
 						</div>
 					</div>
-					<div class="row">
-						<div class="col-sm-3"></div>
-						<div class="col-sm-6" id="dateFields" style="display:none;"></div>
+					<div class="row justify-content-end">
+						<div class="col-sm-6" id="dateFields" style="display:none;margin-top:10px;"></div>
 					</div>
 					<div class="row">
 						<div class="col-sm-12" id="budgetBody">
@@ -272,7 +284,7 @@
 				<div class="col-sm-3">
 					<div class="row">
 						<div class="col-sm-12">
-							<button class="btn btn-success" id="addCategoryBtn">Add Category</button>
+							<button class="btn btn-success btn-sm" id="addCategoryBtn">Add Category</button>
 						</div>
 					</div>
 					<div class="row">

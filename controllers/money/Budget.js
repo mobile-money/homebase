@@ -21,25 +21,38 @@ module.exports = function(db, admin) {
 					},
 					order: [["name", "ASC"]]
 				}).then(function(results) {
-					resolve(results);
+					let finResults = [];
+					results.forEach(function(result) {
+						let tObj = {
+							id: result.id,
+							name: result.name,
+							amounts: result.amounts,
+							groups: JSON.parse(result.group_ids),
+							accounts: JSON.parse(result.account_ids)
+						};
+						if (result.ownerId === user.id) {
+							tObj.owner = true;
+						}
+						finResults.push(tObj);
+					});
+					resolve(finResults);
 				}).catch(function(error) {
 					reject(error);
 				});
 			});
 		}
-		,getById: function(id) {
+		,getById: function(user, id) {
 			return new Promise(function(resolve, reject) {
-				db.Budget.findById(id)
-				.then(
-					function(result) {
+				db.Budget.validateBudgetAccess(user, id).then(function() {
+					db.Budget.findById(id).then(function(result) {
 						resolve(result);
-					}
-				)
-				.catch(
-					function(error) {
-						reject(error);
-					}
-				);
+					});
+				}, function() {
+					reject("unauthorized");
+				}).catch(function(error) {
+					console.log("catch error on Budget controller getById method: " + error);
+					reject(error);
+				});
 			});
 		}
 		,add: function(user, data) {
@@ -52,6 +65,8 @@ module.exports = function(db, admin) {
 					};
 					// Make sure groups is array of INTs
 					budget.group_ids = _.map(data.group_ids, function(val) { return Number(val); });
+					// Make sure accounts is array of INTs
+					budget.account_ids = _.map(data.account_ids, function(val) { return Number(val); });
 					db.Budget.create(budget).then(function(newBudget) {
 						resolve(newBudget);
 					});
@@ -63,145 +78,158 @@ module.exports = function(db, admin) {
 				});
 			});
 		}
-		,update: function(data) {
+		,update: function(user, data) {
 			return new Promise(function(resolve, reject) {
-				db.Budget.findById(data.id)
-				.then(
-					function(budget) {
-						if (budget !== null) {
-							budget.name = data.name;
-							budget.amounts = data.amounts;
-							budget.save()
-							.then(
-								function() {
-									budget.reload();
-									resolve(budget);
-								}
-							)
-						} else {
-							reject({code: 1});
-						}
+				db.Budget.findOne({
+					where: {
+						id: data.id,
+						ownerId: user.id
 					}
-				)
-				.catch(
-					function(error) {
-						reject({code: -1, error: error});
+				}).then(function(budget) {
+					if (budget !== null) {
+						budget.name = data.name;
+						budget.amounts = data.amounts;
+						budget.group_ids = _.map(data.group_ids, function(val) { return Number(val); });
+						budget.account_ids = _.map(data.account_ids, function(val) { return Number(val); });
+						budget.save().then(function() {
+							budget.reload();
+							resolve(budget);
+						});
+					} else {
+						reject({code: 1});
 					}
-				);
+				}).catch(function(error) {
+					reject({code: -1, error: error});
+				});
 			});
 		}
-		,delete: function(id) {
+		,delete: function(user, id) {
 			return new Promise(function(resolve, reject) {
 				db.Budget.destroy({
 					where: {
-						id: id
+						id: id,
+						ownerId: user.id
 					}
-				})
-				.then(
-					function(rows) {
-						if (rows === 1) {
-							resolve();
-						} else {
-							reject({code: 1});
-						}
+				}).then(function(rows) {
+					if (rows === 1) {
+						resolve();
+					} else {
+						reject({code: 1});
 					}
-				)
-				.catch(
-					function(error) {
-						reject({code: -1, error: error});
-					}
-				);
+				}).catch(
+				function(error) {
+					reject({code: -1, error: error});
+				});
 			});
 		}
-		,values: function(id, start, end) {
+		,values: function(user, id, start, end) {
 			return new Promise(function(resolve, reject) {
-				db.Budget.findById(id).then(function(budg) {
-					var amounts = JSON.parse(budg.amounts);
-					var categoryIds = _.keys(amounts);
-					db.Transaction.findAll({
-						where: {
-							CategoryId: {
-								$in: categoryIds
-							}
-							,transactionDate: {
-								$gte: moment.unix(start)
-								,$lte: moment.unix(end)
-							}
+				db.Budget.validateBudgetAccess(user, id).then(function() {
+					db.Budget.findById(id).then(function(budg) {
+						let tObj = {
+							id: budg.id,
+							name: budg.name,
+							amounts: budg.amounts,
+							groups: JSON.parse(budg.group_ids),
+							accounts: JSON.parse(budg.account_ids)
+						};
+						if (budg.ownerId === user.id) {
+							tObj.owner = true;
 						}
-					}).then(function(trans) {
-						var totals = {};
-						for (var i = 0; i < categoryIds.length; i++) {
-							var budTotal = 0;
-							for (var k = 0; k < trans.length; k++) {
-								if (Number(trans[k].CategoryId) === Number(categoryIds[i])) {
-									budTotal += trans[k].amount;
-								}
-							}
-							totals[categoryIds[i]] = budTotal;
-						}
-						// Get multi transactions
-                        db.Transaction.findAll({
-                            where: {
-                                CategoryId: "1"
-                                , transactionDate: {
-                                    $gte: moment.unix(start)
-                                    , $lte: moment.unix(end)
-                                }
-                            }
-                        }).then(function(multiTrans) {
-                        	if (multiTrans.length > 0) {
-                        		var transIds = _.pluck(multiTrans, "id");
-                        		db.CategorySplit.findAll({
+						const amounts = JSON.parse(budg.amounts);
+						const categoryIds = _.keys(amounts);
+						// Restrict account to only those that the user has access to
+						db.Account.getAllowedAccounts(user).then(function(allowedAccounts) {
+							const filteredAccounts = _.intersection(allowedAccounts, tObj.accounts);
+							// Get summaries of allowed accounts linked to budget
+							db.Summary.findAll({
+								AccountId: { $in: filteredAccounts }
+							}).then(function(summaries) {
+								db.Transaction.findAll({
 									where: {
-										transaction: {
-											$in: transIds
+										CategoryId: { $in: categoryIds }
+										,transactionDate: {
+											$gte: moment.unix(start)
+											,$lte: moment.unix(end)
 										}
+										,SummaryId: { $in: _.pluck(summaries, 'id') }
 									}
-								}).then(function(splits) {
-									for (var i=0; i<splits.length; i++) {
-										var data = JSON.parse(splits[i].payload);
-										for (var k=0; k<data.length; k++) {
-											if (totals.hasOwnProperty(data[k].id)) {
-												totals[data[k].id] += data[k].value;
+								}).then(function(trans) {
+									let totals = {};
+									for (let i = 0; i < categoryIds.length; i++) {
+										let budTotal = 0;
+										for (let k = 0; k < trans.length; k++) {
+											if (Number(trans[k].CategoryId) === Number(categoryIds[i])) {
+												budTotal += trans[k].amount;
 											}
 										}
+										totals[categoryIds[i]] = budTotal;
 									}
-                                    resolve({budget: budg, values: totals});
+									// Get multi transactions
+									db.Transaction.findAll({
+										where: {
+											CategoryId: "1"
+											,transactionDate: {
+												$gte: moment.unix(start)
+												, $lte: moment.unix(end)
+											}
+										}
+									}).then(function(multiTrans) {
+										if (multiTrans.length > 0) {
+											const transIds = _.pluck(multiTrans, "id");
+											db.CategorySplit.findAll({
+												where: { transaction: { $in: transIds } }
+											}).then(function(splits) {
+												for (let i=0; i<splits.length; i++) {
+													const data = JSON.parse(splits[i].payload);
+													for (let k=0; k<data.length; k++) {
+														if (totals.hasOwnProperty(data[k].id)) {
+															totals[data[k].id] += data[k].value;
+														}
+													}
+												}
+												resolve({budget: tObj, values: totals});
+											});
+										} else {
+											resolve({budget: tObj, values: totals});
+										}
+									});
 								});
-							} else {
-                                resolve({budget: budg, values: totals});
-                            }
+							});
 						});
 					});
+				}, function() {
+					reject("unauthorized");
 				}).catch(function(error) {
-					reject(error);
+					console.log("catch error on Budget controller values method: " + error);
+					reject();
 				});
 			});
 		}
-		,favorite: function(id) {
-			return new Promise(function(resolve, reject) {
-				db.Budget.update({
-					favorite: false
-				}
-				,{
-					where: {
-						favorite: true
-					}
-				}).then(function() {
-					db.Budget.update({
-						favorite: true
-					}
-					,{
-						where: {
-							id: id
-						}
-					}).then(function(resp) {
-						resolve(resp);
-					});
-				}).catch(function(error) {
-					reject(error);
-				});
-			});
-		}
+		// ,favorite: function(id) {
+		// 	return new Promise(function(resolve, reject) {
+		// 		db.Budget.update({
+		// 			favorite: false
+		// 		}
+		// 		,{
+		// 			where: {
+		// 				favorite: true
+		// 			}
+		// 		}).then(function() {
+		// 			db.Budget.update({
+		// 				favorite: true
+		// 			}
+		// 			,{
+		// 				where: {
+		// 					id: id
+		// 				}
+		// 			}).then(function(resp) {
+		// 				resolve(resp);
+		// 			});
+		// 		}).catch(function(error) {
+		// 			reject(error);
+		// 		});
+		// 	});
+		// }
 	};
 };
