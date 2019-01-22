@@ -48,35 +48,35 @@
                     <h4 class="modal-title">Sign-Up Now</h4>
                 </div>
                 <div class="modal-body">
-                    <div class="input-group">
-                        <span class="input-group-addon">First Name</span>
+                    <div class="form-group">
+                        <span class="form-group-addon">First Name</span>
                         <input id="newFirstName" class="form-control signup-field" type="text" maxlength="24" />
                     </div>
-                    <div class="input-group" style="margin-top: 10px;">
-                        <span class="input-group-addon">Last Name</span>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <span class="form-group-addon">Last Name</span>
                         <input id="newLastName" class="form-control signup-field" type="text" maxlength="24" />
                     </div>
-                    <div class="input-group" style="margin-top: 10px;">
-                        <span class="input-group-addon">Email Address</span>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <span class="form-group-addon">Email Address</span>
                         <input id="newEmail" class="form-control signup-field" type="email" maxlength="48" />
+                        <p id="newEmailError" style="color:red;font-style:italic;"></p>
                     </div>
-                    <span class="label label-danger signup-error" id="newEmailError" style="display:none;">Email address appears to be invalid</span>
-                    <div class="input-group" style="margin-top: 10px;">
-                        <span class="input-group-addon">Password</span>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <span class="form-group-addon">Password</span>
                         <input id="newPassword" class="form-control signup-field" type="password" maxlength="16" />
+                        <p id="newPasswordError" style="color:red;font-style:italic;"></p>
                     </div>
-                    <span class="label label-danger signup-error" id="newPasswordError" style="display:none;">8-16 characters, 1 uppercase, 1 lowercase, 1 numeric, 1 special</span>
                     <!--<span class="label label-danger password-case" id="newPasswordLength">8-16 Characters</span>-->
                     <!--<span class="label label-default">And three of the following:</span>-->
                     <!--<span class="label label-danger password-case" id="newPasswordUppercase">One uppercase character</span>-->
                     <!--<span class="label label-danger password-case" id="newPasswordLowercase">One lowercase character</span>-->
                     <!--<span class="label label-danger password-case" id="newPasswordNumeric">One numeric character</span>-->
                     <!--<span class="label label-danger password-case" id="newPasswordSpecial">One special character</span>-->
-                    <div class="input-group" style="margin-top: 10px;">
-                        <span class="input-group-addon">Confirm Password</span>
+                    <div class="form-group" style="margin-top: 10px;">
+                        <span class="form-group-addon">Confirm Password</span>
                         <input id="confirmPassword" class="form-control signup-field" type="password" maxlength="16" />
+                        <p id="confirmPasswordError" style="color:red;font-style:italic;"></p>
                     </div>
-                    <span class="label label-danger signup-error" id="confirmPasswordError" style="display:none;">Passwords do not match</span>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-success g-recaptcha" title="Sign-Up" id="sendSignupButton" data-sitekey="6LdQd4UUAAAAAP14rY5d5IZnxeiYfJ0Nrl3nJLTl" data-callback='captchaCheck' data-badge="inline">Sign-Up!</button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Sign-Up">Cancel</button>

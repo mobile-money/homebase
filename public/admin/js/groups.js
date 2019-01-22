@@ -1,3 +1,4 @@
+let user_verified = false;
 let others;
 
 $(document).ready(function() {
@@ -6,7 +7,6 @@ $(document).ready(function() {
 	getOthers().then(function() {
 		getGroups();
 	});
-	// getInactiveCars();
 });
 
 // FIELD EVENTS
@@ -14,58 +14,76 @@ $(document).ready(function() {
 	$("#addGroupButton").click(function() {
 		addGroup();
 	});
+
 	$("#editGroupButton").click(function() {
 		modifyGroup();
 	});
+
 	$("#deleteGroupButton").click(function() {
 		removeGroup();
 	});
-// 	$("#reactivateCarButton").click(function() {
-// 		undeleteCar();
-// 	});
 
 	$("#addGroupModal").on("shown.bs.modal", function() {
 		$("#newName").focus();
+		if (!user_verified) {
+			$("#addMembersDiv").hide();
+			$("#newMembersError").show();
+		} else {
+			$("#addMembersDiv").show();
+			$("#newMembersError").hide();
+		}
 	}).on("hidden.bs.modal", function() {
         clearAddFields();
     });
 
-// 	$("#infoModal").on("hidden.bs.modal", function() {
-// 		$("#infoModalBody").empty();
-// 	});
+	$("#infoModal").on("hidden.bs.modal", function() {
+		$("#infoModalBody").empty();
+	});
 
 	$("#editGroupModal").on("shown.bs.modal", function() {
 		$("#editName").focus();
+		if (!user_verified) {
+			$("#editMembersDiv").hide();
+			$("#editMembersError").show();
+		} else {
+			$("#editMembersDiv").show();
+			$("#editMembersError").hide();
+		}
+
 	}).on("hidden.bs.modal", function() {
         clearEditFields();
     });
 
-	$("#deleteCarModal").on("hidden.bs.modal", function() {
-		$("#deleteCarId").val("");
+	$("#deleteGroupModal").on("hidden.bs.modal", function() {
+		$("#deleteGroupId").val("");
         $("#deleteModalBody").html("");
 	});
-
-// 	$("#reactivateCarModal").on("hidden.bs.modal", function() {
-// 		$("#reactivateCarId").val("");
-// 		$("#reactivateModalBody").html("");
-// 	});
 
 // FUNCTIONS
 function addGroup() {
 	let errorCount = 0;
 	const newName = $("#newName");
+	const newMember = $("#newMember");
 	if (typeof newName.val() !== "undefined" && newName.val().length > 0) {
 		newName.css("background-color", "#fff");
 	} else {
 		errorCount++;
 		newName.css("background-color", "#f2dede");
 	}
+	if (newMember.val() !== "") {
+		if (!newMember.val().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)) {
+			errorCount++;
+			newMember.css("background-color", "#f2dede");
+		} else {
+			newMember.css("background-color", "#fff");
+		}
+	}
 
 	if (errorCount === 0) {
 		$("#addGroupModal").modal("hide");
 		let group = {
 			name: newName.val(),
-			members: JSON.stringify($("#newMembers").val())
+			member: newMember.val()
 		};
 		saveGroup(group);
 	}
@@ -73,12 +91,14 @@ function addGroup() {
 
 function clearAddFields() {
 	$("#newName").val("");
-	$("#newMembers option:selected").prop("selected", false);
+	$("#newMember").val("");
+	// $("#newMembers option:selected").prop("selected", false);
 }
 
 function clearEditFields() {
 	$("#editName").val("");
-	$("#editMembers option:selected").prop("selected", false);
+	$("#editMember").val("");
+	// $("#editMembers option:selected").prop("selected", false);
 	$("#deleteGrpButton").prop("onclick", null).off("click");
 }
 
@@ -94,10 +114,10 @@ function deleteGroup(id) {
 function editGroup(id) {
 	$("#editGroupId").val(id);
 	$("#editName").val($("#"+id+" td[name=name]").html());
-	const aua = $("#"+id+" td[name=members] input[name=member_ids]").val();
-	if (typeof(aua) !== "undefined") {
-		$("#editMembers").val(aua.split(","));
-	}
+	// const aua = $("#"+id+" td[name=members] input[name=member_ids]").val();
+	// if (typeof(aua) !== "undefined") {
+	// 	$("#editMembers").val(aua.split(","));
+	// }
 	$("#deleteGrpButton").click(function() {
 		deleteGroup(id);
 	});
@@ -110,8 +130,9 @@ function getGroups() {
 		,url: "/api/v1/group"
 	}).success(function(response) {
 		// console.log(response);
+		user_verified = response.verified;
 		$("#groupTable").find("tbody").empty();
-		response.forEach(function(group) {
+		response.groups.forEach(function(group) {
 			const owner = _.findWhere(others, {uid: group.ownerId});
 			let row = '<tr id="'+group.id+'">' +
 				'<td name="name">'+group.name+'</td>' +
@@ -126,7 +147,9 @@ function getGroups() {
 				let arr = [];
 				members.forEach(function(mid) {
 					const mem = _.findWhere(others, {uid: mid});
-					arr.push(mem.firstName + " " + mem.lastName);
+					if (typeof(mem) !== "undefined") {
+						arr.push(mem.firstName + " " + mem.lastName);
+					}
 				});
 				row += arr.join('<br />')+'<input type="hidden" name="member_ids" value="'+members.join(',')+'" />';
 			}
@@ -195,30 +218,38 @@ function getOthers() {
 			type: "GET"
 			,url: '/api/v1/users'
 		}).success(function(response) {
-			// console.log(response);
+			console.log(response);
 			others = response;
-			response.forEach(function(user){
-				$("#newMembers").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
-				$("#editMembers").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
-			});
+			// response.forEach(function(user){
+			// 	$("#newMembers").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
+			// 	$("#editMembers").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
+			// });
 			resolve();
-		}).error(function(jqXHR) {
+		}).error(function(/*jqXHR*/) {
 			// console.log(jqXHR);
 			resolve();
 		});
 	});
 }
-
 function modifyGroup() {
 	const id = $("#editGroupId").val();
 	if (typeof id !== "undefined" && id.length > 0) {
 		let errorCount = 0;
 		const editName = $("#editName");
+		const editMember = $("#editMember");
 		if (typeof editName.val() !== "undefined" && editName.val().length > 0) {
 			editName.css("background-color", "#fff");
 		} else {
 			errorCount++;
 			editName.css("background-color", "#f2dede");
+		}
+		if (editMember.val() !== "") {
+			if (!editMember.val().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)) {
+				errorCount++;
+				editMember.css("background-color", "#f2dede");
+			} else {
+				editMember.css("background-color", "#fff");
+			}
 		}
 
 		if (errorCount === 0) {
@@ -226,13 +257,13 @@ function modifyGroup() {
 			const group = {
 				id: id
 				,name: editName.val()
-				,members: JSON.stringify($("#editMembers").val())
+				,member: editMember.val()
 			};
 			$.ajax({
 				type: "PUT"
 				,url: "/api/v1/group/"
 				,data: group
-			}).success(function() {
+			}).success(function(/*response*/) {
 				getGroups();
 			}).error(function() { //jqXHR, textStatus, errorThrown
 				$("#infoModalBody").html("There was a problem.  Please try again.");
@@ -263,9 +294,17 @@ function saveGroup(group) {
 		type: "POST"
 		,url: "/api/v1/group"
 		,data: group
-	}).success(function() { //response
+	}).success(function(response) {
+		if (response.member === "confirming") {
+			$("#infoModalBody").html("The member has been sent an invitation.  You will need to provide the member " +
+				"with a code to complete the invitation.  <strong>We strongly suggest providing the code by a means other " +
+				"than email.</strong><br />Your invitations can be found in My Accounts.");
+		} else if (response.member === "not_verified") {
+			$("#infoModalBody").html("The member has not verified their email yet.  Once they do that, your " +
+				"invitation will be sent.");
+		}
+		$("#infoModal").modal("show");
 		getGroups();
-		// location.reload();
 	}).error(function() { //jqXHR, textStatus, errorThrown
 		$("#infoModalBody").html("There was a problem.  Please try again.");
 		$("#infoModal").modal("show");

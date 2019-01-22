@@ -18,25 +18,25 @@ $("#loginButton").click(function() {
 	logInUser($("#username").val(), $("#password").val());
 });
 
-$("#newEmail").on("change",function() {
-	// alert("email changed");
-	if (!$("#newEmail").val().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)) {
-		$("#newEmail").addClass("error");
-		$("#newEmailError").show();
-	} else {
-		$("#newEmail").removeClass("error");
-		$("#newEmailError").hide();
-	}
-});
-
-$("#newPassword").on("change",function() {
-	if (!$("#newPassword").val().match(/(?=^.{8,16}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/)) {
-		$("#newPassword").addClass("error");
-		$("#newPasswordError").show();
-	} else {
-		$("#newPassword").removeClass("error");
-		$("#newPasswordError").hide();
-	}
+// $("#newEmail").on("change",function() {
+// 	// alert("email changed");
+// 	if (!$("#newEmail").val().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)) {
+// 		$("#newEmail").addClass("error");
+// 		$("#newEmailError").show();
+// 	} else {
+// 		$("#newEmail").removeClass("error");
+// 		$("#newEmailError").hide();
+// 	}
+// });
+//
+// $("#newPassword").on("change",function() {
+// 	if (!$("#newPassword").val().match(/(?=^.{8,16}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/)) {
+// 		$("#newPassword").addClass("error");
+// 		$("#newPasswordError").show();
+// 	} else {
+// 		$("#newPassword").removeClass("error");
+// 		$("#newPasswordError").hide();
+// 	}
 // })
 // 	.on("keypress",function() {
 // 	console.log("press");
@@ -49,7 +49,7 @@ $("#newPassword").on("change",function() {
 // 	} else {
 // 		$("#newPasswordLength").removeClass("label-success").addClass("label-danger");
 // 	}
-});
+// });
 
 $('#password').keypress(function (e) {
 	let key = e.which;
@@ -85,9 +85,21 @@ function signUpUser(captchaToken) {
 	const newPassword = $("#newPassword").val();
 	if (!newEmail.match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)) {
 		err++;
+		$("#newEmailError").html("Email address appears to be invalid");
+	} else {
+		$("#newEmailError").html("");
 	}
 	if (!newPassword.match(/(?=^.{8,16}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/)) {
 		err++;
+		$("#newPasswordError").html("Email address appears to be invalid");
+	} else {
+		$("#newPasswordError").html("");
+	}
+	if (newPassword !== $("#confirmPassword").val()) {
+		err++;
+		$("#confirmPasswordError").html("Password do not match");
+	} else {
+		$("#confirmPasswordError").html("");
 	}
 
 	if (err === 0) {

@@ -64,9 +64,12 @@ module.exports = function(db) {
 							,lastName: data.lastName.trim()
 							,email: data.email.trim().toLowerCase()
 							,password: data.password
+							,verified: false
 							,active: true
 						}).then(function(user) {
-							resolve(_.omit(user,['password','salt','password_hash']));
+							db.Verification.createEmailVerification(user).then(function() {
+								resolve(_.omit(user,['password','salt','password_hash']));
+							});
 						},function(error) {
 							reject(error);
 						});
@@ -106,55 +109,57 @@ module.exports = function(db) {
 		}
 		,login: function(data, req_ip) {
 			return new Promise(function(resolve, reject) {
-				let userInstance;
-				db.User.authenticate(data).then(function(user) {
-					// console.log("user auth");
-					const token = user.generateToken("authentication");
-					userInstance = user;
-					db.Token.create({
-						token: token
-					}).then(function(tokenInstance) {
-						// console.log("token created");
-						console.log("successful login");
-						db.Login.addLogin(data.email, req_ip).then(function() {
-							resolve({tokenInstance: tokenInstance, userInstance: userInstance});
-						});
-					});
-				}, function(error) {
-					// failed login
-					if (error.match(/^incorrect password/)) {
-						db.FailedLogin.create({
-							userName: data.email,
-							error: error,
-							ip: req_ip
-						}).then(function() {
-							// Check for too many failed logins, 5 in the last 2 hours
-							db.FailedLogin.findAll({
-								where: {
-									userName: data.email,
-									createdAt: { $gte: moment().subtract(2, 'hours').toDate() }
-								}
-							}).then(function(failedLogins) {
-								console.log("failed logins: " + failedLogins.length);
-								if (failedLogins.length >= 5) {
-									db.User.update({
-										active: false
-									},{
-										where: { email: data.email }
-									}).then(function() {
-										console.log("failed login: account locked");
-										reject({code: 1});
-									})
-								} else {
-									console.log("failed login: " + error);
-									reject({code: 1});
-								}
+				db.Verification.deactivateExpired().then(function() {
+					let userInstance;
+					db.User.authenticate(data).then(function(user) {
+						// console.log("user auth");
+						const token = user.generateToken("authentication");
+						userInstance = user;
+						db.Token.create({
+							token: token
+						}).then(function(tokenInstance) {
+							// console.log("token created");
+							console.log("successful login");
+							db.Login.addLogin(data.email, req_ip).then(function() {
+								resolve({tokenInstance: tokenInstance, userInstance: userInstance});
 							});
 						});
-					} else {
-						console.log("failed login: " + error);
-						reject({code: 1});
-					}
+					}, function(error) {
+						// failed login
+						if (error.match(/^incorrect password/)) {
+							db.FailedLogin.create({
+								userName: data.email,
+								error: error,
+								ip: req_ip
+							}).then(function() {
+								// Check for too many failed logins, 5 in the last 2 hours
+								db.FailedLogin.findAll({
+									where: {
+										userName: data.email,
+										createdAt: { $gte: moment().subtract(2, 'hours').toDate() }
+									}
+								}).then(function(failedLogins) {
+									console.log("failed logins: " + failedLogins.length);
+									if (failedLogins.length >= 5) {
+										db.User.update({
+											active: false
+										},{
+											where: { email: data.email }
+										}).then(function() {
+											console.log("failed login: account locked");
+											reject({code: 1});
+										})
+									} else {
+										console.log("failed login: " + error);
+										reject({code: 1});
+									}
+								});
+							});
+						} else {
+							console.log("failed login: " + error);
+							reject({code: 1});
+						}
+					});
 				}).catch(function(error) {
 					console.log("catch error on User controller login method: " + error);
 					reject({code: -1});

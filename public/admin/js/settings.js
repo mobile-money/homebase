@@ -1,6 +1,7 @@
 $(document).ready(function() {
 	$("body").show();
 	getMe();
+	getInvitations();
 });
 
 // FIELD EVENTS
@@ -11,6 +12,10 @@ $(document).ready(function() {
 
 	$("#changeNameButton").click(function() {
 		changeName();
+	});
+
+	$("#resendVerifyButton").on("click", function() {
+		resendVerification();
 	});
 
 // FUNCTIONS
@@ -99,15 +104,85 @@ function changePassword() {
 	}
 }
 
+function getInvitations() {
+	$.ajax({
+		type: "GET",
+		url: "/api/v1/invitations"
+	}).success(function(response) {
+		console.log(response);
+		$("#inviteTable").find("tbody").empty();
+		response.forEach(function(invite) {
+			let row = '<tr id="'+invite.id+'">';
+			if (invite.type === "group") {
+				row += '<td>Invite to Group, '+invite.comments+'</td>';
+			} else {
+				row += '<td>'+invite.type+'</td>';
+			}
+			row += '<td name="email">'+invite.email+'</td>' +
+				'<td>'+invite.code+'</td>';
+			if (invite.active) {
+				row += '<td>Active</td>'+
+					'<td><button class="btn btn-sm btn-danger" title="Rescind Invite" onclick="rescindInvite('+invite.id+');"><i class="fa fa-trash" /></button></td>';
+			} else {
+				if (invite.completed) {
+					row += '<td>Accepted</td>';
+				} else if (invite.failed) {
+					row += '<td>Failed</td>';
+				} else {
+					row += '<td>Inactive</td>';
+				}
+				row += '<td></td>';
+			}
+			row += '</tr>';
+			$("#inviteTable").find("tbody").append(row);
+		});
+	}).error(function() {
+		$("#infoModalBody").html("There was a problem.  Please try again.");
+		$("#infoModal").modal("show");
+	});
+}
+
 function getMe() {
 	$.ajax({
 		type: "GET",
 		url: "/api/v1/users/me"
 	}).success(function(response) {
+		// console.log(response);
 		$("#firstName").val(response.firstName);
 		$("#lastName").val(response.lastName);
+		if (!response.verified) {
+			$("#verifyRow").show();
+		}
 	}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 		$("#infoModalBody").html("There was a problem.  Please try again.");
 		$("#infoModal").modal("show");
 	});
+}
+
+function rescindInvite(id) {
+	$.ajax({
+		type: "DELETE",
+		url: "/api/v1/invitations",
+		data: {
+			id: id
+		}
+	}).success(function() {
+		getInvitations();
+	}).error(function() {
+		$("#infoModalBody").html("There was a problem.  Please try again.");
+		$("#infoModal").modal("show");
+	});
+}
+
+function resendVerification() {
+	$.ajax({
+		type: "GET",
+		url: "/api/v1/verification/resend"
+	}).success(function() {
+		$("#infoModalBody").html("Verification email resent");
+		$("#infoModal").modal("show");
+	}).error(function() {
+		$("#infoModalBody").html("There was a problem.  Please try again.");
+		$("#infoModal").modal("show");
+	})
 }

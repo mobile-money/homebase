@@ -7,6 +7,7 @@ module.exports = function(db) {
 		},
 		create: function(user, data) {
 			return new Promise(function(resolve, reject) {
+				let retObj = {};
 				db.User.findById(user.id).then(function(foundUser) {
 					if (foundUser) {
 						let obj = {
@@ -14,16 +15,53 @@ module.exports = function(db) {
 							ownerId: user.id,
 							memberIds: [],
 						};
-						if (data.members !== 'null') {
-							// Cast member IDs to ints
-							JSON.parse(data.members).forEach(function (val) {
-								if (Number(val) !== user.id) {
-									obj.memberIds.push(Number(val));
-								}
-							});
-						}
 						db.Group.create(obj).then(function (group) {
-							resolve(group);
+							retObj.group = group;
+							if (data.member !== 'null') {
+								// Look for existing user to be added as a member
+								db.User.findOne({
+									where: { email: data.member }
+								}).then(function(member) {
+									if (member !== null) {
+										// Member found
+										if (member.verified) {
+											// Member is verified, so send a confirmation
+											retObj.member = "confirming";
+											db.Verification.createGroupInvitation(user.id, user.firstName, member.email, member.firstName, group.id, data.name).then(function() {
+												resolve(retObj);
+											})
+										} else {
+											// Member is not verified, tell requestor, add post action to verification
+											retObj.member = "not_verified";
+											db.Verification.findOne({
+												where: {
+													ownerId: member.id,
+													active: true
+												}
+											}).then(function(verification) {
+												// Parse post_actions and push in new entry
+												let pa = JSON.parse(verification.post_actions);
+												pa.push({type: "group_add", value: group.id});
+												verification.post_actions = JSON.stringify(pa);
+												verification.save().then(function() {
+													resolve(retObj);
+												});
+											});
+										}
+									} else {
+										// Member not found, send an invitation, add post action to verification
+										retObj.member = "invited";
+									}
+								});
+								// Cast member IDs to ints
+								// JSON.parse(data.members).forEach(function (val) {
+								// 	if (Number(val) !== user.id) {
+								// 		obj.memberIds.push(Number(val));
+								// 	}
+								// });
+							} else {
+								resolve(retObj);
+							}
 						}, function (error) {
 							reject(error);
 						});

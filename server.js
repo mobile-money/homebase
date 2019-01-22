@@ -72,6 +72,7 @@ app.use(function(req, res, next) {
 									id: userInstance.id
 									,firstName: userInstance.firstName
 									,lastName: userInstance.lastName
+									,verified: userInstance.verified
 									,email: userInstance.email
 									,groups: groups
 								};
@@ -128,6 +129,7 @@ io_health.on("connection", function(/*socket*/) {
 // ADMIN
 const User = require("./controllers/admin/User.js")(db_admin);
 const Group = require("./controllers/admin/Group.js")(db_admin);
+const Verification = require("./controllers/admin/Verification.js")(db_admin);
 // HVAC
 const Sensor = require("./controllers/hvac/Sensor.js")(db_hvac);
 const EnvData = require("./controllers/hvac/EnvData.js")(db_hvac);
@@ -161,6 +163,7 @@ const Visit = require("./controllers/health/Visit.js")(db_health);
 // ADMIN
 require("./routes/admin/User.js")(app, User, _);
 require("./routes/admin/Group.js")(app, Group, _);
+require("./routes/admin/Verification.js")(app, Verification, _);
 // HVAC
 require("./routes/hvac/Sensor.js")(app, Sensor, _, io_hvac);
 require("./routes/hvac/EnvData.js")(app, EnvData, _, io_hvac);

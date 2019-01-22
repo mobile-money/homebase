@@ -8,42 +8,6 @@
 // });
 const request = require("request");
 
-function sendEmail() {
-    const AWS = require("aws-sdk");
-    const creds = new AWS.SharedIniFileCredentials({profile: 'default'});
-    console.log("testing email send");
-    AWS.config.credentials = creds;
-    AWS.config.update({region: "us-east-1"});
-    const params = {
-        Destination: {
-            ToAddresses: [
-                'alitz55@gmail.com'
-            ]
-        },
-        Message: {
-            Body: {
-                Text: {
-                    Charset: 'UTF-8',
-                    Data: 'Test email body!'
-                }
-            },
-            Subject: {
-                Charset: 'UTF-8',
-                Data: 'Test Subject'
-            }
-        },
-        Source: 'admin@litzhome.com'
-    };
-    const sendPromise = new AWS.SES().sendEmail(params).promise();
-    sendPromise.then(function(data) {
-        console.log("email sent!");
-        console.log(data.MessageId);
-    }).catch(function(error) {
-        console.log("email error");
-        console.error(error, error.stack);
-    });
-}
-
 module.exports = function(app, User, _) {
     // Get Other Users
     app.get('/api/v1/users', function(req, res) {
@@ -170,12 +134,7 @@ module.exports = function(app, User, _) {
     app.get("/api/v1/users/me", function(req, res) {
         console.log("current user names requested");
         if (req.hasOwnProperty("user")) {
-            if (req.user.hasOwnProperty("firstName") && req.user.hasOwnProperty("lastName")) {
-                res.status(200).json({firstName: req.user.firstName, lastName: req.user.lastName});
-            } else {
-                console.log("req.user does not have firstName and/or lastName parameter");
-                req.status(401).send();
-            }
+            res.status(200).json({firstName: req.user.firstName, lastName: req.user.lastName, verified: req.user.verified});
         } else {
             console.log("req does not have user parameter");
             req.status(401).send();
