@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+`		<title>Home Base - Site Invitation</title>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="../shared/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+		<link rel="stylesheet" href="../shared/css/style.css">
+		<link rel="shortcut icon" href="../shared/img/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="../shared/img/favicon.ico" type="image/x-icon">
+	</head>
+	<body>
+
+	<!--Start Info Modal-->
+	<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div id="infoModalBody">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-info" data-dismiss="modal" aria-label="OK" title="OK">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--End Info Modal-->
+	<!--Start Success Modal-->
+	<div class="modal fade" id="successModal" tabindex="-1" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Welcome!</h5>
+				</div>
+				<div class="modal-body">
+					<div id="successModalBody">
+						<p>We are excited to welcome you to our community!  Once this message is closed you will be
+							redirected to the log in page.  Please log in and start running your house!</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-info" data-dismiss="modal" aria-label="OK" title="OK">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--End Success Modal-->
+
+	<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-10">
+					<h1>
+						<img src="../shared/img/brand.png" alt="brand" style="width:100px;" />
+						Home Base
+					</h1>
+				</div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-md-10 col-sm-10" style="padding-bottom: 10px;text-align:center;">
+					<h1>Welcome!</h1>
+					<h2>We are excited to have you as a part of our community!</h2>
+					<h3>Please use this form to accept your invitation</h3>
+				</div>
+			</div>
+			<div class="row justify-content-center">
+				<div class="col-md-4 col-sm-10 card" style="padding-bottom: 10px;">
+					<div class="form-group">
+						<label for="code">Verification Code</label>
+						<input type="text" class="form-control" id="code" maxlength="10" />
+						<p id="codeError" style="color:red;font-style:italic;"></p>
+					</div>
+					<div class="form-group">
+						<label for="newFirstName">First Name</label>
+						<input id="newFirstName" class="form-control signup-field" type="text" maxlength="24" />
+					</div>
+					<div class="form-group" style="margin-top: 10px;">
+						<label for="newLastName">Last Name</label>
+						<input id="newLastName" class="form-control signup-field" type="text" maxlength="24" />
+					</div>
+					<div class="form-group" style="margin-top: 10px;">
+						<label for="newEmail">Email Address</label>
+						<input id="newEmail" class="form-control signup-field" type="email" maxlength="48" readonly />
+						<p id="newEmailError" style="color:red;font-style:italic;"></p>
+					</div>
+					<div class="form-group" style="margin-top: 10px;">
+						<label for="newPassword">Password</label>
+						<input id="newPassword" class="form-control signup-field" type="password" maxlength="16" />
+						<p id="newPasswordError" style="color:red;font-style:italic;"></p>
+					</div>
+					<div class="form-group" style="margin-top: 10px;">
+						<label for="confirmPassword">Confirm Password</label>
+						<input id="confirmPassword" class="form-control signup-field" type="password" maxlength="16" />
+						<p id="confirmPasswordError" style="color:red;font-style:italic;"></p>
+					</div>
+					<button class="btn btn-primary" id="acceptButton">Join!</button>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
+		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../shared/js/global.js"></script>
+		<script type="text/javascript" src="site_invitation.js"></script>
+	</body>
+</html>

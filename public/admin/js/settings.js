@@ -19,6 +19,10 @@ $(document).ready(function() {
 	});
 
 // FUNCTIONS
+function acceptInvite(id) {
+
+}
+
 function changeName() {
 	let errors = 0;
 	const newFirstName = $("#firstName").val().trim();
@@ -109,12 +113,14 @@ function getInvitations() {
 		type: "GET",
 		url: "/api/v1/invitations"
 	}).success(function(response) {
-		console.log(response);
+		// console.log(response);
 		$("#inviteTable").find("tbody").empty();
-		response.forEach(function(invite) {
+		response.from.forEach(function(invite) {
 			let row = '<tr id="'+invite.id+'">';
 			if (invite.type === "group") {
-				row += '<td>Invite to Group, '+invite.comments+'</td>';
+				row += '<td>Invite to Group, ' + invite.comments + '</td>';
+			} else if(invite.type === "site") {
+				row += '<td>Invite to Site</td>';
 			} else {
 				row += '<td>'+invite.type+'</td>';
 			}
@@ -135,6 +141,15 @@ function getInvitations() {
 			}
 			row += '</tr>';
 			$("#inviteTable").find("tbody").append(row);
+		});
+		response.to.forEach(function(toInvite) {
+			let row = '<tr id="t_'+toInvite.id+'">' +
+				'<td>Invite to Group, ' + toInvite.group_name + '</td>' +
+				'<td>' + toInvite.from + '</td>' +
+				'<td name="code"><input type="text" class="form-control" name="code" maxlength="10" /></td>' +
+				'<td><button class="btn btn-sm btn-success" onClick="acceptInvite('+toInvite.id+');"><i class="fa fa-check" /></button></td>' +
+				'</tr>';
+			$("#inviteToTable").find("tbody").append(row);
 		});
 	}).error(function() {
 		$("#infoModalBody").html("There was a problem.  Please try again.");

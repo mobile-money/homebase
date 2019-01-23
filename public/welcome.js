@@ -5,51 +5,18 @@ $(document).ready(function() {
 
 // FIELD EVENTS
 $("#confirmPassword").on("change",function() {
-	if ($("#newPassword").val() !== $("#confirmPassword").val()) {
-		$("#confirmPassword").addClass("error");
+	if ($("#newPassword").val() !== $(this).val()) {
+		$(this).addClass("error");
 		$("#confirmPasswordError").show();
 	} else {
-		$("#confirmPassword").removeClass("error");
+		$(this).removeClass("error");
 		$("#confirmPasswordError").hide();
 	}
 });
 
-$("#loginButton").click(function() {
+$("#loginButton").on("click", function() {
 	logInUser($("#username").val(), $("#password").val());
 });
-
-// $("#newEmail").on("change",function() {
-// 	// alert("email changed");
-// 	if (!$("#newEmail").val().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)) {
-// 		$("#newEmail").addClass("error");
-// 		$("#newEmailError").show();
-// 	} else {
-// 		$("#newEmail").removeClass("error");
-// 		$("#newEmailError").hide();
-// 	}
-// });
-//
-// $("#newPassword").on("change",function() {
-// 	if (!$("#newPassword").val().match(/(?=^.{8,16}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/)) {
-// 		$("#newPassword").addClass("error");
-// 		$("#newPasswordError").show();
-// 	} else {
-// 		$("#newPassword").removeClass("error");
-// 		$("#newPasswordError").hide();
-// 	}
-// })
-// 	.on("keypress",function() {
-// 	console.log("press");
-// 	let val = $("#newPassword").val();
-// 	console.log(val);
-// 	// length
-// 	if (val.length >= 8 && val.length <=16) {
-// 	// if (!val.match(/(?=^.{8,16}$)/)) {
-// 		$("#newPasswordLength").removeClass("label-danger").addClass("label-success");
-// 	} else {
-// 		$("#newPasswordLength").removeClass("label-success").addClass("label-danger");
-// 	}
-// });
 
 $('#password').keypress(function (e) {
 	let key = e.which;
@@ -59,11 +26,7 @@ $('#password').keypress(function (e) {
 	}
 });
 
-// $("#sendSignupButton").click(function() {
-// 	signUpUser();
-// });
-
-$("#signupButton").click(function() {
+$("#signupButton").on("click", function() {
 	$("#signupModal").modal("show");
 });
 
@@ -91,7 +54,7 @@ function signUpUser(captchaToken) {
 	}
 	if (!newPassword.match(/(?=^.{8,16}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/)) {
 		err++;
-		$("#newPasswordError").html("Email address appears to be invalid");
+		$("#newPasswordError").html("Password does not meet complexity requirements");
 	} else {
 		$("#newPasswordError").html("");
 	}
@@ -116,7 +79,6 @@ function signUpUser(captchaToken) {
 			}
 		}).success(function(/*response*/) {
 			logInUser(newEmail, newPassword);
-			// alert("created");
 		}).error(function(response/*, textStatus, jqXHR*/) {
 			$("#infoModalTitle").html("Could Not Create Account");
 			if (response.status === 409) {

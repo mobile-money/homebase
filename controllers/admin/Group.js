@@ -7,6 +7,8 @@ module.exports = function(db) {
 		},
 		create: function(user, data) {
 			return new Promise(function(resolve, reject) {
+				data.name = data.name.trim();
+				data.member = data.member.trim().toLowerCase();
 				let retObj = {};
 				db.User.findById(user.id).then(function(foundUser) {
 					if (foundUser) {
@@ -29,7 +31,7 @@ module.exports = function(db) {
 											retObj.member = "confirming";
 											db.Verification.createGroupInvitation(user.id, user.firstName, member.email, member.firstName, group.id, data.name).then(function() {
 												resolve(retObj);
-											})
+											});
 										} else {
 											// Member is not verified, tell requestor, add post action to verification
 											retObj.member = "not_verified";
@@ -41,7 +43,7 @@ module.exports = function(db) {
 											}).then(function(verification) {
 												// Parse post_actions and push in new entry
 												let pa = JSON.parse(verification.post_actions);
-												pa.push({type: "group_add", value: group.id});
+												pa.push({type: "group_add", value: group.id, groupName: data.name, senderId: user.id, senderName: user.firstName, receiverName: member.firstName});
 												verification.post_actions = JSON.stringify(pa);
 												verification.save().then(function() {
 													resolve(retObj);
@@ -51,6 +53,16 @@ module.exports = function(db) {
 									} else {
 										// Member not found, send an invitation, add post action to verification
 										retObj.member = "invited";
+										const pa = {
+											type: "group_add",
+											value: group.id,
+											groupName: data.name,
+											senderId: user.id,
+											senderName: user.firstName
+										};
+										db.Verification.createSiteInvitation(user.id, user.firstName,data.member,pa).then(() => {
+											resolve(retObj);
+										});
 									}
 								});
 								// Cast member IDs to ints

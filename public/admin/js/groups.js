@@ -218,7 +218,7 @@ function getOthers() {
 			type: "GET"
 			,url: '/api/v1/users'
 		}).success(function(response) {
-			console.log(response);
+			// console.log(response);
 			others = response;
 			// response.forEach(function(user){
 			// 	$("#newMembers").append($('<option>',{value: user.uid, text: user.firstName+" "+user.lastName}));
@@ -231,6 +231,7 @@ function getOthers() {
 		});
 	});
 }
+
 function modifyGroup() {
 	const id = $("#editGroupId").val();
 	if (typeof id !== "undefined" && id.length > 0) {
@@ -263,7 +264,23 @@ function modifyGroup() {
 				type: "PUT"
 				,url: "/api/v1/group/"
 				,data: group
-			}).success(function(/*response*/) {
+			}).success(function(response) {
+				if (response.hasOwnProperty("member")) {
+					if (response.member === "confirming") {
+						$("#infoModalBody").html("The Member has been sent an invitation.  You will need to provide the Member " +
+							"with a code to complete the invitation.  <strong>We strongly suggest providing the code by a means other " +
+							"than email.</strong><br />Your invitations can be found in My Accounts.");
+					} else if (response.member === "not_verified") {
+						$("#infoModalBody").html("The Member has not verified their email yet.  Once they do that, your " +
+							"invitation will be sent.");
+					} else if (response.member === "invited") {
+						$("#infoModalBody").html("The Member does not seem to be a member of the site.  An invitation has been " +
+							"sent on your behalf.  You will need to provide the Member with a code to complete the invitation.  " +
+							"<strong>We strongly suggest providing the code by a means other than email.</strong><br />" +
+							"Your invitations can be found in My Accounts.");
+					}
+					$("#infoModal").modal("show");
+				}
 				getGroups();
 			}).error(function() { //jqXHR, textStatus, errorThrown
 				$("#infoModalBody").html("There was a problem.  Please try again.");
@@ -295,15 +312,22 @@ function saveGroup(group) {
 		,url: "/api/v1/group"
 		,data: group
 	}).success(function(response) {
-		if (response.member === "confirming") {
-			$("#infoModalBody").html("The member has been sent an invitation.  You will need to provide the member " +
-				"with a code to complete the invitation.  <strong>We strongly suggest providing the code by a means other " +
-				"than email.</strong><br />Your invitations can be found in My Accounts.");
-		} else if (response.member === "not_verified") {
-			$("#infoModalBody").html("The member has not verified their email yet.  Once they do that, your " +
-				"invitation will be sent.");
+		if (response.hasOwnProperty("member")) {
+			if (response.member === "confirming") {
+				$("#infoModalBody").html("The Member has been sent an invitation.  You will need to provide the Member " +
+					"with a code to complete the invitation.  <strong>We strongly suggest providing the code by a means other " +
+					"than email.</strong><br />Your invitations can be found in My Accounts.");
+			} else if (response.member === "not_verified") {
+				$("#infoModalBody").html("The Member has not verified their email yet.  Once they do that, your " +
+					"invitation will be sent.");
+			} else if (response.member === "invited") {
+				$("#infoModalBody").html("The Member does not seem to be a member of the site.  An invitation has been " +
+					"sent on your behalf.  You will need to provide the Member with a code to complete the invitation.  " +
+					"<strong>We strongly suggest providing the code by a means other than email.</strong><br />" +
+					"Your invitations can be found in My Accounts.");
+			}
+			$("#infoModal").modal("show");
 		}
-		$("#infoModal").modal("show");
 		getGroups();
 	}).error(function() { //jqXHR, textStatus, errorThrown
 		$("#infoModalBody").html("There was a problem.  Please try again.");

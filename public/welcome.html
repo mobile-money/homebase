@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -49,40 +49,35 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <span class="form-group-addon">First Name</span>
+                        <label for="newFirstName">First Name</label>
                         <input id="newFirstName" class="form-control signup-field" type="text" maxlength="24" />
                     </div>
                     <div class="form-group" style="margin-top: 10px;">
-                        <span class="form-group-addon">Last Name</span>
+                        <label for="newLastName">Last Name</label>
                         <input id="newLastName" class="form-control signup-field" type="text" maxlength="24" />
                     </div>
                     <div class="form-group" style="margin-top: 10px;">
-                        <span class="form-group-addon">Email Address</span>
+                        <label for="newEmail">Email Address</label>
                         <input id="newEmail" class="form-control signup-field" type="email" maxlength="48" />
                         <p id="newEmailError" style="color:red;font-style:italic;"></p>
                     </div>
                     <div class="form-group" style="margin-top: 10px;">
-                        <span class="form-group-addon">Password</span>
+                        <label for="newPassword">Password</label>
                         <input id="newPassword" class="form-control signup-field" type="password" maxlength="16" />
                         <p id="newPasswordError" style="color:red;font-style:italic;"></p>
                     </div>
-                    <!--<span class="label label-danger password-case" id="newPasswordLength">8-16 Characters</span>-->
-                    <!--<span class="label label-default">And three of the following:</span>-->
-                    <!--<span class="label label-danger password-case" id="newPasswordUppercase">One uppercase character</span>-->
-                    <!--<span class="label label-danger password-case" id="newPasswordLowercase">One lowercase character</span>-->
-                    <!--<span class="label label-danger password-case" id="newPasswordNumeric">One numeric character</span>-->
-                    <!--<span class="label label-danger password-case" id="newPasswordSpecial">One special character</span>-->
                     <div class="form-group" style="margin-top: 10px;">
-                        <span class="form-group-addon">Confirm Password</span>
+                        <label for="confirmPassword">Confirm Password</label>
                         <input id="confirmPassword" class="form-control signup-field" type="password" maxlength="16" />
                         <p id="confirmPasswordError" style="color:red;font-style:italic;"></p>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success g-recaptcha" title="Sign-Up" id="sendSignupButton" data-sitekey="6LdQd4UUAAAAAP14rY5d5IZnxeiYfJ0Nrl3nJLTl" data-callback='captchaCheck' data-badge="inline">Sign-Up!</button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Sign-Up">Cancel</button>
-                    <br /><h6>This site is protected by reCAPTCHA and the Google
+                    <button class="btn btn-success g-recaptcha" title="Sign-Up" id="sendSignupButton" data-sitekey="6LdQd4UUAAAAAP14rY5d5IZnxeiYfJ0Nrl3nJLTl" data-callback='captchaCheck' data-badge="inline">Sign-Up!</button>
+                    <button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Sign-Up">Cancel</button>
+                    <br /><p style="font-size:0.6em;">This site is protected by reCAPTCHA and the Google
                     <a href="https://policies.google.com/privacy">Privacy Policy</a> and
-                    <a href="https://policies.google.com/terms">Terms of Service</a> apply.</h6>
+                    <a href="https://policies.google.com/terms">Terms of Service</a> apply.</p>
                 </div>
             </div>
         </div>
@@ -92,7 +87,7 @@
         <div class="row justify-content-between">
             <div class="col-md">
                 <h1>
-                    <img src="shared/img/brand.png" style="width:100px;" />
+                    <img src="shared/img/brand.png" style="width:100px;" alt="brand" />
                 </h1>
             </div>
             <div class="col-md-3" style="margin-top: 5px;">
@@ -111,10 +106,5 @@
     <script type="text/javascript" src="shared/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="shared/js/global.js"></script>
     <script type="text/javascript" src="welcome.js"></script>
-    <!-- <script type="text/javascript" src="/shared/js/jquery.color-2.1.2.min.js"></script>
-    <script type="text/javascript" src="/shared/js/socket.io-1.4.5.js"></script>
-    <script type="text/javascript" src="/shared/js/bootstrap-timepicker.min.js"></script>
-    <script type="text/javascript" src="/shared/js/moment.min.js"></script>
-    <script type="text/javascript" src="/shared/js/underscore-1.8.3.js"></script> -->
 </body>
 </html>

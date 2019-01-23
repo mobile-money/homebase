@@ -29,7 +29,7 @@ const db_health = require("./config/db_health.js");
 app.use(cookieParser());
 app.use(function(req, res, next) {
 	// console.log(req.url);
-	if (req.url.toLowerCase().match(/^\/$|\/shared|\/welcome|\/api\/v1\/users\/new|\/api\/v1\/users\/login/)) {
+	if (req.url.toLowerCase().match(/^\/$|^\/shared|^\/welcome|^\/api\/v1\/users\/new|^\/api\/v1\/users\/login|^\/verify|^\/api\/v1\/verify/)) {
 		// console.log('shared');
 		next();
 	} else {

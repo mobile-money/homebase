@@ -27,34 +27,53 @@ module.exports = function(db) {
 		},
 		getForUser: function(user) {
 			return new Promise(function(resolve, reject) {
+				// Get invites from user
 				db.Verification.findAll({
 					where: {
 						ownerId: user.id,
 						type: { $ne: "email" }
 					}
-				}).then(function(invites) {
-					let retArr = [];
-					invites.forEach(function(invite) {
-						let tObj = {
-							id: invite.id,
-							type: invite.type,
-							email: invite.email,
-							code: invite.code,
-							comments: invite.comments,
-							completed: invite.completed,
-							failed: invite.failed,
-							active: invite.active
+				}).then(function(fromInvites) {
+					let fromArr = [];
+					fromInvites.forEach(function(fromInvite) {
+						let fObj = {
+							id: fromInvite.id,
+							type: fromInvite.type,
+							email: fromInvite.email,
+							code: fromInvite.code,
+							comments: fromInvite.comments,
+							completed: fromInvite.completed,
+							failed: fromInvite.failed,
+							active: fromInvite.active
 						};
-						retArr.push(tObj);
+						fromArr.push(fObj);
 					});
-					resolve(retArr);
+					db.Verification.findAll({
+						where: {
+							email: user.email,
+							active: true,
+							type: "group"
+						}
+					}).then(toInvites => {
+						let toArr = [];
+						toInvites.forEach(function(toInvite) {
+							const pa = JSON.parse(toInvite.post_actions);
+							let tObj = {
+								id: toInvite.id,
+								group_name: pa[0].group_name,
+								from: pa[0].sender_name
+							};
+							toArr.push(tObj);
+						});
+						resolve({from: fromArr, to: toArr});
+					});
 				}).catch(function(error) {
 					console.log("catch error on Verification controller getForUser method: " + error);
 					reject(error);
 				});
 			});
 		},
-		invitation: function(data) {
+		groupInvite: function(data) {
 			return new Promise(function(resolve, reject) {
 				db.Verification.findOne({
 					where: {
@@ -86,7 +105,7 @@ module.exports = function(db) {
 						resolve();
 					});
 				}).catch(function(error) {
-					console.log("catch error on Verification controller invitation method: " + error);
+					console.log("catch error on Verification controller groupInvite method: " + error);
 					reject(error);
 				});
 			});
@@ -120,6 +139,49 @@ module.exports = function(db) {
 				});
 			});
 		},
+		siteInvite: function(data) {
+			return new Promise(function(resolve, reject) {
+				// Check for verification
+				db.Verification.findOne({
+					where: {
+						guid: data.guid,
+						code: data.code.toUpperCase()
+					}
+				}).then(function(verification) {
+					// Update verification
+					verification.completed = true;
+					verification.active = false;
+					verification.save().then(function() {
+						// Create user
+						db.User.create({
+							firstName: data.firstName.trim()
+							,lastName: data.lastName.trim()
+							,email: verification.email.trim().toLowerCase()
+							,password: data.password
+							,verified: true
+							,active: true
+						}).then(function(user) {
+							const pa = JSON.parse(verification.post_actions);
+							if (pa.length > 0) {
+								pa.forEach(function(action) {
+									// console.log("type: " + action.type+'; value: '+action.value);
+									if (action.type === "group_add") {
+										db.Verification.createGroupInvitation(action.senderId, action.senderName, user.email, user.firstName, action.value, action.groupName).then(function() {
+										});
+									}
+								});
+							}
+							resolve();
+						},function(error) {
+							reject(error);
+						});
+					});
+				}).catch(function(error) {
+					console.log("catch error on Verification controller siteInvite method: " + error);
+					reject(error);
+				});
+			});
+		},
 		verify: function(data) {
 			return new Promise(function(resolve, reject) {
 				// Get verification for user
@@ -148,12 +210,8 @@ module.exports = function(db) {
 										pa.forEach(function(action) {
 											// console.log("type: " + action.type+'; value: '+action.value);
 											if (action.type === "group_add") {
-												db.Verification.createGroupInvitation()
-												db.Group.findById(action.value).then(function(group) {
-													let members = JSON.parse(group.memberIds);
-													members.push(data.phase);
-													group.memberIds = _.uniq(members);
-													group.save();
+												db.Verification.createGroupInvitation(action.senderId, action.senderName, authedUser.email, authedUser.firstName, action.value, action.groupName).then(function() {
+													// nothing more to do
 												});
 											}
 										});

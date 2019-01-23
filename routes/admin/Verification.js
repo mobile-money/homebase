@@ -12,7 +12,7 @@ module.exports = function(app, Verification, _) {
     });
 
     // Verify email
-    app.post("/api/v1/verification/email", function(req, res) {
+    app.post("/api/v1/verify/email", function(req, res) {
         console.log("email verification requested");
         const body = _.pick(req.body, "phase", "guid", "password");
         Verification.verify(body).then(function() {
@@ -30,11 +30,30 @@ module.exports = function(app, Verification, _) {
     });
 
     // Accept group invitation
-    app.post("/api/v1/verification/group", function(req, res) {
+    app.post("/api/v1/verify/group", function(req, res) {
         console.log("group invitation accept requested");
         const body = _.pick(req.body, "guid", "code");
         console.log(body);
-        Verification.invitation(body).then(function() {
+        Verification.groupInvite(body).then(function() {
+            res.status(200).send();
+        }).catch(function(error) {
+            console.log("error accepting invite: " + error);
+            if (error === "unauthorized") {
+                res.status(401).send();
+            } else if (error === "not_found") {
+                res.status(404).send();
+            } else {
+                res.status(500).send();
+            }
+        });
+    });
+
+    // Accept site invitation
+    app.post("/api/v1/verify/site", function(req, res) {
+        console.log("site invitation accept requested");
+        const body = _.pick(req.body, "guid", "code", "firstName", "lastName", "password");
+        console.log(_.omit(body,"password"));
+        Verification.siteInvite(body).then(function() {
             res.status(200).send();
         }).catch(function(error) {
             console.log("error accepting invite: " + error);
