@@ -20,7 +20,27 @@ $(document).ready(function() {
 
 // FUNCTIONS
 function acceptInvite(id) {
-
+	console.log();
+	$.ajax({
+		type: "POST",
+		url: "/api/v1/verification/group",
+		data: {
+			id: id,
+			code: $("#t_"+id+" td[name=code] input[name=code]").val()
+		}
+	}).success(function () {
+		$("#infoModalBody").html("Invitation has been accepted!");
+		$("#infoModal").modal("show");
+		getInvitations();
+	}).error(function(jqXHR) {
+		getInvitations();
+		if (jqXHR.status === 401) {
+			$("#infoModalBody").html("Incorrect Code Provided");
+		} else {
+			$("#infoModalBody").html("There was a problem accepting the invitation.  Please try again.");
+		}
+		$("#infoModal").modal("show");
+	});
 }
 
 function changeName() {
@@ -142,6 +162,7 @@ function getInvitations() {
 			row += '</tr>';
 			$("#inviteTable").find("tbody").append(row);
 		});
+		$("#inviteToTable").find("tbody").empty();
 		response.to.forEach(function(toInvite) {
 			let row = '<tr id="t_'+toInvite.id+'">' +
 				'<td>Invite to Group, ' + toInvite.group_name + '</td>' +

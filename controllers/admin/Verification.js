@@ -110,6 +110,49 @@ module.exports = function(db) {
 				});
 			});
 		},
+		groupInviteInternal: function(user, data) {
+			return new Promise((resolve, reject) => {
+				db.Verification.findOne({
+					where: {
+						id: data.id,
+						email: user.email,
+						active: true,
+						type: "group"
+					}
+				}).then(verification => {
+					if (verification !== null) {
+						if (data.code.toUpperCase() === verification.code) {
+							verification.completed = true;
+							verification.active = false;
+							verification.save().then(function() {
+								const pa = JSON.parse(verification.post_actions);
+								if (pa.length > 0) {
+									pa.forEach(function(action) {
+										// console.log("type: " + action.type+'; value: '+action.value);
+										if (action.type === "group_add") {
+											db.Group.findById(action.value).then(function(group) {
+												let members = JSON.parse(group.memberIds);
+												members.push(user.id);
+												group.memberIds = _.uniq(members);
+												group.save();
+											});
+										}
+									});
+								}
+								resolve();
+							});
+						} else {
+							reject("incorrect_code");
+						}
+					} else {
+						reject("not_found");
+					}
+				}).catch(error => {
+					console.log("catch error on Verification controller groupInviteInternal method: " + error);
+					reject(error);
+				});
+			});
+		},
 		resend: function(user) {
 			return new Promise(function(resolve, reject) {
 				// Deactivate any outstanding email verifications for user

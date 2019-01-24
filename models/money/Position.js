@@ -1,5 +1,5 @@
-var moment = require("moment");
-var request = require("request");
+// var moment = require("moment");
+// var request = require("request");
 
 // function getCurrentPrice(tick) {
 // 	return new Promise(function(resolve, reject) {
@@ -52,4 +52,4 @@ module.exports = function(sequelize, DataTypes) {
 		// 	}
 		// }
 	});
-}
+};

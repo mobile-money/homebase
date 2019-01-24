@@ -8,7 +8,7 @@ module.exports = function(app, Group, _) {
         }, function(error) {
             console.log("error retrieving groups: " + error);
             res.status(400).send();
-        }).catch(function(error) {
+        }).catch(function(/*error*/) {
             res.status(500).send();
         })
     });

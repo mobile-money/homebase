@@ -127,8 +127,8 @@ io_health.on("connection", function(/*socket*/) {
 
 // // CONTROLLERS // //
 // ADMIN
-const User = require("./controllers/admin/User.js")(db_admin);
 const Group = require("./controllers/admin/Group.js")(db_admin);
+const User = require("./controllers/admin/User.js")(db_admin);
 const Verification = require("./controllers/admin/Verification.js")(db_admin);
 // HVAC
 const Sensor = require("./controllers/hvac/Sensor.js")(db_hvac);
@@ -143,15 +143,15 @@ const Option = require("./controllers/hvac/Option.js")(db_hvac);
 const Forecast = require("./controllers/hvac/Forecast.js")(db_hvac);
 // MONEY
 const Account = require("./controllers/money/Account.js")(db_money, db_admin);
-const Summary = require("./controllers/money/Summary.js")(db_money, db_admin);
-const Category = require("./controllers/money/Category.js")(db_money, db_admin);
-const Transaction = require("./controllers/money/Transaction.js")(db_money);
-const FutureTransaction = require("./controllers/money/FutureTransaction.js")(db_money, Transaction, db_admin);
 const Bill = require("./controllers/money/Bill.js")(db_money, io_money);
 const Budget = require("./controllers/money/Budget.js")(db_money, db_admin);
-const Trade = require("./controllers/money/Trade.js")(db_money, db_admin);
+const Category = require("./controllers/money/Category.js")(db_money, db_admin);
+const CategorySplit = require("./controllers/money/CategorySplit.js")(db_money);
+const Transaction = require("./controllers/money/Transaction.js")(db_money);
+const FutureTransaction = require("./controllers/money/FutureTransaction.js")(db_money, Transaction);
 const Position = require("./controllers/money/Position.js")(db_money);
-const CategorySplit = require("./controllers/money/CategorySplit.js")(db_money, db_admin);
+const Summary = require("./controllers/money/Summary.js")(db_money);
+const Trade = require("./controllers/money/Trade.js")(db_money);
 // AUTOMOBILE
 const Car = require("./controllers/automobile/Car.js")(db_automobile, db_admin);
 const MaintenanceLog = require("./controllers/automobile/MaintenanceLog.js")(db_automobile);

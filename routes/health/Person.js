@@ -98,5 +98,4 @@ module.exports = function(app, Person, _, io) {
             }
         });
     });
-
 };

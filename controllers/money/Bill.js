@@ -1,7 +1,7 @@
 const moment = require("moment");
-const _ = require("underscore");
-const Sequelize = require('sequelize');
-const { fn, col } = Sequelize;
+// const _ = require("underscore");
+// const Sequelize = require('sequelize');
+// const { fn, col } = Sequelize;
 
 module.exports = function(db,io) {
 	return {

@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-	let Category = sequelize.define('Category', {
+	return sequelize.define('Category', {
 		name: {
 			type: DataTypes.STRING
 			,allowNull: false
@@ -19,6 +19,4 @@ module.exports = function(sequelize, DataTypes) {
 	// ,{
 	// 	paranoid: true
 	});
-
-	return Category;
 };

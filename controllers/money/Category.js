@@ -115,8 +115,7 @@ module.exports = function(db, admin) {
                         // Get the current account_ids for the category
                         db.Category.findById(data.id).then(function(category) {
                             if (category !== null) {
-                                const diff = _.difference(JSON.parse(category.account_ids),cleanArr);
-                                category.account_ids = diff;
+                                category.account_ids = _.difference(JSON.parse(category.account_ids),cleanArr);
                                 category.save().then(function() {
                                     resolve();
                                 });

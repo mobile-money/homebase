@@ -161,5 +161,4 @@ module.exports = function(app, Account, _, io) {
 			}
 		});
 	});
-
 };
