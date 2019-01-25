@@ -328,8 +328,8 @@ function buildBudget() {
             let appGroupTip = ["Accessible by Group(s):"];
             data.budget.groups.forEach(function(group) {
                 // console.log(_.findWhere(accounts,{id: acct}).name);
-                if (typeof(_.findWhere(groups,{id: group})) !== "undefined") {
-                    appGroupTip.push(_.findWhere(groups,{id: group}).name);
+                if (typeof(_.findWhere(groups.groups,{id: group})) !== "undefined") {
+                    appGroupTip.push(_.findWhere(groups.groups,{id: group}).name);
                 }
             });
             head += '<button class="btn btn-dark btn-sm" style="margin-right:5px;" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+appGroupTip.join("<br />")+'"><i class="fa fa-users"></i></button>';
