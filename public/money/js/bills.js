@@ -17,7 +17,7 @@ $(document).ready(function() {
 });
 
 // FIELD EVENTS
-	$("#startAddBill").click(function(e) {
+	$("#startAddBill").on("click", function() {
 		addBill();
 	});
 
@@ -70,39 +70,41 @@ $(document).ready(function() {
 	});
 
 	$("#editAccount").on("change", function() {
-		var val = $(this).val().split("_");
+		const val = $(this).val().split("_");
+		const $minusType = $("#editMinusType");
+		const $plusType = $("#editPlusType");
 
 		switch (val[1]) {
 			case "Checking":
 			case "Savings":
-				$("#editMinusType").html(" Withdrawl ");
-				$("#editPlusType").html(" Deposit ");
+				$minusType.html(" Withdrawl ");
+				$plusType.html(" Deposit ");
 				break;
 			case "Credit Card":
-				$("#editMinusType").html(" Purchase ");
-				$("#editPlusType").html(" Payment ");
+				$minusType.html(" Purchase ");
+				$plusType.html(" Payment ");
 				break;
 			case "Loan":
 			case "Mortgage":
-				$("#editMinusType").html(" Increase ");
-				$("#editPlusType").html(" Payment ");
+				$minusType.html(" Increase ");
+				$plusType.html(" Payment ");
 				break;
 			default:
-				$("#editMinusType").html(" Withdrawl ");
-				$("#editPlusType").html(" Deposit ");
+				$minusType.html(" Withdrawl ");
+				$plusType.html(" Deposit ");
 		}
 	});
 
 // SOCKET IO
 	socket.on("connect", function() {
 		// console.log("connected to server");
-	}).on("billAdded", function(id) {
+	}).on("billAdded", function() {
 		// console.log("io: "+id)
 		getBills();
-	}).on("billModified", function(id) {
+	}).on("billModified", function() {
 		// console.log("io: "+id)
 		getBills();
-	}).on("billDeleted", function(id) {
+	}).on("billDeleted", function() {
 		getBills();
 	});
 
@@ -146,7 +148,7 @@ $(document).ready(function() {
 							}
 							// row += '<td name="frequency">Weekly; every '+bill.every+' weeks</td>';
 						} else if (bill.frequency === "M") {
-							let partOne = '<td name="frequency" data-freq="M" data-every="'+bill.every+'" data-onThe="'+bill.onThe+'">Every '
+							let partOne = '<td name="frequency" data-freq="M" data-every="'+bill.every+'" data-onThe="'+bill.onThe+'">Every ';
 							if (bill.every === 1) {
 								partOne += 'month';
 							} else {
@@ -156,7 +158,7 @@ $(document).ready(function() {
 							if (bill.onThe === -1) {
 								partTwo += 'last day';						
 							} else {
-								var temp = moment().set({'month': 1, 'year': 2016, 'date': bill.onThe}).format("Do");
+								const temp = moment().set({'month': 1, 'year': 2016, 'date': bill.onThe}).format("Do");
 								partTwo += temp;						
 							}
 							partTwo += '</td>';
@@ -189,7 +191,7 @@ $(document).ready(function() {
 				});
 			}
 			// console.log(response);
-		}).error(function(jqXHR, textStatus, errorThrown) {
+		}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");
 		});
@@ -200,7 +202,7 @@ $(document).ready(function() {
 			type: "GET"
 			,url: "/api/v1/money/accounts"
 		}).success(function(response) {
-			$("#addBillButton").click(function(e) {
+			$("#addBillButton").on("click", function() {
 				insertBill();
 			});
 			$("#newAccount").empty().append('<option value="none" />');
@@ -210,7 +212,7 @@ $(document).ready(function() {
 				}
 			});
 			$("#addBillModal").modal("show");
-		}).error(function(jqXHR, textStatus, errorThrown) {
+		}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 			$("#infoModalBody").html("There was a problem.  Please try again.");
 			$("#infoModal").modal("show");			
 		});
@@ -321,22 +323,30 @@ $(document).ready(function() {
 
 	function insertBill() {
 		$("#addBillButton").off("click");
-		const accountVal = $("#newAccount").val().split("_");
+		const $newAccount = $("#newAccount");
+		const $newPayee = $("#newPayee");
+		const $newStartDate = $("#newStartDate");
+		const $newFrequency = $("#newFrequency");
+		const $subFreqEvery = $("#subFreqEvery");
+		const $newAmount = $("#newAmount");
+		const $newDescription = $("#newDescription");
+		const $newCategory = $("#newCategory");
+		const accountVal = $newAccount.val().split("_");
 		//Get values
 		let newBill = {
-			payee: $("#newPayee").val()
+			payee: $newPayee.val()
 			,account: Number(accountVal[0])
-			,startDate: $("#newStartDate").val()
-			,frequency: $("#newFrequency").val()
-			,every: Number($("#subFreqEvery").val())
-			,amount: Number($("#newAmount").val())
+			,startDate: $newStartDate.val()
+			,frequency: $newFrequency.val()
+			,every: Number($subFreqEvery.val())
+			,amount: Number($newAmount.val())
 			,automatic: $("#newAuto").prop("checked")
 		};
-		if ($("#newDescription").val() !== "") {
-			newBill.description = $("#newDescription").val();
+		if ($newDescription.val() !== "") {
+			newBill.description = $newDescription.val();
 		}
-		if ($("#newCategory").val() !== "none") {
-			newBill.category = Number($("#newCategory").val());
+		if ($newCategory.val() !== "none") {
+			newBill.category = Number($newCategory.val());
 		}
 		if (newBill.frequency === "M") {
 			if ($("#subFreqLast").is(":checked")) {
@@ -355,32 +365,32 @@ $(document).ready(function() {
 		let errors = 0;
 		$(".newBill").removeClass("error");
 		if (newBill.payee === "") {
-			$("#newPayee").addClass("error");
+			$newPayee.addClass("error");
 			errors++;
 		}
 		if (isNaN(newBill.account)) {
-			$("#newAccount").addClass("error");
+			$newAccount.addClass("error");
 			errors++;
 		}
 		if (newBill.startDate === "") {
-			$("#newStartDate").addClass("error");
+			$newStartDate.addClass("error");
 			errors++;
 		} else {
 			if (!newBill.startDate.match(/^\d{2}([./-])\d{2}\1\d{4}$/)) {
-				$("#newStartDate").addClass("error");
+				$newStartDate.addClass("error");
 				errors++;
 			}
 		}
 		if (newBill.frequency === "none") {
-			$("#newFrequency").addClass("error");
+			$newFrequency.addClass("error");
 			errors++;
 		}
 		if (!newBill.hasOwnProperty("every")) {
-			$("#subFreqEvery").addClass("error");
+			$subFreqEvery.addClass("error");
 			errors++;
 		} else {
 			if (isNaN(newBill.every) || newBill.every === 0) {
-				$("#subFreqEvery").addClass("error");
+				$subFreqEvery.addClass("error");
 			}		
 		}
 		if (newBill.frequency === "monthly") {
@@ -395,7 +405,7 @@ $(document).ready(function() {
 			}
 		}
 		if (newBill.amount === "" || newBill.amount === null) {
-			$("#newAmount").addClass("error");
+			$newAmount.addClass("error");
 			errors++;
 		}
 
@@ -410,7 +420,7 @@ $(document).ready(function() {
 				,data: newBill
 			}).success(function(response) {
 				// resetAddBill();
-			}).error(function(jqXHR, textStatus, errorThrown) {
+			}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 				$("#infoModalBody").html("There was a problem adding the bill.  Please try again.");
 				$("#infoModal").modal("show");
 			});
@@ -427,7 +437,7 @@ $(document).ready(function() {
 				,url: "/api/v1/money/categories"
 			}).success(function(cats) {
 				// Bind button click
-				$("#editBillButton").click(function(e) {
+				$("#editBillButton").on("click", function() {
 					modifyBill();
 				});
 				// Set bill ID
@@ -466,22 +476,23 @@ $(document).ready(function() {
 				// var freq = $("#"+id+" td[name=frequency]").text();
 				// var freqArr = freq.split(";");
 				let subFreq = "";
-				if ($("#"+id+" td[name=frequency]").data("freq") === "d") {
+				const $freqField = $("#"+id+" td[name=frequency]");
+				if ($freqField.data("freq") === "d") {
 					$("#editFrequency").val("d");
 					// var subFreqArr = freqArr[1].split(" ");
-					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill form-control" type="number" value="'+$("#"+id+" td[name=frequency]").data("every")+'" />&nbsp;days';
-				} else if ($("#"+id+" td[name=frequency]").data("freq") === "w") {
+					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill form-control" type="number" value="'+$freqField.data("every")+'" />&nbsp;days';
+				} else if ($freqField.data("freq") === "w") {
 				// } else if (freqArr[0] === "Weekly") {
 					$("#editFrequency").val("w");
 					// var subFreqArr = freqArr[1].split(" ");
-					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill form-control" type="number" value="'+$("#"+id+" td[name=frequency]").data("every")+'" />&nbsp;weeks';
-				} else if ($("#"+id+" td[name=frequency]").data("freq") === "M") {
+					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill form-control" type="number" value="'+$freqField.data("every")+'" />&nbsp;weeks';
+				} else if ($freqField.data("freq") === "M") {
 				// } else if (freqArr[0] === "Monthly") {
 					$("#editFrequency").val("M");
 					// var subFreqArr = freqArr[1].split(" ");
-					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill form-control" type="number" value="'+$("#"+id+" td[name=frequency]").data("every")+'" />&nbsp;months,';
-					if ($("#"+id+" td[name=frequency]").data("onthe") !== -1) {
-						subFreq += '&nbsp;on&nbsp;the&nbsp;<input id="editSubFreqOn" class="editBill form-control" type="number" max="31" value="'+$("#"+id+" td[name=frequency]").data("onthe")+'" />'+
+					subFreq = 'Every&nbsp;<input id="editSubFreqEvery" class="editBill form-control" type="number" value="'+$freqField.data("every")+'" />&nbsp;months,';
+					if ($freqField.data("onthe") !== -1) {
+						subFreq += '&nbsp;on&nbsp;the&nbsp;<input id="editSubFreqOn" class="editBill form-control" type="number" max="31" value="'+$freqField.data("onthe")+'" />'+
 						'&nbsp;<input type="checkbox" class="form-control" id="editSubFreqLast" />&nbsp;Last Day';
 					} else {
 						subFreq += '&nbsp;on&nbsp;the&nbsp;<input id="editSubFreqOn" class="editBill form-control" type="number" max="31" />'+
@@ -524,21 +535,28 @@ $(document).ready(function() {
 
 	function modifyBill() {
 		$("#editBillButton").off("click");
-		const accountVal = $("#editAccount").val().split("_");
+		const $editAccount = $("#editAccount");
+		const $editPayee = $("#editPayee");
+		const $editStartDate = $("#editStartDate");
+		const $editFrequency = $("#editFrequency");
+		const $editSubFreqEvery = $("#editSubFreqEvery");
+		const $editAmount = $("#editAmount");
+		const $editCategory = $("#editCategory");
+		const accountVal = $editAccount.val().split("_");
 		//Get values
 		let newBill = {
 			id: $("#editBillId").val()
-			,payee: $("#editPayee").val()
+			,payee: $editPayee.val()
 			,description: $("#editDescription").val()
 			,account: Number(accountVal[0])
-			,startDate: $("#editStartDate").val()
-			,frequency: $("#editFrequency").val()
-			,every: $("#editSubFreqEvery").val()
-			,amount: Number($("#editAmount").val())
+			,startDate: $editStartDate.val()
+			,frequency: $editFrequency.val()
+			,every: $editSubFreqEvery.val()
+			,amount: Number($editAmount.val())
 			,automatic: $("#editAuto").prop("checked")
-		}
-		if ($("#editCategory").val() !== "none") {
-			newBill.category = Number($("#editCategory").val());
+		};
+		if ($editCategory.val() !== "none") {
+			newBill.category = Number($editCategory.val());
 		}
 		if (newBill.frequency === "monthly") {
 			if ($("#editSubFreqLast").is(":checked")) {
@@ -562,33 +580,33 @@ $(document).ready(function() {
 		let errors = 0;
 		$(".editBill").removeClass("error");
 		if (newBill.payee === "") {
-			$("#editPayee").addClass("error");
+			$editPayee.addClass("error");
 			errors++;
 		}
 		if (isNaN(newBill.account)) {
-			$("#editAccount").addClass("error");
+			$editAccount.addClass("error");
 			errors++;
 		}
 		if (newBill.startDate === "") {
-			$("#editStartDate").addClass("error");
+			$editStartDate.addClass("error");
 			errors++;
 		} else {
 			if (!newBill.startDate.match(/^\d{2}([./-])\d{2}\1\d{4}$/)) {
-				$("#editStartDate").addClass("error");
+				$editStartDate.addClass("error");
 				errors++;
 			}
 		}
 		if (newBill.frequency === "none") {
-			$("#editFrequency").addClass("error");
+			$editFrequency.addClass("error");
 			errors++;
 		}
 
 		if (!newBill.hasOwnProperty("every")) {
-			$("#editSubFreqEvery").addClass("error");
+			$editSubFreqEvery.addClass("error");
 			errors++;
 		} else {
 			if (isNaN(newBill.every) || newBill.every === 0) {
-				$("#editSubFreqEvery").addClass("error");
+				$editSubFreqEvery.addClass("error");
 			}		
 		}
 		if (newBill.frequency === "monthly") {
@@ -603,7 +621,7 @@ $(document).ready(function() {
 			}
 		}
 		if (newBill.amount === "" || newBill.amount === null) {
-			$("#editAmount").addClass("error");
+			$editAmount.addClass("error");
 			errors++;
 		}
 
@@ -616,7 +634,7 @@ $(document).ready(function() {
 				,data: newBill
 			}).success(function(response) {
 				// resetAddBill();
-			}).error(function(jqXHR, textStatus, errorThrown) {
+			}).error(function(/*jqXHR, textStatus, errorThrown*/) {
 				$("#infoModalBody").html("There was a problem modifying the bill.  Please try again.");
 				$("#infoModal").modal("show");
 			});

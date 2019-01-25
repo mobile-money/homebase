@@ -19,10 +19,10 @@ function getCookie(cname) {
     return "";
 }
 
-function checkCookie(cname) {
-    const cookie = getCookie(cname);
-    return cookie !== "";
-}
+// function checkCookie(cname) {
+//     const cookie = getCookie(cname);
+//     return cookie !== "";
+// }
 
 function deleteCookie(cname) {
     document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC";

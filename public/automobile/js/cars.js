@@ -263,7 +263,7 @@ function getGroups() {
 		,url: '/api/v1/group'
 	}).success(function(response) {
 		// console.log(response);
-		response.forEach(function(group){
+		response.groups.forEach(function(group){
 			$("#newGroup").append($('<option>',{value: group.id, text: group.name}));
 			$("#editGroup").append($('<option>',{value: group.id, text: group.name}));
 		});

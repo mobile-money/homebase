@@ -66,21 +66,13 @@ $(document).ready(function() {
 // SOCKET IO
 	socket.on("connect", function() {
 		// console.log("connected to server");
-	});
-
-	socket.on("accountAdded", function(id) {
+	}).on("accountAdded", function(id) {
 		getAccounts(id, "add");
-	});
-
-	socket.on("accountChanged", function(id) {
+	}).on("accountChanged", function(id) {
 		getAccounts(id, "change");
-	});
-
-	socket.on("accountDeleted", function(id) {
+	}).on("accountDeleted", function(id) {
 		$("#"+id).animate({backgroundColor: "#C9302C"}, 400).fadeOut(300);
-	});
-
-	socket.on("priceUpdated", function(update) {
+	}).on("priceUpdated", function(update) {
 		const $balanceField = $("#"+tickUpdates[update.tick].account+" td[name=balance]");
 		const origValue = tickUpdates[update.tick].quantity * tickUpdates[update.tick].price;
 		const newValue = tickUpdates[update.tick].quantity * Number(update.price);
@@ -327,7 +319,7 @@ function getGroups() {
 		,url: '/api/v1/group'
 	}).success(function(response) {
 		// console.log(response);
-		response.forEach(function(group){
+		response.groups.forEach(function(group){
 			$("#newGroups").append($('<option>',{value: group.id, text: group.name}));
 			$("#editGroups").append($('<option>',{value: group.id, text: group.name}));
 		});
@@ -349,11 +341,7 @@ function modifyAccount() {
 				,type: $("#editType").val()
 				,group_ids: JSON.stringify($("#editGroups").val())
 			};
-			if ($("#editDefault").val() === "yes") {
-				data.default = true;
-			} else {
-				data.default = false;
-			}
+			data.default = $("#editDefault").val() === "yes";
 			$.ajax({
 				type: "PUT"
 				,url: "/api/v1/money/accounts"

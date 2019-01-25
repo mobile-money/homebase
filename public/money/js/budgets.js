@@ -810,7 +810,7 @@ function getGroups() {
     }).success(function(response) {
         // console.log(response);
         groups = response;
-        response.forEach(function(group){
+        response.groups.forEach(function(group){
             $("#newGroups").append($('<option>',{value: group.id, text: group.name}));
             $("#editGroups").append($('<option>',{value: group.id, text: group.name}));
         });

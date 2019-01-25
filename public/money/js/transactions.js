@@ -45,7 +45,7 @@ const QueryString = function () {
 }();
 
 // FIELD EVENTS //
-$("#accountSelect").change(function() {
+$("#accountSelect").on("change", function() {
     resetAddTransaction();
     clearSearch();
     $("#transactionTable").find("tbody").empty();
@@ -61,11 +61,11 @@ $("#accountSelect").change(function() {
     $("#newPayee").focus();
 });
 
-$("#addTransaction").click(function() {
+$("#addTransaction").on("click", function() {
     addTransaction();
 });
 
-$("#cancelMultiCategoryButton").click(function() {
+$("#cancelMultiCategoryButton").on("click", function() {
     multiCategoriesObj = [];
 	$("#newCategory").val("");
     $("#multiCategoryModal").modal("hide");
@@ -81,7 +81,7 @@ $("#cancelMultiCategoryButton").click(function() {
 //     // $("#newPayee").focus();
 // });
 
-$("#completeMultiCategoryButton").click(function() {
+$("#completeMultiCategoryButton").on("click", function() {
     let cnt = 0;
     let lastId = -1;
 	$(".multiCatValue").each(function(i,e) {
@@ -114,7 +114,7 @@ $("#completeMultiCategoryButton").click(function() {
     $("#multiCategoryModal").modal("hide");
 });
 
-$("#deleteTransactionButton").click(function() {
+$("#deleteTransactionButton").on("click", function() {
     removeTransaction();
 });
 
@@ -122,7 +122,7 @@ $("#deleteTransactionModal").on("hidden.bs.modal", function() {
     // $("#newPayee").focus();
 });
 
-$("#editCategory").change(function() {
+$("#editCategory").on("change", function() {
     if ($("#editCategory").val() === "1") {
         initiateMultiCategory($("#editDeposit").val(),$("#editWithdrawl").val());
     } else {
@@ -130,7 +130,7 @@ $("#editCategory").change(function() {
     }
 });
 
-$("#editFCategory").change(function() {
+$("#editFCategory").on("change", function() {
     if ($("#editFCategory").val() === "1") {
         initiateMultiCategory($("#editFDeposit").val(),$("#editFWithdrawl").val());
     } else {
@@ -138,7 +138,7 @@ $("#editFCategory").change(function() {
     }
 });
 
-$("#editFTransactionButton").click(function() {
+$("#editFTransactionButton").on("click", function() {
     modifyFTransaction();
 });
 
@@ -156,7 +156,7 @@ $("#editFutureTransactionModal").on("hidden.bs.modal", function() {
     $("#editFPayee").focus();
 });
 
-$("#editTransactionButton").click(function() {
+$("#editTransactionButton").on("click", function() {
     modifyTransaction();
 });
 
@@ -176,7 +176,7 @@ $("#infoModal").on("hidden.bs.modal", function() {
     $("#newPayee").focus();
 });
 
-$("#newCategory").change(function() {
+$("#newCategory").on("change", function() {
 	if ($("#newCategory").val() === "1") {
 		initiateMultiCategory($("#newDeposit").val(),$("#newWithdrawl").val());
 	} else {
@@ -185,31 +185,31 @@ $("#newCategory").change(function() {
 });
 
 $("#newDescription").typeahead({source: function(query, process) {
-		// return $.get("/api/v1/money/transactions/lookup/payee/"+encodeURI(query));
-        if (accountNames[$("#accountSelect").val()].type !== "Investment") {
-            $.ajax({
-                url: "/api/v1/money/transactions/lookup/description/" + encodeURI(query)
-                , success: process
-            });
-        } else {
-            $.ajax({
-                url: "/api/v1/money/trades/lookup/description/" + encodeURI(query)
-                , success: process
-            });
-        }
-	}, minLength: 3});
+    // return $.get("/api/v1/money/transactions/lookup/payee/"+encodeURI(query));
+    if (accountNames[$("#accountSelect").val()].type !== "Investment") {
+        $.ajax({
+            url: "/api/v1/money/transactions/lookup/description/" + encodeURI(query),
+            success: process
+        });
+    } else {
+        $.ajax({
+            url: "/api/v1/money/trades/lookup/description/" + encodeURI(query),
+            success: process
+        });
+    }
+}, minLength: 3});
 
 $("#newPayee").typeahead({source: function(query, process) {
         // return $.get("/api/v1/money/transactions/lookup/payee/"+encodeURI(query));
     if (accountNames[$("#accountSelect").val()].type !== "Investment") {
         $.ajax({
-            url: "/api/v1/money/transactions/lookup/payee/" + encodeURI(query)
-            , success: process
+            url: "/api/v1/money/transactions/lookup/payee/" + encodeURI(query),
+            success: process
         });
     } else {
         $.ajax({
-            url: "/api/v1/money/positions/lookup/ticker/" + encodeURI(query)
-            , success: process
+            url: "/api/v1/money/positions/lookup/ticker/" + encodeURI(query),
+            success: process
         });
     }
 }, minLength: 1});
@@ -219,7 +219,7 @@ $("#newPriceModal").on("hidden.bs.modal", function() {
     $("#newTickerPrice").val("");
 });
 
-$("#searchClear").click(function() {
+$("#searchClear").on("click", function() {
     getTransactions(null, null);
 });
 
@@ -332,7 +332,7 @@ $("#searchField").keypress(function(e) {
     }
 });
 
-$("#startXferBtn").click(function() {
+$("#startXferBtn").on("click", function() {
     const currentAccount = $("#accountSelect").val();
     const $xferAccountsElem = $("#xferAccounts");
     $xferAccountsElem.empty();
@@ -342,7 +342,7 @@ $("#startXferBtn").click(function() {
     $("#xferModal").modal("show");
     accountArray.forEach(function(account) {
         if (account.id !== Number(currentAccount)) {
-            var option = '<option value="'+account.id+'"';
+            let option = '<option value="'+account.id+'"';
             if (Number($("#xferAccountId").val()) === account.id) {
                 option += ' selected';
             }
@@ -360,14 +360,14 @@ $("#startXferBtn").click(function() {
     });
 });
 
-$("#updatePriceButton").click(function() {
+$("#updatePriceButton").on("click", function() {
    // console.log("clicked");
    // console.log($("#tickerId").val());
    // console.log($("#newTickerPrice").val());
    updateTickerPrice($("#tickerId").val(),$("#newTickerPrice").val());
 });
 
-$("#xferAccounts").change(function() {
+$("#xferAccounts").on("change",function() {
     const val = $("#xferAccounts").val();
     if (val !== null) {
         $("#noAccountSelected").remove();
@@ -384,12 +384,8 @@ $("#xferModal").on("hidden.bs.modal", function() {
 // SOCKET IO //
 socket.on("categoryAdded", function(/*category*/) {
     getCategories();
-});
-
-socket.on("connect", function() {
-	});
-
-socket.on("priceUpdated", function(update) {
+}).on("connect", function() {
+}).on("priceUpdated", function(update) {
     $("."+update.tick.toUpperCase()).css("background-color", "#F0EEA1").animate({backgroundColor: "#F5F5F5"}, 5000);
     const $valElem = $("."+update.tick.toUpperCase()+" td[name=value]");
     const $dChangeElem = $("."+update.tick.toUpperCase()+" td[name=dChange]");
@@ -448,41 +444,28 @@ socket.on("priceUpdated", function(update) {
     } else {
         $totalPChangeElem.css("color", "black");
     }
-});
-
-socket.on("tradeAdded", function(obj) {
+}).on("tradeAdded", function(obj) {
     getInvestments($("#accountSelect").val(), obj.trade, obj.position, "add");
-});
-
-socket.on("transactionAdded", function(transId) {
-		getTransactions(0, $("#transactionTable").find("tbody tr").length, transId);
-	});
-
-socket.on("transactionChanged", function(transId) {
+}).on("transactionAdded", function(transId) {
+    getTransactions(0, $("#transactionTable").find("tbody tr").length, transId);
+}).on("transactionChanged", function(transId) {
 	getTransactions(0, $("#transactionTable").find("tbody tr").length, transId);
-});
-
-socket.on("transactionCleared", function(id) {
+}).on("transactionCleared", function(id) {
     // console.log(id);
     $("#clr_"+id).attr("checked", true).attr("disabled", true);
-});
-
-socket.on("transactionDeleted", function(id) {
-		// console.log(id);
-		$("#"+id).animate({backgroundColor: "#C9302C"}, 400).fadeOut(300);
-	});
-
-socket.on("summaryAdded", function(newSummary) {
+}).on("transactionDeleted", function(id) {
+    // console.log(id);
+    $("#"+id).animate({backgroundColor: "#C9302C"}, 400).fadeOut(300);
+}).on("summaryAdded", function(newSummary) {
 	// getPeriods($("#accountSelect").val());
 });
 
 // FUNCTIONS //
 function addTransaction() {
-    $(".newTrans").prop("disabled",true);
+    $(".newTrans").prop("disabled",true).removeClass("error");
     $("#addButtonPlus").hide();
     $("#addButtonLoad").show();
     //Clear existing errors
-    $(".newTrans").removeClass("error");
     let errors = 0;
     let $accountElem = $("#accountSelect");
     let $xferAccountElem = $("#xferAccountId");
@@ -601,17 +584,15 @@ function addTransaction() {
                         type: "POST"
                         ,url: "/api/v1/money/futureTransactions"
                         ,data: xt
-                    })
-                        .success(function(/*xferResponse*/) {
-                            resetAddTransaction();
-                            return false;
-                        })
-                        .error(function(/*jqXHR, textStatus, errorThrown*/) {
-                            $("#infoModalBody").html("There was a problem adding the transfer transaction.  Please add it manually.");
-                            $("#infoModal").modal("show");
-                            resetAddTransaction();
-                            return false;
-                        });
+                    }).success(function(/*xferResponse*/) {
+                        resetAddTransaction();
+                        return false;
+                    }).error(function(/*jqXHR, textStatus, errorThrown*/) {
+                        $("#infoModalBody").html("There was a problem adding the transfer transaction.  Please add it manually.");
+                        $("#infoModal").modal("show");
+                        resetAddTransaction();
+                        return false;
+                    });
                 } else {
                     resetAddTransaction();
                     return false;
@@ -688,12 +669,10 @@ function addTransaction() {
                 type: "POST"
                 ,url: "/api/v1/money/trades"
                 ,data: nt
-            })
-            .success(function(/*response*/) {
+            }).success(function(/*response*/) {
                 resetAddTransaction();
                 return false;
-            })
-            .error(function(/*jqXHR, textStatus, errorThrown*/) {
+            }).error(function(/*jqXHR, textStatus, errorThrown*/) {
                 $("#infoModalBody").html("There was a problem adding the trade.  Please try again.");
                 $("#infoModal").modal("show");
                 return false;
@@ -856,8 +835,8 @@ function getInvestments(id, tradeId, positionId, type) {
         $positionSectionElem.empty();
         $tableElem.find("tbody").empty();
         if (jqXHR.status !== 204) {
+            let costs = {};
             if (response.trades.length > 0) {
-                let costs = {};
                 response.trades.forEach(function(trade, index) {
                     if (trade.description !== "Employer Match") {
                         if (costs.hasOwnProperty(trade.ticker)) {
@@ -1043,7 +1022,7 @@ function getTransactions(offset, limit, transId) {
                 }
                 row += '><td>' +
                     '<input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" />' +
-                    '<img id="load_'+result.id+'" class="loader-center loader-small" src="../shared/img/loading.gif" style="display:none;" />' +
+                    '<img id="load_'+result.id+'" class="loader-center loader-small" src="../shared/img/loading.gif" style="display:none;" alt="loading" />' +
                     '</td>';
             } else {
                 if (flag) {
@@ -1101,7 +1080,7 @@ function getTransactions(offset, limit, transId) {
                     }).success(function(catSplit) {
                         // console.log(catSplit);
                         if (catSplit) {
-                            var titleArr = [];
+                            let titleArr = [];
                             JSON.parse(catSplit).forEach(function(cat) {
                                 titleArr.push(cat.name + ": " + cat.value.toFixed(2));
                             });
@@ -1183,11 +1162,11 @@ function getTransactions(offset, limit, transId) {
 
 function getMoreInvestments() {
     $("#moreRow").remove();
-    var visible = $(".transRow:visible").length;
-    var $tableElem = $("#transactionTable");
+    const visible = $(".transRow:visible").length;
+    const $tableElem = $("#transactionTable");
     $tableElem.find("tbody tr:lt("+(visible + transactionLimit)+")").show();
     if (visible !== $(".transRow").length) {
-        var moreRow = '<tr id="moreRow" style="text-align:center;">'+
+        const moreRow = '<tr id="moreRow" style="text-align:center;">'+
             '<td colspan="6">'+
             '<a onclick="getMoreInvestments('+visible+');">'+
             'More&nbsp;<i class="fa fa-chevron-down"></i>'+
@@ -1202,108 +1181,106 @@ function getMoreTransactions(balance, offset, limit) {
     // setupTable();
     // if (offset === null) { offset = 0; }
     // if (limit === null) { limit = 10; }
-    var $tableElem = $("#transactionTable");
+    const $tableElem = $("#transactionTable");
     $.ajax({
         type: "GET"
         ,url: "/api/v1/money/transactions/more/account/"+$("#accountSelect").val()+"/"+offset+"/"+limit
-    })
-        .success(function(response) {
-            $("#moreRow").remove();
-            // console.log(response);
-            // $("#transactionTable tbody").empty();
-            // var balance = Number(response[0].Summary.balance);
+    }).success(function(response) {
+        $("#moreRow").remove();
+        // console.log(response);
+        // $("#transactionTable tbody").empty();
+        // var balance = Number(response[0].Summary.balance);
 
-            var flag = false;
-            response.cTrans.forEach(function(result) {
-                if (!result.hasOwnProperty("future")) {
-                    var row;
-                    if (flag) {
-                        row = '<tr id="'+result.id+'" style="background: #fffff0;"><td>';
-                    } else {
-                        row = '<tr id="'+result.id+'"><td>';
-                    }
-                    
-                    if (result.postDate !== null) {
-                        row += moment.utc(result.postDate).format("MM/DD/YYYY");
-                    }
-                    // '<input id="clr_'+result.id+'" type="checkbox" onclick="clearTransaction('+result.id+');"';
-                    // if (result.cleared === true) {
-                    // 	row += 'checked disabled';
-                    // }
-                    // row += '></input>'+
-                    row += '</td>'+
-                        '<td name="transactionDate">'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'</td>'+
-                        '<td name="payee">'+result.payee+'</td>';
-                    if (result.description !== null) {
-                        row += '<td name="description">';
-                        if (result.xfer !== null) {
-                            row += "[Transfer] ";
-                        }
-                        row += result.description+'</td>';
-                    } else {
-                        row += '<td name="description">';
-                        if (result.xfer !== null) {
-                            row += "[Transfer]";
-                        }
-                        row += '</td>';
-                    }
-                    if (result.checkNumber !== null) {
-                        row += '<td name="check">'+result.checkNumber+'</td>';
-                    } else {
-                        row += '<td name="check"></td>';
-                    }
-
-                    if (result.amount !== null) {
-                        if (result.amount > 0) {
-                            row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
-                        } else {
-                            row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
-                        }
-                    }
-                    if (result.Category !== null) {
-                        row += '<td name="category">'+result.Category.name+'</td>';
-                    } else {
-                        row += '<td name="category"></td>';
-                    }
-                    row += '<td name="balance">'+balance.toFixed(2)+'</td>';
-                    row += '<td>'+
-                        '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\''+result.id+'\');">'+
-                        '<i class="fa fa-pencil"></i>'+
-                        '</button>'+
-                        '</td>'+
-                        '</tr>';
-                    if (result.description !== "gobble gobble") {
-                        $tableElem.find("tbody").append(row);
-                        flag = false;
-                    } else {
-                        flag = true;
-                    }
-                    balance -= result.amount;
+        let flag = false;
+        response.cTrans.forEach(function(result) {
+            if (!result.hasOwnProperty("future")) {
+                let row;
+                if (flag) {
+                    row = '<tr id="'+result.id+'" style="background: #fffff0;"><td>';
+                } else {
+                    row = '<tr id="'+result.id+'"><td>';
                 }
-            });
-            if (response.cTrans.length >= transactionLimit) {
-                var moreRow = '<tr id="moreRow" style="text-align:center;">'+
-                    '<td colspan="9">'+
-                    '<a onclick="getMoreTransactions('+balance+','+(offset+transactionLimit)+','+transactionLimit+');">'+
-                    'More&nbsp;<i class="fa fa-chevron-down"></i>'+
-                    '</a>'+
+
+                if (result.postDate !== null) {
+                    row += moment.utc(result.postDate).format("MM/DD/YYYY");
+                }
+                // '<input id="clr_'+result.id+'" type="checkbox" onclick="clearTransaction('+result.id+');"';
+                // if (result.cleared === true) {
+                // 	row += 'checked disabled';
+                // }
+                // row += '></input>'+
+                row += '</td>'+
+                    '<td name="transactionDate">'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'</td>'+
+                    '<td name="payee">'+result.payee+'</td>';
+                if (result.description !== null) {
+                    row += '<td name="description">';
+                    if (result.xfer !== null) {
+                        row += "[Transfer] ";
+                    }
+                    row += result.description+'</td>';
+                } else {
+                    row += '<td name="description">';
+                    if (result.xfer !== null) {
+                        row += "[Transfer]";
+                    }
+                    row += '</td>';
+                }
+                if (result.checkNumber !== null) {
+                    row += '<td name="check">'+result.checkNumber+'</td>';
+                } else {
+                    row += '<td name="check"></td>';
+                }
+
+                if (result.amount !== null) {
+                    if (result.amount > 0) {
+                        row += '<td name="plus">'+result.amount.toFixed(2)+'</td><td name="minus"></td>';
+                    } else {
+                        row += '<td name="plus"></td><td name="minus">'+(Number(result.amount) * -1).toFixed(2)+'</td>';
+                    }
+                }
+                if (result.Category !== null) {
+                    row += '<td name="category">'+result.Category.name+'</td>';
+                } else {
+                    row += '<td name="category"></td>';
+                }
+                row += '<td name="balance">'+balance.toFixed(2)+'</td>';
+                row += '<td>'+
+                    '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\''+result.id+'\');">'+
+                    '<i class="fa fa-pencil"></i>'+
+                    '</button>'+
                     '</td>'+
                     '</tr>';
-                $tableElem.find("tbody").append(moreRow);
-            }
-            // if (type !== null) {
-            // 	transactionHighlight(transId);
-            // }
-        })
-        .error(function(jqXHR/*, textStatus, errorThrown*/) {
-            if (jqXHR.status === 404) {
-                $("#moreRow").remove();
-                return false;
-            } else {
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
+                if (result.description !== "gobble gobble") {
+                    $tableElem.find("tbody").append(row);
+                    flag = false;
+                } else {
+                    flag = true;
+                }
+                balance -= result.amount;
             }
         });
+        if (response.cTrans.length >= transactionLimit) {
+            let moreRow = '<tr id="moreRow" style="text-align:center;">'+
+                '<td colspan="9">'+
+                '<a onclick="getMoreTransactions('+balance+','+(offset+transactionLimit)+','+transactionLimit+');">'+
+                'More&nbsp;<i class="fa fa-chevron-down"></i>'+
+                '</a>'+
+                '</td>'+
+                '</tr>';
+            $tableElem.find("tbody").append(moreRow);
+        }
+        // if (type !== null) {
+        // 	transactionHighlight(transId);
+        // }
+    }).error(function(jqXHR/*, textStatus, errorThrown*/) {
+        if (jqXHR.status === 404) {
+            $("#moreRow").remove();
+            return false;
+        } else {
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        }
+    });
 }
 
 function initiateMultiCategory(deposit,withdrawal) {
@@ -1376,10 +1353,10 @@ function initiateMultiCategory(deposit,withdrawal) {
 }
 
 function modifyFTransaction() {
-    var id = $("#editFutureTransactionId").val();
+    const id = $("#editFutureTransactionId").val();
 
     //Clear existing errors
-    var errors = 0;
+    let errors = 0;
     $(".editFTrans").removeClass("error");
 
     //Get values
@@ -1472,15 +1449,13 @@ function modifyFTransaction() {
             type: "PUT"
             ,url: "/api/v1/money/futureTransactions/"+id
             ,data: et
-        })
-            .success(function(/*response*/) {
-                // console.log("success!");
-                return false;
-            })
-            .error(function(/*jqXHR, textStatus, errorThrown*/) {
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
-            });
+        }).success(function(/*response*/) {
+            // console.log("success!");
+            return false;
+        }).error(function(/*jqXHR, textStatus, errorThrown*/) {
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        });
     }
     return false;
 }
@@ -1537,15 +1512,13 @@ function modifyTransaction() {
             type: "PUT"
             ,url: "/api/v1/money/transactions/"+id
             ,data: et
-        })
-            .success(function(/*response*/) {
-                // console.log("success!");
-                return false;
-            })
-            .error(function(/*jqXHR, textStatus, errorThrown*/) {
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
-            });
+        }).success(function(/*response*/) {
+            // console.log("success!");
+            return false;
+        }).error(function(/*jqXHR, textStatus, errorThrown*/) {
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        });
     }
     return false;
 }
@@ -1557,20 +1530,18 @@ function newPrice(tick) {
 }
 
 function removeTransaction() {
-    var id = $("#deleteTransactionId").val();
+    const id = $("#deleteTransactionId").val();
     $("#deleteTransactionModal").modal("hide");
     if (typeof id !== "undefined" && id.length > 0) {
         $.ajax({
             type: "DELETE"
             ,url: "/api/v1/money/futureTransactions/"+id
-        })
-            .success(function() {
-                return false;
-            })
-            .error(function(/*jqXHR, textStatus, errorThrown*/) {
-                $("#infoModalBody").html("There was a problem.  Please try again.");
-                $("#infoModal").modal("show");
-            });
+        }).success(function() {
+            return false;
+        }).error(function(/*jqXHR, textStatus, errorThrown*/) {
+            $("#infoModalBody").html("There was a problem.  Please try again.");
+            $("#infoModal").modal("show");
+        });
     }
     return false;
 }
@@ -1610,14 +1581,14 @@ function sendCommit(rid, pdate) {
 
 function setupTable() {
 	$("#positionSection").empty();
-	var $payeeElems = $(".payeeHeader");
-	var $plusElems = $(".plusHeader");
-	var $minusElems = $(".minusHeader");
-	var $balanceElems = $(".balanceHeader");
-	var $depositElem = $("#newDeposit");
-	var $withdrawlElem = $("#newWithdrawl");
-	var $zuluElems = $(".zulu");
-	var $periodElem = $("#periodSelect");
+	const $payeeElems = $(".payeeHeader");
+    const $plusElems = $(".plusHeader");
+    const $minusElems = $(".minusHeader");
+    const $balanceElems = $(".balanceHeader");
+    const $depositElem = $("#newDeposit");
+    const $withdrawlElem = $("#newWithdrawl");
+    const $zuluElems = $(".zulu");
+    const $periodElem = $("#periodSelect");
 	switch (accountNames[$("#accountSelect").val()].type) {
 		case "Checking":
 		case "Savings":
@@ -1684,24 +1655,24 @@ function setXfer() {
 }
 
 function tradeHighlight(id, type) {
-    var jq_elem = $("#"+type+"_"+id);
-    var baseBG = jq_elem.css("background-color");
+    const jq_elem = $("#"+type+"_"+id);
+    const baseBG = jq_elem.css("background-color");
     jq_elem.css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
 }
 
 function transactionHighlight(id) {
-	var jq_elem = $("#"+id);
-	var baseBG = jq_elem.css("background-color");
+    const jq_elem = $("#"+id);
+    const baseBG = jq_elem.css("background-color");
 	jq_elem.css("background-color", "#F0EEA1").animate({backgroundColor: baseBG}, 5000);
 }
 
 function updateTickerPrice(tick, price) {
     $("#newPriceModal").modal("hide");
     $.ajax({
-       type: "POST"
+        type: "POST"
         ,url: "/api/v1/money/positions/update"
         ,data: {
-           tick: tick
+            tick: tick
             ,price: price
         }
     });

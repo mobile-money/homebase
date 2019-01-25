@@ -1,5 +1,5 @@
 // const _ = require("underscore");
-const site_url = "localhost:3000";
+const site_url = "litzhome.com";
 const moment = require("moment");
 const uuidv4 = require('uuid/v4');
 const AWS = require("aws-sdk");
