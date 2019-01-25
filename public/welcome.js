@@ -27,7 +27,8 @@ $('#password').keypress(function (e) {
 });
 
 $("#signupButton").on("click", function() {
-	$("#signupModal").modal("show");
+	// $("#signupModal").modal("show");
+	$("#thankYouModal").modal("show");
 });
 
 $("#signupModal").on("hidden.bs.modal",function() {

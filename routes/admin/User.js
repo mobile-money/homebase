@@ -19,58 +19,59 @@ module.exports = function(app, User, _) {
         });
     });
 
-    // Add User
-    app.post("/api/v1/users/new", function(req, res) {
-        const user = _.pick(req.body, 'firstName', 'lastName', 'email', 'password', 'captchaToken');
-        // Check captcha
-        // console.log("token: " + user.captchaToken);
-        const secret = '6LdQd4UUAAAAAAEDoIANNebK8ExjsGf5jUEIcOjh';
-        request.post({
-            url: 'https://www.google.com/recaptcha/api/siteverify'
-            ,form: {
-                secret: secret
-                ,response: user.captchaToken
-            }
-        }, function (error, response, body) {
-            // console.log("body: " + body);
-            const jBody = JSON.parse(body);
-            if (jBody.success) {
-                // console.log('captcha success');
-                console.log("validating new user");
-                console.log(_.omit(user,'password'));
-                let err = 0;
-                if (!user.email.match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)) {
-                    err++;
-                }
-                if (!user.password.match(/(?=^.{8,16}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/)) {
-                    err++;
-                }
-
-                if (err === 0) {
-                    console.log("user data valid");
-                    console.log("adding user");
-                    User.create(user).then(function(result) {
-                        console.log("added user");
-                        res.status(201).json(result);
-                    }).catch(function(error) {
-                        if (error === "account already exists") {
-                            console.log("account already exists");
-                            res.status(409).send();
-                        } else {
-                            console.log("error adding user; " + error);
-                            res.status(500).json(error);
-                        }
-                    });
-                } else {
-                    console.log("user data invalid");
-                    res.status(400).send();
-                }
-            } else {
-                // console.log('captcha failure');
-                res.status(401).send();
-            }
-        });
-    });
+    // SIGN-UP DISABLED
+    // // Add User
+    // app.post("/api/v1/users/new", function(req, res) {
+    //     const user = _.pick(req.body, 'firstName', 'lastName', 'email', 'password', 'captchaToken');
+    //     // Check captcha
+    //     // console.log("token: " + user.captchaToken);
+    //     const secret = '6LdQd4UUAAAAAAEDoIANNebK8ExjsGf5jUEIcOjh';
+    //     request.post({
+    //         url: 'https://www.google.com/recaptcha/api/siteverify'
+    //         ,form: {
+    //             secret: secret
+    //             ,response: user.captchaToken
+    //         }
+    //     }, function (error, response, body) {
+    //         // console.log("body: " + body);
+    //         const jBody = JSON.parse(body);
+    //         if (jBody.success) {
+    //             // console.log('captcha success');
+    //             console.log("validating new user");
+    //             console.log(_.omit(user,'password'));
+    //             let err = 0;
+    //             if (!user.email.match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/)) {
+    //                 err++;
+    //             }
+    //             if (!user.password.match(/(?=^.{8,16}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/)) {
+    //                 err++;
+    //             }
+    //
+    //             if (err === 0) {
+    //                 console.log("user data valid");
+    //                 console.log("adding user");
+    //                 User.create(user).then(function(result) {
+    //                     console.log("added user");
+    //                     res.status(201).json(result);
+    //                 }).catch(function(error) {
+    //                     if (error === "account already exists") {
+    //                         console.log("account already exists");
+    //                         res.status(409).send();
+    //                     } else {
+    //                         console.log("error adding user; " + error);
+    //                         res.status(500).json(error);
+    //                     }
+    //                 });
+    //             } else {
+    //                 console.log("user data invalid");
+    //                 res.status(400).send();
+    //             }
+    //         } else {
+    //             // console.log('captcha failure');
+    //             res.status(401).send();
+    //         }
+    //     });
+    // });
 
     // Login
     // Add brute force prevention to login
