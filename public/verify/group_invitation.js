@@ -45,7 +45,7 @@ function verify() {
 			code: $("#code").val()
 		}
 	}).success(function() {
-		window.location.replace("verify/group_joined");
+		window.location.replace("/verify/group_joined");
 	}).error(function(jqXHR) {
 		if (jqXHR.status === 401 || jqXHR.status === 404) {
 			$("#infoModalBody").html("Invitation failed.  Please try again.");

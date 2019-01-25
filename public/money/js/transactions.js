@@ -1018,7 +1018,7 @@ function getTransactions(offset, limit, transId) {
                 dp = true;
                 row = '<tr id="f_'+result.id+'"';
                 if (tDateMoment.isAfter(moment(),'days')) {
-                    row += ' class="success"';
+                    row += ' class="bg-warning"';
                 }
                 row += '><td>' +
                     '<input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" />' +

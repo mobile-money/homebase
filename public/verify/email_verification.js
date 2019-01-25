@@ -46,7 +46,7 @@ function verify() {
 			password: $("#password").val()
 		}
 	}).success(function() {
-		window.location.replace("verify/email_verified");
+		window.location.replace("/verify/email_verified");
 	}).error(function(jqXHR) {
 		if (jqXHR.status === 401 || jqXHR.status === 404) {
 			$("#infoModalBody").html("Verification failed.  Please try again.");

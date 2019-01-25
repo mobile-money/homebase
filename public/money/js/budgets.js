@@ -538,7 +538,7 @@ function deleteBudget(id) {
 }
 
 function editBudget(budget) {
-    console.log(budget);
+    // console.log(budget);
     $("#editBudName").val(budget.name);
     $("#editGroups").val(budget.groups);
     $("#editBudAccounts").val(budget.accounts);
@@ -863,7 +863,7 @@ function modifyBudget(id) {
 function modifyCategory(id) {
     const action = $("#editType").val();
     const accts = $("#editAccounts").val();
-    console.log(accts);
+    // console.log(accts);
     let errorCount = 0;
     if (action === "") {
         $("#edit_acct_type_error").show();
