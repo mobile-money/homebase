@@ -17,9 +17,9 @@ module.exports = function(db, admin) {
             return new Promise(function(resolve, reject) {
                 admin.User.findById(user.id).then(function(/*foundUser*/) {
                     const catName = capitalize(data.name.trim());
-                    let exp = true;
-                    if (data.expense === "false") {
-                        exp = false;
+                    let exp = false;
+                    if (data.expense === "true") {
+                        exp = true;
                     }
                     const acctIds = _.map(data.account_ids, function(val) { return Number(val); });
                     // Check for existing category

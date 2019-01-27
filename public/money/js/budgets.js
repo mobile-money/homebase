@@ -42,7 +42,7 @@ $("#addCategoryButton").on("click", function() {
 
 	if (errorCount === 0) {
 		let exp = true;
-		if ($("#newCatType").val("i")) {
+		if ($("#newCatType").val() === "i") {
 			exp = false;
 		}
 		addCategory($field.val(), exp, acct);
