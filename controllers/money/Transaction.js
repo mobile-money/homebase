@@ -615,7 +615,7 @@ module.exports = function(db) {
 		}
 		,update: function(user, data) {
 			return new Promise(function(resolve, reject) {
-				db.Transaction.findById(data.id).then(function(transaction) {
+				db.Transaction.findOne({ where: { id: data.id } }).then(function(transaction) {
 					if (transaction !== null) {
 						// Get summary of transaction
 						db.Summaries.findById(transaction.SummaryId).then(function(summary) {
