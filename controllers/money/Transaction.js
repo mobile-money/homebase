@@ -239,7 +239,7 @@ module.exports = function(db) {
 		,clear: function(user, id) {
 			return new Promise(function(resolve, reject) {
 				// Get summary of transaction
-				db.Summaries.findById(id).then(function(summary) {
+				db.Summary.findById(id).then(function(summary) {
 					// Validate account access
 					db.Account.validateAccountAccess(user,summary.AccountId).then(function() {
 						db.Transaction.findById(id).then(function(transaction) {
@@ -268,7 +268,7 @@ module.exports = function(db) {
 		,delete: function(user, id) {
 			return new Promise(function(resolve, reject) {
 				// Get summary of transaction
-				db.Summaries.findById(id).then(function(summary) {
+				db.Summary.findById(id).then(function(summary) {
 					// Validate account access
 					db.Account.validateAccountAccess(user,summary.AccountId).then(function() {
 						db.Transaction.destroy({
@@ -539,7 +539,7 @@ module.exports = function(db) {
 		,post: function(user, data) {
 			return new Promise(function(resolve, reject) {
 				// Get summary of transaction
-				db.Summaries.findById(data.id).then(function(summary) {
+				db.Summary.findById(data.id).then(function(summary) {
 					// Validate account access
 					db.Account.validateAccountAccess(user,summary.AccountId).then(function() {
 						db.Transaction.findById(data.id).then(function(transaction) {
@@ -618,7 +618,7 @@ module.exports = function(db) {
 				db.Transaction.findOne({ where: { id: data.id } }).then(function(transaction) {
 					if (transaction !== null) {
 						// Get summary of transaction
-						db.Summaries.findById(transaction.SummaryId).then(function(summary) {
+						db.Summary.findById(transaction.SummaryId).then(function(summary) {
 							// Validate account access
 							db.Account.validateAccountAccess(user,summary.AccountId).then(function() {
 								transaction.payee = data.payee;
