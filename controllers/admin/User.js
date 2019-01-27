@@ -2,6 +2,55 @@ const bcrypt = require("bcryptjs");
 const cryptojs = require("crypto-js");
 const _ = require("underscore");
 const moment = require("moment");
+const AWS = require("aws-sdk");
+const creds = new AWS.SharedIniFileCredentials({profile: 'default'});
+function sendLockoutEmail(user) {
+	return new Promise(function(resolve, reject) {
+		// console.log("testing email send");
+		AWS.config.credentials = creds;
+		AWS.config.update({region: "us-east-1"});
+		const params = {
+			Destination: {
+				ToAddresses: [
+					user.email
+				]
+			},
+			Message: {
+				Body: {
+					Html: {
+						Charset: 'UTF-8',
+						Data: '<p>Hello '+user.firstName+',</p><p>Due to too many failed login attempts, your account has been locked out.  ' +
+							'Please contact your administrator to resolve this injustice.<br /><br />'+
+							'Thank you,<br />The Home Base Team'
+					},
+					Text: {
+						Charset: 'UTF-8',
+						Data: 'Hello '+user.firstName+',\r\nDue to too many failed login attempts, your account has been locked out.  ' +
+							'Please contact your administrator to resolve this injustice.\r\n\r\n'+
+							'Thank you,\r\nThe Home Base Team'
+					}
+				},
+				Subject: {
+					Charset: 'UTF-8',
+					Data: 'Home Base: Account Locked Out'
+				}
+			},
+			Source: 'admin@litzhome.com',
+			// Template: template_name,
+			// TemplateData: JSON.stringify(template_data)
+		};
+		const sendPromise = new AWS.SES().sendEmail(params).promise();
+		sendPromise.then(function(data) {
+			console.log("lockout email sent to "+user.email);
+			console.log(data.MessageId);
+			resolve(data.MessageId);
+		}).catch(function(error) {
+			console.log("error sending lockout email to "+user.email);
+			console.error(error, error.stack);
+			reject(error);
+		});
+	});
+}
 
 module.exports = function(db) {
 	return {
@@ -146,9 +195,10 @@ module.exports = function(db) {
 										},{
 											where: { email: data.email }
 										}).then(function() {
+											sendLockoutEmail(user);
 											console.log("failed login: account locked");
 											reject({code: 1});
-										})
+										});
 									} else {
 										console.log("failed login: " + error);
 										reject({code: 1});

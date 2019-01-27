@@ -64,19 +64,42 @@ app.use(function(req, res, next) {
 							// res.status(401).send();
 							res.redirect("/welcome");
 						} else {
-							// console.log("userInstance: " + JSON.stringify(userInstance));
-							// req.user = userInstance;
-							// Add groups to user object
-							db_admin.Group.getUsersGroups(userInstance.id).then(function(groups) {
-								req.user = {
-									id: userInstance.id
-									,firstName: userInstance.firstName
-									,lastName: userInstance.lastName
-									,verified: userInstance.verified
-									,email: userInstance.email
-									,groups: groups
-								};
-								next();
+							// Check to see whether IP address has changed since last login
+							db_admin.Login.getLastLogin(userInstance).then((lastLogin) => {
+								// Last login found
+								// Check last login IP vs current IP
+								if (lastLogin.ip !== req.headers['X-Forwarded-For'] && lastLogin.ip !== req.ip) {
+									// Current IP does not match last login, so redirect them to welcome page to re-login
+									console.log("IP address changed since last login");
+									res.redirect("/welcome");
+								} else {
+									// Add groups to user object
+									db_admin.Group.getUsersGroups(userInstance.id).then(function(groups) {
+										req.user = {
+											id: userInstance.id
+											,firstName: userInstance.firstName
+											,lastName: userInstance.lastName
+											,verified: userInstance.verified
+											,email: userInstance.email
+											,groups: groups
+										};
+										next();
+									});
+								}
+							}, () => {
+								// No last login found
+								// Add groups to user object
+								db_admin.Group.getUsersGroups(userInstance.id).then(function(groups) {
+									req.user = {
+										id: userInstance.id
+										,firstName: userInstance.firstName
+										,lastName: userInstance.lastName
+										,verified: userInstance.verified
+										,email: userInstance.email
+										,groups: groups
+									};
+									next();
+								});
 							});
 						}
 					}

@@ -13,10 +13,10 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.STRING
 		}
 	},{
-		 classMethods: {
-		 	addLogin: function(user_name, ip) {
-		 		return new Promise(function(resolve) {
-		 			Login.findOne({
+		classMethods: {
+			addLogin: function(user_name, ip) {
+				return new Promise(function(resolve) {
+					Login.findOne({
 						where: {
 							userName: user_name,
 							ip: ip
@@ -40,8 +40,22 @@ module.exports = function(sequelize, DataTypes) {
 						resolve();
 					});
 				});
+			},
+			getLastLogin: (user) => {
+				return new Promise((resolve, reject) => {
+					Login.findOne({
+						where: { userName: user.email },
+						order:[[ updatedAt, "DESC" ]]
+					}).then((login) => {
+						if (login !== null) {
+							resolve(login);
+						} else {
+							reject();
+						}
+					});
+				});
 			}
-		 }
+		}
 	});
 
 	return Login;

@@ -6,7 +6,7 @@
 //     ,dialect: 'mysql'
 //     ,logging: false
 // });
-const request = require("request");
+// const request = require("request");
 
 module.exports = function(app, User, _) {
     // Get Other Users
