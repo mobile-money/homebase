@@ -20,7 +20,7 @@ module.exports = function(app, Group, _) {
         console.log(data);
         Group.create(req.user,data).then(function(group) {
             console.log("group created");
-            res.status(201).json({group: group.group, member: group.member});
+            res.status(201).json(group);
         }).catch(function(error) {
             console.log("error inserting group: " + error);
             res.status(400).send();
@@ -34,7 +34,7 @@ module.exports = function(app, Group, _) {
         console.log(data);
         Group.modify(req.user,data).then(function(group) {
             console.log("group modified");
-            res.status(202).json({group: group.group, member: group.member});
+            res.status(202).json(group);
         }).catch(function(error) {
             if (error === "group not found") {
                 res.status(404).send();

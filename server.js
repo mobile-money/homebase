@@ -47,7 +47,7 @@ app.use(function(req, res, next) {
 			}
 		}).then(function(tokenInstance) {
 			if (!tokenInstance) {
-				console.log("tokenInstance not found");
+				console.log("tokenInstance not found; "+req.url);
 				res.redirect("/welcome");
 				// res.status(401).send();
 			} else {

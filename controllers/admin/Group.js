@@ -88,6 +88,7 @@ module.exports = function(db) {
 		},
 		modify: function(user, data) {
 			return new Promise(function(resolve, reject) {
+				let retObj = {};
 				db.Group.findOne({
 					where: {
 						ownerId: user.id,
@@ -98,23 +99,68 @@ module.exports = function(db) {
 						let obj = {
 							name: data.name
 						};
-						if (data.members !== 'null') {
-							// Cast member IDs to ints
-							obj.memberIds = [];
-							JSON.parse(data.members).forEach(function(val) {
-								if (Number(val) !== user.id) {
-									obj.memberIds.push(Number(val));
-								}
-							});
-						} else {
-							obj.memberIds = null;
-						}
-						group.update(obj).then(function() {
-							resolve();
+						group.update(obj).then(function(upGroup) {
+							retObj.group = upGroup;
+							if (data.member !== 'null') {
+								// Look for existing user to be added as a member
+								db.User.findOne({
+									where: { email: data.member }
+								}).then(function(member) {
+									if (member !== null) {
+										// Member found
+										if (member.verified) {
+											// Member is verified, so send a confirmation
+											retObj.member = "confirming";
+											db.Verification.createGroupInvitation(user.id, user.firstName, member.email, member.firstName, group.id, data.name).then(function() {
+												resolve(retObj);
+											});
+										} else {
+											// Member is not verified, tell requestor, add post action to verification
+											retObj.member = "not_verified";
+											db.Verification.findOne({
+												where: {
+													ownerId: member.id,
+													active: true
+												}
+											}).then(function(verification) {
+												// Parse post_actions and push in new entry
+												let pa = JSON.parse(verification.post_actions);
+												pa.push({type: "group_add", value: group.id, groupName: data.name, senderId: user.id, senderName: user.firstName, receiverName: member.firstName});
+												verification.post_actions = JSON.stringify(pa);
+												verification.save().then(function() {
+													resolve(retObj);
+												});
+											});
+										}
+									} else {
+										// Member not found, send an invitation, add post action to verification
+										retObj.member = "invited";
+										const pa = {
+											type: "group_add",
+											value: group.id,
+											groupName: data.name,
+											senderId: user.id,
+											senderName: user.firstName
+										};
+										db.Verification.createSiteInvitation(user.id, user.firstName,data.member,pa).then(() => {
+											resolve(retObj);
+										});
+									}
+								});
+								// Cast member IDs to ints
+								// obj.memberIds = [];
+								// JSON.parse(data.members).forEach(function(val) {
+								// 	if (Number(val) !== user.id) {
+								// 		obj.memberIds.push(Number(val));
+								// 	}
+								// });
+							} else {
+								resolve(retObj);
+							}
 						}, function() {
 							console.log("error modifying group: " + error);
 							reject(error);
-						})
+						});
 					} else {
 						reject("group not found");
 					}
