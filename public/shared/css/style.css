@@ -2,6 +2,7 @@
 
 body {
 	font-weight: 200;
+	background-image: linear-gradient(to right, rgba(4,174,218,0) 80%, rgba(4,174,218,1));
 }
 /* Bootstrap Overrides */
 .btn {
@@ -82,7 +83,7 @@ body.live-view {
 	z-index: 999;
 	height: 2em;
 	width: 2em;
-	overflow: show;
+	overflow: visible;
 	margin: auto;
 	top: 0;
 	left: 0;
@@ -165,14 +166,14 @@ body.live-view {
 	height: 120%;
 }
 .temp {
-	padding: 0px;
+	padding: 0;
 	font-size: 1.4em;
 	height: 100%;
 }
 .date {
 }
 .icon {
-	padding: 0px;
+	padding: 0;
 	height: 100%;
 }
 .weatherDesc {

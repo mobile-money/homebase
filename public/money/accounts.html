@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -44,7 +44,7 @@
 							<input id="newName" class="form-control" type="text" placeholder="New Account Name" maxlength="48" />
 						</div>
 						<div class="form-group">
-							<label>Account Type</label>
+							<label for="newType">Account Type</label>
 							<select id="newType" class="form-control">
 								<option value="Checking">Checking</option>
 								<option value="Credit Card">Credit Card</option>
@@ -55,32 +55,24 @@
 							</select>
 						</div>
 						<div class="form-group">
-							<label>Default Account</label>
+							<label for="newDefault">Default Account</label>
 							<select id="newDefault" class="form-control">
 								<option value="no" selected>No</option>
 								<option value="yes">Yes</option>
 							</select>
-							<!--<br />-->
-							<!--<div class="btn-group" role="group">-->
-								<!--<label id="defaultOffLabel" class="btn btn-default active">-->
-									<!--<input type="radio" name="newDefault" id="defaultOff" checked /> No -->
-								<!--</label>-->
-								<!--<label id="defaultOnLabel" class="btn btn-default">-->
-									<!--<input type="radio" name="newDefault" id="defaultOn" /> Yes -->
-								<!--</label>-->
-							<!--</div>-->
 						</div>
 						<div class="form-group">
 							<label id="newBalanceLabel">Opening Balance</label>
 							<input id="newBalance" type="number" min="0" max="1000000" step="0.01" data-number-to-fixed="2" data-number-stepfactor="100" class="form-control currency" placeholder="Opening Balance" />
 						</div>
                         <div class="form-group">
-                            <label>Group Access</label>
+                            <label for="newGroups">Group Access</label>
                             <select multiple id="newGroups" class="form-control"></select>
                         </div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-success" title="Add Account" id="addAccountButton"><i class="fa fa-plus"></i></button><button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Account">Cancel</button>
+						<button class="btn btn-success" title="Add Account" id="addAccountButton"><i class="fa fa-plus"></i></button>
+						<button class="btn btn-danger" data-dismiss="modal" aria-label="Cancel" title="Cancel Add Account">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -100,7 +92,7 @@
 							<input id="editName" class="form-control" type="text" placeholder="Account Name" />
 						</div>
 						<div class="form-group">
-							<label>Account Type</label>
+							<label for="editType">Account Type</label>
 							<select id="editType" class="form-control">
 								<option id="editChecking" value="Checking">Checking</option>
 								<option id="editCreditCard" value="Credit Card">Credit Card</option>
@@ -111,14 +103,14 @@
 							</select>
 						</div>
 						<div class="form-group">
-							<label>Default Account</label>
+							<label for="editDefault">Default Account</label>
 							<select id="editDefault" class="form-control">
 								<option value="no">No</option>
 								<option value="yes">Yes</option>
 							</select>
 						</div>
                         <div class="form-group">
-                            <label>Group Access</label>
+                            <label for="editGroups">Group Access</label>
                             <select multiple id="editGroups" class="form-control"></select>
                         </div>
 					</div>
@@ -166,7 +158,8 @@
 						<div id="reactivateModalBody"></div>
 					</div>
 					<div class="modal-footer">
-						<button class="btn btn-primary" aria-label="OK" title="Reactivate Account" id="reactivateAccountButton">Reactivate</button><button class="btn btn-danger" data-dismiss="modal" title="Cancel Reactivate Account">Cancel</button>
+						<button class="btn btn-primary" aria-label="OK" title="Reactivate Account" id="reactivateAccountButton">Reactivate</button>
+						<button class="btn btn-danger" data-dismiss="modal" title="Cancel Reactivate Account">Cancel</button>
 					</div>
 				</div>
 			</div>
@@ -175,7 +168,7 @@
 
 		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
 			<a class="navbar-brand" href="/homebase">
-				<img src="../shared/img/brand.png" style="height:1em;" />
+				<img src="../shared/img/brand.png" style="height:1em;" alt="brand" />
 			</a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>

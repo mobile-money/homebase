@@ -122,6 +122,11 @@ $("#deleteTransactionModal").on("hidden.bs.modal", function() {
     // $("#newPayee").focus();
 });
 
+$("#dltTransactionButton").on("click", () => {
+    deleteTransaction($("#editFutureTransactionId").val());
+    $("#editFutureTransactionModal").modal("hide");
+});
+
 $("#editCategory").on("change", function() {
     if ($("#editCategory").val() === "1") {
         initiateMultiCategory($("#editDeposit").val(),$("#editWithdrawl").val());
@@ -1037,11 +1042,13 @@ function getTransactions(offset, limit, transId) {
                 '</td>'+
                 '<td name="payee">';
             if (result.BillId !== null) {
-                row += '&nbsp;<i class="fa fa-repeat rounded trans-badge" title="Repeating Transaction"></i>';
+                row += '<span class="badge badge-pill badge-secondary"><i class="fa fa-repeat" title="Recurrent Transaction"></i></span>&nbsp;';
+                // row += '&nbsp;<i class="fa fa-repeat rounded trans-badge" title="Repeating Transaction"></i>';
             }
             if (result.Bill !== null) {
                 if (result.Bill.automatic) {
-                    row += '&nbsp;<i class="fa fa-flash rounded trans-badge" title="Automatic Payment"></i>';
+                    row += '<span class="badge badge-pill badge-secondary"><i class="fa fa-flash" title="Automatic Payment"></i></span>&nbsp;';
+                    // row += '&nbsp;<i class="fa fa-flash rounded trans-badge" title="Automatic Payment"></i>';
                 }
             }
             row += result.payee+'</td>';
@@ -1102,9 +1109,9 @@ function getTransactions(offset, limit, transId) {
                     // '<button class="btn btn-success btn-xs" title="Commit Transaction" onclick="commitFTransaction(\''+result.id+'\');">'+
                     // 	'<i class="fa fa-plus"></i>'+
                     // '</button>'+
-                    '<button class="btn btn-danger btn-sm" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
-                    '<i class="fa fa-trash"></i>'+
-                    '</button>'+
+                    // '<button class="btn btn-danger btn-sm" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
+                    // '<i class="fa fa-trash"></i>'+
+                    // '</button>'+
                     '</td>';
             } else {
                 row += '<td>' +

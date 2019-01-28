@@ -57,11 +57,13 @@ app.use(function(req, res, next) {
 					if (!userInstance) {
 						console.log("userInstance not found");
 						// res.status(401).send();
+						tokenInstance.destroy();
 						res.redirect("/welcome");
 					} else {
 						if (userInstance.active === false) {
 							console.log("userInstance not active");
 							// res.status(401).send();
+							tokenInstance.destroy();
 							res.redirect("/welcome");
 						} else {
 							// Check to see whether IP address has changed since last login
@@ -71,6 +73,8 @@ app.use(function(req, res, next) {
 								if (lastLogin.ip !== req.headers['X-Forwarded-For'] && lastLogin.ip !== req.ip) {
 									// Current IP does not match last login, so redirect them to welcome page to re-login
 									console.log("IP address changed since last login");
+									// Delete token
+									tokenInstance.destroy();
 									res.redirect("/welcome");
 								} else {
 									// Add groups to user object
