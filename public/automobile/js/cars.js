@@ -180,11 +180,11 @@ function getCars() {
 				'<td name="make">'+car.make+'</td>' +
 				'<td name="model">'+car.model+'</td>'+
 				'<td name="year">'+car.year+'</td>' +
-				'<td name="vin">'+car.vin+'</td>' +
-				'<td name="license_plate">'+car.license_plate+'</td>' +
-				'<td name="purchase_date">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
-				'<td name="purchase_mileage">'+car.purchase_mileage+'</td>' +
-				'<td name="current_mileage">'+car.current_mileage+'</td>';
+				'<td name="vin" class="d-none d-md-table-cell">'+car.vin+'</td>' +
+				'<td name="license_plate" class="d-none d-sm-table-cell">'+car.license_plate+'</td>' +
+				'<td name="purchase_date" class="d-none d-md-table-cell">'+moment.utc(car.purchase_date).format("MMM D, YYYY")+'</td>' +
+				'<td name="purchase_mileage" class="d-none d-md-table-cell">'+car.purchase_mileage+'</td>' +
+				'<td name="current_mileage" class="d-none d-md-table-cell">'+car.current_mileage+'</td>';
 			if (car.groups.length > 0) {
 				row += '<td name="groups"><i class="fa fa-users"></i>' +
 					'<input name="group_ids" type="hidden" value="'+car.groups.join(",")+'" /></td>';

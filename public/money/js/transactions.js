@@ -883,7 +883,7 @@ function getInvestments(id, tradeId, positionId, type) {
             if (response.positions.length > 0) {
                 let totalBasis = 0;
                 let totalValue = 0;
-                let table = '<div class="well"><table class="table table-condensed">'+
+                let table = '<div class="well"><table class="table table-sm">'+
                     '<thead>'+
                     '<tr>'+
                     '<th>Ticker</th>'+
@@ -1023,7 +1023,7 @@ function getTransactions(offset, limit, transId) {
                 dp = true;
                 row = '<tr id="f_'+result.id+'"';
                 if (tDateMoment.isAfter(moment(),'days')) {
-                    row += ' class="bg-warning"';
+                    row += ' class="bg-info"';
                 }
                 row += '><td>' +
                     '<input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" />' +

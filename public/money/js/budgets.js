@@ -302,7 +302,7 @@ function buildBudget() {
         let budgetedIncome = 0;
         let budget = JSON.parse(data.budget.amounts);
         let head = '<div class="col-md-12">'+
-            '<h1 id="budgetName" style="display:inline-block;margin-right:10px;">'+
+            '<h1 id="budgetName" style="display:inline-block;margin-right:10px;color:#fff;">'+
             data.budget.name+
             '</h1>';
             // '<button class="btn btn-default btn-sm" id="favBudget" title="Default Budget" style="margin-right:5px;"';
@@ -343,7 +343,7 @@ function buildBudget() {
                 '</button>';
         }
         head += '</div>';
-        let startTable = '<div class="col-md-12"><table class="table table-striped"><thead><th style="width:40%;"></th><th style="width:10%;"></th><th style="width:40%;"></th><th style="width:10%;"></th></thead><tbody>';
+        let startTable = '<div class="col-md-12"><table class="table table-striped table-dark"><thead><th style="width:40%;"></th><th style="width:10%;"></th><th style="width:40%;"></th><th style="width:10%;"></th></thead><tbody>';
         let expenses = '<tr><td colspan="4" style="font-size:1.2em;"><strong>Expenses</strong></td></tr>';
         let incomes = '<tr><td colspan="4" style="font-size:1.2em;"><strong>Incomes</strong></td></tr>';
 
@@ -419,7 +419,7 @@ function buildBudget() {
             }
         });
 
-        let budgetBar = '<div class="col-md-6" style="font-size:0.7em;">Budgeted&nbsp;&#43;&#47;&#45;<br /><div class="progress">';
+        let budgetBar = '<div class="col-md-6" style="font-size:0.7em;color:#fff;">Budgeted&nbsp;&#43;&#47;&#45;<br /><div class="progress">';
         let largestB = 0;
         if (budgetedIncome >= budgetedExpense) {
             largestB = budgetedIncome;
@@ -445,7 +445,7 @@ function buildBudget() {
         }
         budgetBar += '</div></div>';
 
-        let statusBar = '<div class="col-md-6" style="font-size:0.7em;">Current&nbsp;&#43;&#47;&#45;<br /><div class="progress">';
+        let statusBar = '<div class="col-md-6" style="font-size:0.7em;color:#fff;">Current&nbsp;&#43;&#47;&#45;<br /><div class="progress">';
         let largest = 0;
         if (totalIncome >= totalExpense) {
             largest = totalIncome;
@@ -492,7 +492,7 @@ function categoryTable(id) {
         ,url: "/api/v1/money/transactions/category/"+id+"/"+moment($("#startDate").datepicker("getUTCDate")).format('X')+'/'+moment($("#endDate").datepicker("getUTCDate")).format('X')
     }).success(function(data) {
         // console.log(data);
-        let table = '<table class="table-striped table-condensed" style="font-size:0.9em;">'+
+        let table = '<table class="table-striped table-condensed table-dark" style="font-size:0.9em;">'+
             '<thead>'+
             '<tr>'+
             '<th>Date</th>'+
@@ -745,7 +745,7 @@ function getCategories() {
             // console.log(categories);
             const $catBody = $("#categoryBody");
             $catBody.empty();
-            const tableHead = '<table class="table table-striped table-sm"><thead><th class="col-md-10"></th><th class="col-md-1"></th><th class="col-md-1"></th></thead>';
+            const tableHead = '<table class="table table-striped table-sm table-dark"><thead><th class="col-md-10"></th><th class="col-md-1"></th><th class="col-md-1"></th></thead>';
             let expenses = '<tr><td colspan="3" style="font-size:1.2em;"><strong>Expenses</strong></td></tr>';
             let incomes = '<tr><td colspan="3" style="font-size:1.2em;"><strong>Incomes</strong></td></tr>';
             categoryArray = categories;
@@ -905,77 +905,3 @@ function removeBudget(id) {
     });
     // console.log("remove:"+id);
 }
-
-// function removeCategory(id) {
-// 	$("#deleteCategoryModal").modal("hide");
-// 	$.ajax({
-// 		type: "DELETE"
-// 		,url: "/api/v1/money/categories/"+id
-// 	})
-// 	.success(function() {
-// 		return false;
-// 	})
-// 	.error(function(jqXHR, textStatus, errorThrown) {
-// 		if (jqXHR.status === 404) {
-// 			return false;
-// 		} else {
-// 			$("#infoModalBody").html("There was a problem deleting the Category.  Please try again.");
-// 			$("#infoModal").modal("show");
-// 		}
-// 	});
-// }
-
-// function favoriteBudget() {
-//     var selectedBudget = $("#budgetSelect").val();
-//     $.ajax({
-//         type: "PUT"
-//         ,url: "/api/v1/money/budgets/favorite/"+selectedBudget
-//     }).success(function(response) {
-//         $("#favBudgetIcon").removeClass("glyphicon-star-empty").addClass("glyphicon-star");
-//         $("#favBudget").prop("disabled", true);
-//     });
-// }
-
-// function getPeriods() {
-//     $.ajax({
-//         type: "GET"
-//         ,url: "/api/v1/money/unique/summaries"
-//     })
-//     .success(function(results) {
-//         $("#periodSelect").empty();
-//         var nowStamp = moment().format("x");
-//         results.forEach(function(period) {
-//             if (period.start !== null) {
-//                 var startStamp = moment.utc(period.start).format("x");
-//                 var startString = moment.utc(period.start).format("MMM D, YYYY")
-//                 var endStamp = moment.utc(period.end).format("x");
-//                 var endString = moment.utc(period.end).format("MMM D, YYYY");
-//                 if (nowStamp >= startStamp && nowStamp <= endStamp) {
-//                     $("#periodSelect").append('<option value="'+period.summaries.join("x")+'" selected>'+startString+' - '+endString+'</option>');
-//                 } else {
-//                     $("#periodSelect").append('<option value="'+period.summaries.join("x")+'">'+startString+' - '+endString+'</option>');
-//                 }
-//             }
-//         });
-//         if ($("#periodSelect").val() !== null) {
-//             buildBudget();
-//         }
-//     })
-//     .error(function(jqXHR, textStatus, errorThrown) {
-//         if (jqXHR.status === 404) {
-//             return false;
-//         } else {
-//             $("#infoModalBody").html("There was a problem.  Please try again.");
-//             $("#infoModal").modal("show");
-//         }
-//     });
-// }
-
-// function deleteCategory(id) {
-//     var name = categoryLookup[id].name;
-//     $("#deleteCategoryModalBody").html("<strong>Are you sure you want to delete the Category "+name+"?</strong><br />"+name+" will also be removed from all Budgets!");
-//     $("#deleteCategoryButton").click(function() {
-//         removeCategory(id);
-//     });
-//     $("#deleteCategoryModal").modal("show");
-// }

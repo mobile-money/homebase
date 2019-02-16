@@ -18,7 +18,7 @@
 	</head>
 	<body style="display:none;">
 		<!--Start Info Modal-->
-		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="infoModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-body">
@@ -32,7 +32,7 @@
 		</div>
 		<!--End Info Modal-->
 		<!--Start Add Account Modal-->
-		<div class="modal fade" id="addAccountModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="addAccountModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -79,7 +79,7 @@
 		</div>
 		<!--End Add Account Modal-->
 		<!--Start Edit Account Modal-->
-		<div class="modal fade" id="editAccountModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="editAccountModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -128,7 +128,7 @@
 		</div>
 		<!--End Edit Account Modal-->
 		<!--Start Delete Account Modal-->
-		<div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="deleteAccountModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -147,7 +147,7 @@
 		</div>
 		<!--End Delete Account Modal-->
 		<!--Start Reactivate Account Modal-->
-		<div class="modal fade" id="reactivateAccountModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="reactivateAccountModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -166,7 +166,7 @@
 		</div>
 		<!--End Reactivate Account Modal-->
 
-		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+		<nav class="navbar navbar-expand-md navbar-fixed-top navbar-dark bg-dark">
 			<a class="navbar-brand" href="/homebase">
 				<img src="../shared/img/brand.png" style="height:1em;" alt="brand" />
 			</a>
@@ -184,7 +184,7 @@
 				</ul>
 				<ul class="navbar-nav ml-auto">
 					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="color:#04aeda;">
 							Hello, <span id="user_name"></span>
 							<span class="caret"></span>
 						</a>
@@ -201,13 +201,13 @@
 
 		<div class="container-fluid">
 			<div class="col-md-12">
-				<div class="card" style="margin-top:20px;">
-					<table id="accountTable" class="table table-striped table-sm">
+				<div class="card bg-dark" style="margin-top:20px;">
+					<table id="accountTable" class="table table-striped table-sm table-dark">
 						<thead>
 						<tr>
 							<th>Name</th>
 							<th>Balance</th>
-							<th>Type</th>
+							<th class="d-none d-sm-table-cell">Type</th>
 							<th></th>
 							<th><button class="btn btn-success" title="Add Account" data-toggle="modal" data-target="#addAccountModal"><i class="fa fa-plus"></i></button></th>
 						</tr>
@@ -215,16 +215,18 @@
 						<tbody></tbody>
 					</table>
 				</div>
-				<div class="card" style="margin-top:20px; background: #f1f1f1;">
-					<h5 style="padding-left:10px;padding-top:10px;">Inactive Accounts</h5>
-					<table id="inactiveAccountTable" class="table table-striped table-sm">
+				<div class="card text-white bg-dark" style="margin-top:20px; background: #f1f1f1;">
+					<div class="card-header">
+						Inactive Accounts
+					</div>
+					<table id="inactiveAccountTable" class="table table-striped table-sm table-dark">
 						<thead>
-							<tr>
-								<th>Name</th>
-								<th>Type</th>
-								<th></th>
-								<th></th>
-							</tr>
+						<tr>
+							<th>Name</th>
+							<th>Type</th>
+							<th></th>
+							<th></th>
+						</tr>
 						</thead>
 						<tbody></tbody>
 					</table>

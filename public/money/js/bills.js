@@ -123,32 +123,32 @@ $(document).ready(function() {
 					let row = '<tr id="'+bill.id+'">'+
 						'<td name="payee">'+bill.payee+'</td>';
 						if (bill.description !== null) {
-							row += '<td name="description">'+bill.description+'</td>';
+							row += '<td name="description" class="d-none d-md-table-cell">'+bill.description+'</td>';
 						} else {
-							row += '<td name="description"></td>';
+							row += '<td name="description" class="d-none d-md-table-cell"></td>';
 						}
 						if (bill.Category !== null) {
-							row += '<td name="category">'+bill.Category.name+'</td>';						
+							row += '<td name="category" class="d-none d-md-table-cell">'+bill.Category.name+'</td>';
 						} else {
-							row += '<td name="category"></td>';
+							row += '<td name="category" class="d-none d-md-table-cell"></td>';
 						}
 						row += '<td name="account">'+bill.Account.name+'</td>';
 						if (bill.frequency === "d") {
 							if (bill.every === 1) {
-								row += '<td name="frequency" data-freq="d" data-every="1">Every day</td>';
+								row += '<td name="frequency" class="d-none d-sm-table-cell" data-freq="d" data-every="1">Every day</td>';
 							} else {
-								row += '<td name="frequency" data-freq="d" data-every="'+bill.every+'">Every '+bill.every+' days</td>';
+								row += '<td name="frequency" class="d-none d-sm-table-cell" data-freq="d" data-every="'+bill.every+'">Every '+bill.every+' days</td>';
 							}
 							// row += '<td name="frequency">Daily; every '+bill.every+' days</td>';
 						} else if (bill.frequency === "w") {
 							if (bill.every === 1) {
-								row += '<td name="frequency" data-freq="w" data-every="1">Every week</td>';
+								row += '<td name="frequency" class="d-none d-sm-table-cell" data-freq="w" data-every="1">Every week</td>';
 							} else {
-								row += '<td name="frequency" data-freq="w" data-every="'+bill.every+'">Every '+bill.every+' weeks</td>';
+								row += '<td name="frequency" class="d-none d-sm-table-cell" data-freq="w" data-every="'+bill.every+'">Every '+bill.every+' weeks</td>';
 							}
 							// row += '<td name="frequency">Weekly; every '+bill.every+' weeks</td>';
 						} else if (bill.frequency === "M") {
-							let partOne = '<td name="frequency" data-freq="M" data-every="'+bill.every+'" data-onThe="'+bill.onThe+'">Every ';
+							let partOne = '<td name="frequency" class="d-none d-sm-table-cell" data-freq="M" data-every="'+bill.every+'" data-onThe="'+bill.onThe+'">Every ';
 							if (bill.every === 1) {
 								partOne += 'month';
 							} else {
@@ -164,20 +164,20 @@ $(document).ready(function() {
 							partTwo += '</td>';
 							row += partOne + partTwo;
 						}
-						row += '<td name="auto">';
+						row += '<td name="auto" class="d-none d-md-table-cell">';
 						if (bill.automatic) {
 							row += "Yes";
 						} else {
 							row += "No";
 						}
 						row += '</td>';
-						row += '<td name="amount">'+bill.amount.toFixed(2)+'</td>';
+						row += '<td name="amount" class="d-none d-sm-table-cell">'+bill.amount.toFixed(2)+'</td>';
 						if (bill.lastAdded !== null) {
-							row += '<td name="lastAdded">'+moment.utc(bill.lastAdded).format("MM/DD/YYYY")+'</td>';
+							row += '<td name="lastAdded" class="d-none d-md-table-cell">'+moment.utc(bill.lastAdded).format("MM/DD/YYYY")+'</td>';
 						} else {
-							row += '<td name="lastAdded"></td>';
+							row += '<td name="lastAdded" class="d-none d-md-table-cell"></td>';
 						}
-						row += '<td name="startDate">'+moment.utc(bill.startDate).format("MM/DD/YYYY")+'</td>'+
+						row += '<td name="startDate" class="d-none d-md-table-cell">'+moment.utc(bill.startDate).format("MM/DD/YYYY")+'</td>'+
 						'<td>'+
 							'<button class="btn btn-primary btn-sm" title="Edit Bill" onclick="editBill(\''+bill.id+'\');">'+
 								'<i class="fa fa-pencil"></i>'+

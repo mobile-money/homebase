@@ -229,7 +229,7 @@ function getAccounts(id, type) {
 				});
 			}
 			row += '<td name="balance">'+balance.toFixed(2)+'</td>'+
-			'<td name="type">'+account.type+'</td>';
+			'<td name="type" class="d-none d-sm-table-cell">'+account.type+'</td>';
 			if (account.groups.length > 0) {
 				// let addUsers = "Additional users with access:";
 				// let addUsersIds = [];

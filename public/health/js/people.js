@@ -149,11 +149,11 @@ function getPeople() {
 		response.forEach(function(person) {
 			let row = '<tr id="'+person.id+'">' +
 				'<td name="first_name">'+person.first_name+'</td>' +
-				'<td name="middle_name">';
+				'<td name="middle_name" class="d-none d-md-table-cell">';
 			if (person.middle_name !== null) { row += person.middle_name; }
             row += '</td>'+
 				'<td name="last_name">'+person.last_name+'</td>' +
-				'<td name="birth_date">'+moment.utc(person.birth_date).format("MMM D, YYYY")+'</td>';
+				'<td name="birth_date" class="d-none d-sm-table-cell">'+moment.utc(person.birth_date).format("MMM D, YYYY")+'</td>';
 			if (person.groups.length > 0) {
                 row += '<td name="groups"><i class="fa fa-users"></i>' +
                     '<input name="group_ids" type="hidden" value="'+person.groups.join(",")+'" /></td>';

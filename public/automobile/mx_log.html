@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -21,7 +21,7 @@
 		<input type="hidden" id="currentCarId" />
 		<div id="test"></div>
 		<!--Start Info Modal-->
-		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="infoModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-body">
@@ -35,7 +35,7 @@
 		</div>
 		<!--End Info Modal-->
 		<!--Start Add Log Modal-->
-		<div class="modal fade" id="addLogModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="addLogModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -43,23 +43,23 @@
 					</div>
 					<div class="modal-body">
  						<div class="form-group">
-							<label>Service&nbsp;Date</label>
+							<label for="addServiceDate">Service&nbsp;Date</label>
 							<input id="addServiceDate" class="form-control" type="date" />
 						</div>
 						<div class="form-group">
-							<label>Mileage</label>
+							<label for="addMileage">Mileage</label>
 							<input id="addMileage" class="form-control" type="number" min="0" max="300000" step="1" />
 						</div>
 						<div class="form-group">
-							<label>Description</label>
+							<label for="addDescription">Description</label>
 							<textarea id="addDescription" class="form-control" rows="3" maxlength="2048"></textarea>
 						</div>
 						<div class="form-group">
-							<label>Cost</label>
+							<label for="addCost">Cost</label>
 							<input id="addCost" class="form-control" type="number" min="0" max="99999" step="0.01" />
 						</div>
 						<div class="form-group">
-							<label>Servicer</label>
+							<label for="addServicer">Servicer</label>
 							<input id="addServicer" class="form-control" type="text" maxlength="96" />
 						</div>
 					</div>
@@ -72,7 +72,7 @@
 		</div>
 		<!--End Add Log Modal-->
 		<!--Start Edit Log Modal-->
-		<div class="modal fade" id="editLogModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="editLogModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -81,23 +81,23 @@
 					<div class="modal-body">
 						<input type="hidden" id="editLogId" />
  						<div class="form-group">
-							<label>Service&nbsp;Date</label>
+							<label for="editServiceDate">Service&nbsp;Date</label>
 							<input id="editServiceDate" class="form-control" type="date" />
 						</div>
 						<div class="form-group">
-							<label>Mileage</label>
+							<label for="editMileage">Mileage</label>
 							<input id="editMileage" class="form-control" type="number" min="0" max="300000" step="1" />
 						</div>
 						<div class="form-group">
-							<label>Description</label>
+							<label for="editDescription">Description</label>
 							<textarea id="editDescription" class="form-control" rows="3" maxlength="2048"></textarea>
 						</div>
 						<div class="form-group">
-							<label>Cost</label>
+							<label for="editCost">Cost</label>
 							<input id="editCost" class="form-control" type="number" min="0" max="99999" step="0.01" />
 						</div>
 						<div class="form-group">
-							<label>Servicer</label>
+							<label for="editServicer">Servicer</label>
 							<input id="editServicer" class="form-control" type="text" maxlength="96" />
 						</div>
 					</div>
@@ -115,7 +115,7 @@
 		</div>
 		<!--End Edit Log Modal-->
 		<!--Start Delete Log Modal-->
-		<div class="modal fade" id="deleteLogModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="deleteLogModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -134,9 +134,9 @@
 		</div>
 		<!--End Delete Transaction Modal-->
 
-		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+		<nav class="navbar navbar-expand-sm navbar-fixed-top navbar-dark bg-dark">
 			<a class="navbar-brand" href="/homebase">
-				<img src="../shared/img/brand.png" style="height:1em;" />
+				<img src="../shared/img/brand.png" style="height:1em;" alt="brand" />
 			</a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
@@ -166,35 +166,30 @@
 
 
 		<div class="container-fluid">
-			<div class="row" style="margin-top:10px;">
-				<div class="col-md-3 col-sm-4">
+			<div class="row justify-content-center" style="margin-top:10px;">
+				<div class="col-10 col-sm-5 mr-sm-auto justify-content-center">
+					<label for="carSelect" hidden>Select Car</label>
 					<select id="carSelect" class="form-control"></select>
 				</div>
-				<div class="col-md-4 col-sm-5">
-					<div class="form-row" id="searchDiv">
-						<div>
-							<input type="text" class="form-control" id="searchField" placeholder="Search" />
-						</div>
-						<div>
-							<span class="form-group-btn">
-								<button id="searchClear" class="btn btn-danger" type="button" disabled>Clear</button>
-							</span>
-						</div>
+				<div class="col-10 col-sm-6 col-md-4 ml-sm-auto input-group" id="searchDiv">
+					<input type="text" class="form-control" id="searchField" placeholder="Search" />
+					<div class="input-group-append">
+						<button id="searchClear" class="btn btn-danger" type="button" disabled>Clear</button>
 					</div>
 				</div>
 			</div>
 			<br />
 			<div class="row">
 				<div class="col-md-12">
-					<div class="card">
-						<table id="logTable" class="table table-striped table-sm">
+					<div class="card bg-dark">
+						<table id="logTable" class="table table-striped table-sm table-dark">
 							<thead>
 								<tr>
 									<th>Service Date</th>
-									<th>Mileage</th>
+									<th class="d-none d-md-table-cell">Mileage</th>
 									<th>Description</th>
-									<th>Cost</th>
-									<th>Servicer</th>
+									<th class="d-none d-sm-table-cell">Cost</th>
+									<th class="d-none d-sm-table-cell">Servicer</th>
 									<th>
 										<button class="btn btn-success btn-sm" title="Add Log" data-toggle="modal" data-target="#addLogModal">
 											<i class="fa fa-plus"></i>
@@ -210,14 +205,9 @@
 		</div>
 		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
 		<script type="text/javascript" src="../shared/js/jquery.color-2.1.2.min.js"></script>
-		<!--<script type="text/javascript" src="../shared/js/socket.io-2.1.1.js"></script>-->
 		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
 		<script type="text/javascript" src="../shared/js/underscore-1.8.3.js"></script>
-		<!-- Latest compiled and minified JavaScript -->
-		<!--<script type="text/javascript" src="../shared/js/tether.min.js"></script>-->
 		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
-		<!--<script type="text/javascript" src="../shared/js/bootstrap-datepicker.min.js"></script>-->
-		<!--<script type="text/javascript" src="../shared/js/bootstrap3-typeahead.min.js"></script>-->
 		<script type="text/javascript" src="js/global.js"></script>
 		<script type="text/javascript" src="js/mx_log.js"></script>
 	</body>

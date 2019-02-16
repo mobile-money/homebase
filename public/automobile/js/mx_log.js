@@ -200,10 +200,10 @@ function getLogs() {
         response.forEach(function(log) {
             const row = '<tr id="'+log.id+'">' +
                 '<td name="service_date">'+moment.utc(log.service_date).format("MMM D, YYYY")+'</td>' +
-                '<td name="mileage">'+log.mileage+'</td>'+
+                '<td name="mileage" class="d-none d-md-table-cell">'+log.mileage+'</td>'+
                 '<td name="description">'+htmlDecode(log.description)+'</td>' +
-                '<td name="cost">'+log.cost.toFixed(2)+'</td>' +
-                '<td name="servicer">'+log.servicer+'</td>' +
+                '<td name="cost" class="d-none d-sm-table-cell">'+log.cost.toFixed(2)+'</td>' +
+                '<td name="servicer" class="d-none d-sm-table-cell">'+log.servicer+'</td>' +
                 '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="fa fa-pencil"></i></button>' +
                 // '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="fa fa-trash"></i></button>' +
                 '</td>'+

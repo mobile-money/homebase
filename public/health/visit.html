@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -20,7 +20,7 @@
 	<body style="display:none;">
 		<input type="hidden" id="currentPersonId" />
 		<!--Start Info Modal-->
-		<div class="modal fade" id="infoModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="infoModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-body">
@@ -34,7 +34,7 @@
 		</div>
 		<!--End Info Modal-->
 		<!--Start Add Visit Modal-->
-		<div class="modal fade" id="addVisitModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="addVisitModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -42,19 +42,19 @@
 					</div>
 					<div class="modal-body">
  						<div class="form-group">
-							<label>Visit&nbsp;Date</label>
+							<label for="addVisitDate">Visit&nbsp;Date</label>
 							<input id="addVisitDate" class="form-control" type="date" />
 						</div>
 						<div class="form-group">
-							<label>Description</label>
+							<label for="addDescription">Description</label>
 							<textarea id="addDescription" class="form-control" rows="3"></textarea>
 						</div>
 						<div class="form-group">
-							<label>Out-of-Pocket Cost</label>
+							<label for="addCost">Out-of-Pocket Cost</label>
 							<input id="addCost" class="form-control" type="number" min="0" max="99999" step="0.01" />
 						</div>
 						<div class="form-group">
-							<label>Provider</label>
+							<label for="addProvider">Provider</label>
 							<input id="addProvider" class="form-control" type="text" maxlength="96" />
 						</div>
 					</div>
@@ -67,7 +67,7 @@
 		</div>
 		<!--End Add Visit Modal-->
 		<!--Start Edit Visit Modal-->
-		<div class="modal fade" id="editVisitModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="editVisitModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -76,19 +76,19 @@
 					<div class="modal-body">
 						<input type="hidden" id="editVisitId" />
  						<div class="form-group">
-							<label>Visit&nbsp;Date</label>
+							<label for="editVisitDate">Visit&nbsp;Date</label>
 							<input id="editVisitDate" class="form-control" type="date" />
 						</div>
 						<div class="form-group">
-							<label>Description</label>
+							<label for="editDescription">Description</label>
 							<textarea id="editDescription" class="form-control" rows="3"></textarea>
 						</div>
 						<div class="form-group">
-							<label>Out-of-Pocket Cost</label>
+							<label for="editCost">Out-of-Pocket Cost</label>
 							<input id="editCost" class="form-control" type="number" min="0" max="99999" step="0.01" />
 						</div>
 						<div class="form-group">
-							<label>Provider</label>
+							<label for="editProvider">Provider</label>
 							<input id="editProvider" class="form-control" type="text" maxlength="96" />
 						</div>
 					</div>
@@ -104,7 +104,7 @@
 		</div>
 		<!--End Edit Visit Modal-->
 		<!--Start Delete Visit Modal-->
-		<div class="modal fade" id="deleteVisitModal" tabindex="-1" role="dialog">
+		<div class="modal fade dark" id="deleteVisitModal" tabindex="-1" role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -123,9 +123,9 @@
 		</div>
 		<!--End Delete Visit Modal-->
 
-		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+		<nav class="navbar navbar-expand-sm navbar-fixed-top navbar-dark bg-dark">
 			<a class="navbar-brand" href="/homebase">
-				<img src="../shared/img/brand.png" style="height:1em;" />
+				<img src="../shared/img/brand.png" style="height:1em;" alt="brand" />
 			</a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
@@ -155,34 +155,29 @@
 
 
 		<div class="container-fluid">
-			<div class="row" style="margin-top:10px;">
-				<div class="col-md-3">
+			<div class="row justify-content-center" style="margin-top:10px;">
+				<div class="col-10 col-sm-5 mr-sm-auto justify-content-center">
+					<label for="personSelect" hidden>Select Person</label>
 					<select id="personSelect" class="form-control"></select>
 				</div>
-				<div class="col-md-4">
-					<div class="form-row" id="searchDiv">
-						<div>
-							<input type="text" class="form-control" id="searchField" placeholder="Search" />
-						</div>
-						<div>
-							<span class="form-group-btn">
-								<button id="searchClear" class="btn btn-danger" type="button" disabled>Clear</button>
-							</span>
-						</div>
+				<div class="col-10 col-sm-6 col-md-4 ml-sm-auto input-group" id="searchDiv">
+					<input type="text" class="form-control" id="searchField" placeholder="Search" />
+					<div class="input-group-append">
+						<button id="searchClear" class="btn btn-danger" type="button" disabled>Clear</button>
 					</div>
 				</div>
 			</div>
 			<br />
 			<div class="row">
 				<div class="col-md-12">
-					<div class="card">
-						<table id="visitTable" class="table table-striped table-sm">
+					<div class="card bg-dark">
+						<table id="visitTable" class="table table-striped table-sm table-dark">
 							<thead>
 								<tr>
 									<th>Visit Date</th>
 									<th>Description</th>
-									<th>OoP Cost</th>
-									<th>Provider</th>
+									<th class="d-none d-md-table-cell">OoP Cost</th>
+									<th class="d-none d-sm-table-cell">Provider</th>
 									<th>
 										<button class="btn btn-success btn-sm" title="Add Visit" data-toggle="modal" data-target="#addVisitModal">
 											<i class="fa fa-plus"></i>
@@ -201,11 +196,7 @@
 		<script type="text/javascript" src="../shared/js/socket.io-2.1.1.js"></script>
 		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
 		<script type="text/javascript" src="../shared/js/underscore-1.8.3.js"></script>
-		<!-- Latest compiled and minified JavaScript -->
-		<!--<script type="text/javascript" src="../shared/js/tether.min.js"></script>-->
 		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
-		<!--<script type="text/javascript" src="../shared/js/bootstrap-datepicker.min.js"></script>-->
-		<!--<script type="text/javascript" src="../shared/js/bootstrap3-typeahead.min.js"></script>-->
 		<script type="text/javascript" src="js/global.js"></script>
 		<script type="text/javascript" src="js/visit.js"></script>
 	</body>

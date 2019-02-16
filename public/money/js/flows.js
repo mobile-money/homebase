@@ -100,7 +100,7 @@ function buildTable() {
 		const days = current.daysInMonth();
 		const newRow = '<tr id="row_'+id+'">'+
 			'<td name="month">'+current.format("MMM YYYY")+'</td>'+
-			'<td name="days">'+days+'</td>'+
+			'<td name="days" class="d-none d-sm-table-cell">'+days+'</td>'+
 			'<td name="totalExpenses" class="total"></td>'+
 			'<td name="totalMortgage" class="total"></td>'+
 			'<td name="totalOuts" class="total"></td>'+

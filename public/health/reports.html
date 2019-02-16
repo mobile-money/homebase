@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -18,11 +18,10 @@
 		<link rel="icon" href="../shared/img/favicon.ico" type="image/x-icon">
 	</head>
 	<body style="display:none;">
-		<input type="hidden" id="currentPersonId" />
 
-		<nav class="navbar navbar-expand-lg navbar-fixed-top navbar-light bg-light">
+		<nav class="navbar navbar-expand-sm navbar-fixed-top navbar-dark bg-dark">
 			<a class="navbar-brand" href="/homebase">
-				<img src="../shared/img/brand.png" style="height:1em;" />
+				<img src="../shared/img/brand.png" style="height:1em;" alt="brand" />
 			</a>
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
@@ -50,23 +49,30 @@
 			</div><!-- /.navbar-collapse -->
 		</nav>
 
-
 		<div class="container-fluid">
+			<input type="hidden" id="currentPersonId" />
 			<div class="row">
-				<div class="col-md-3 col-sm-4">
+				<div class="col-sm-5 col-md-4" style="margin-top: 10px;">
+					<label for="personSelect" hidden>Select Person</label>
 					<select id="personSelect" class="form-control"></select>
 				</div>
 			</div>
 			<br />
-			<div class="row">
-				<div class="col-sm-12">
-					<div class="col-sm-3 card">
+			<div class="col-12 text-white">
+				<div class="row">
+					<div class="col-12">
 						<h4>Health Costs</h4>
-						Total Health Cost: $<span id="totalCost"></span><br/>
-						Health Cost per Year: $<span id="costPerYear"></span>
 					</div>
-					<div class="col-sm" id="healthCostChart"></div>
 				</div>
+				<div class="row">
+					<div class="col-6 col-sm-4">
+						Total Health Cost:<br />$<span id="totalCost"></span><br/>
+					</div>
+					<div class="col-6 col-sm-4">
+						Health Cost per Year:<br />$<span id="costPerYear"></span>
+					</div>
+				</div>
+				<div class="col-12 card" id="healthCostChart"></div>
 			</div>
 		</div>
 		<script type="text/javascript" src="../shared/js/jquery-2.2.0.min.js"></script>
@@ -74,11 +80,7 @@
 		<script type="text/javascript" src="../shared/js/socket.io-2.1.1.js"></script>
 		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
 		<script type="text/javascript" src="../shared/js/underscore-1.8.3.js"></script>
-		<!-- Latest compiled and minified JavaScript -->
-		<!--<script type="text/javascript" src="../shared/js/tether.min.js"></script>-->
 		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
-		<!--<script type="text/javascript" src="../shared/js/bootstrap-datepicker.min.js"></script>-->
-		<!--<script type="text/javascript" src="../shared/js/bootstrap3-typeahead.min.js"></script>-->
 		<script type="text/javascript" src="../shared/js/highcharts-5.0.2.src.js"></script>
 		<script type="text/javascript" src="js/global.js"></script>
 		<script type="text/javascript" src="js/reports.js"></script>

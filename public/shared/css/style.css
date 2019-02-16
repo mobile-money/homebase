@@ -1,8 +1,11 @@
 * {-webkit-font-smoothing: antialiased;}
-
+a {
+	color: #04aeda;
+}
 body {
 	font-weight: 200;
-	background-image: linear-gradient(to right, rgba(4,174,218,0) 80%, rgba(4,174,218,1));
+	background-color: #000;
+	/*background-image: linear-gradient(to right, rgba(4,174,218,0) 80%, rgba(4,174,218,1));*/
 }
 /* Bootstrap Overrides */
 .btn {
@@ -178,4 +181,34 @@ body.live-view {
 }
 .weatherDesc {
 	font-size: 0.8em;
+}
+
+
+/** Bootstrap Dark Modal Styles **/
+.modal-open .modal, .btn:focus {
+	outline: none !important;
+}
+
+.modal.dark {
+	background-color: rgba(45, 48, 50, 0.6);
+	color: #fff;
+}
+.modal.dark .modal-body {
+	background: #40464b;
+}
+
+.modal.dark .modal-header {
+	background: #2d3032;
+	border-bottom: 1px solid #2a2c2e;
+}
+.modal.dark .modal-header h1, .modal.dark .modal-header h2, .modal.dark .modal-header h3, .modal.dark .modal-header h4 {
+	color: #ccc;
+}
+
+.modal.dark .modal-footer {
+	background: #2d3032;
+	border-top: 1px solid #2a2c2e;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 }

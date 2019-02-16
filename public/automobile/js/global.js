@@ -1,5 +1,15 @@
 // const socket = io("/auto");
 $("#user_name").html(getCookie('x-FirstName'));
+sessionCheck();
+
+function sessionCheck() {
+    setTimeout(function() {
+        if (getCookie("x-Auth") === "") {
+            logOut();
+        }
+        sessionCheck();
+    }, 60000);
+}
 
 function setCookie(cname, cvalue, exdays) {
     let d = new Date();
