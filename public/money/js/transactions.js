@@ -883,7 +883,7 @@ function getInvestments(id, tradeId, positionId, type) {
             if (response.positions.length > 0) {
                 let totalBasis = 0;
                 let totalValue = 0;
-                let table = '<div class="well"><table class="table table-sm">'+
+                let table = '<div class="card bg-dark"><table class="table table-sm table-dark">'+
                     '<thead>'+
                     '<tr>'+
                     '<th>Ticker</th>'+
