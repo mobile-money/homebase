@@ -391,7 +391,7 @@ socket.on("categoryAdded", function(/*category*/) {
     getCategories();
 }).on("connect", function() {
 }).on("priceUpdated", function(update) {
-    $("."+update.tick.toUpperCase()).css("background-color", "#F0EEA1").animate({backgroundColor: "#F5F5F5"}, 5000);
+    // $("."+update.tick.toUpperCase()).css("background-color", "#F0EEA1").animate({backgroundColor: "#F5F5F5"}, 5000);
     const $valElem = $("."+update.tick.toUpperCase()+" td[name=value]");
     const $dChangeElem = $("."+update.tick.toUpperCase()+" td[name=dChange]");
     const $pChangeElem = $("."+update.tick.toUpperCase()+" td[name=pChange]");
@@ -1031,7 +1031,8 @@ function getTransactions(offset, limit, transId) {
                     '</td>';
             } else {
                 if (flag) {
-                    row = '<tr id="'+result.id+'" style="background:#fffff0">';
+                    // row = '<tr id="'+result.id+'" style="background:#fffff0">';
+                    row = '<tr id="'+result.id+'" style="color:#ffffbb">';
                 } else {
                     row = '<tr id="'+result.id+'">';
                 }
@@ -1203,7 +1204,8 @@ function getMoreTransactions(balance, offset, limit) {
             if (!result.hasOwnProperty("future")) {
                 let row;
                 if (flag) {
-                    row = '<tr id="'+result.id+'" style="background: #fffff0;"><td>';
+                    row = '<tr id="'+result.id+'" style="color: #ffffbb;"><td>';
+                    // row = '<tr id="'+result.id+'" style="background: #fffff0;"><td>';
                 } else {
                     row = '<tr id="'+result.id+'"><td>';
                 }
