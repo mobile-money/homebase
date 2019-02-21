@@ -244,7 +244,7 @@ function getAccounts(id, type) {
 				row += '<td></td>';
 			}
 			if (account.owner) {
-				row += '<td><button class="btn btn-primary btn-sm" title="Edit Account" onclick="editAccount(\''+account.id+'\');"><i class="fa fa-pencil"></i></button>';
+				row += '<td><button class="btn btn-primary btn-sm" title="Edit Account" onclick="editAccount(\''+account.id+'\');"><i class="fas fa-pencil-alt"></i></button>';
 				// if (account.default !== true) {
 				// 	row += '<button class="btn btn-danger" title="Delete Account" onclick="deleteAccount(\''+account.id+'\');"><i class="fa fa-trash"></i></button>';
 				// }
@@ -292,7 +292,7 @@ function getInactiveAccounts(id, type) {
 			if (account.owner) {
 				row += '<td>'+
 					'<button class="btn-sm btn-primary" title="Reactivate Account" onclick="reactivateAccount(\''+account.id+'\');">'+
-					'<i class="fa fa-pencil"></i>'+
+					'<i class="fas fa-pencil-alt"></i>'+
 					'</button>'+
 					'</td>';
 			} else {

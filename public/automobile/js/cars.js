@@ -193,7 +193,7 @@ function getCars() {
 			}
 			row += '<td name="mx_log"><a href="/automobile/mx_log?CarId='+car.id+'">MX&nbsp;Log</a></td>';
 			if (car.owner) {
-				row += '<td><button class="btn btn-sm btn-primary" title="Edit Car" onclick="editCar(\''+car.id+'\');"><i class="fa fa-pencil"></i></button>' +
+				row += '<td><button class="btn btn-sm btn-primary" title="Edit Car" onclick="editCar(\''+car.id+'\');"><i class="fas fa-pencil-alt"></i></button>' +
 					// '<button class="btn btn-sm btn-danger" title="Delete Car" onclick="deleteCar(\''+car.id+'\');"><i class="fa fa-trash"></i></button>' +
 					'</td>';
 			} else {
@@ -239,7 +239,7 @@ function getInactiveCars() {
 			if (car.owner) {
 				row += '<td>'+
 					'<button class="btn btn-sm btn-primary" title="Reactivate Car" onclick="reactivateCar(\''+car.id+'\');">'+
-					'<i class="fa fa-pencil"></i>'+
+					'<i class="fas fa-pencil-alt"></i>'+
 					'</button>'+
 					'</td>';
 			} else {

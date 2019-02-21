@@ -193,7 +193,7 @@ function getVisits() {
                 '<td name="description">'+htmlDecode(visit.description)+'</td>' +
                 '<td name="cost" class="d-none d-md-table-cell">'+visit.cost.toFixed(2)+'</td>' +
                 '<td name="provider" class="d-none d-sm-table-cell">'+visit.provider+'</td>' +
-                '<td><button class="btn btn-sm btn-primary" title="Edit Visit" onclick="editVisit(\''+visit.id+'\');"><i class="fa fa-pencil"></i></button>' +
+                '<td><button class="btn btn-sm btn-primary" title="Edit Visit" onclick="editVisit(\''+visit.id+'\');"><i class="fas fa-pencil-alt"></i></button>' +
                 // '<button class="btn btn-sm btn-danger" title="Delete Visit" onclick="deleteVisit(\''+visit.id+'\');"><i class="fa fa-trash"></i></button>' +
                 '</td>'+
                 '</tr>';

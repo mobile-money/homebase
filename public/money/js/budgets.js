@@ -302,7 +302,7 @@ function buildBudget() {
         let budgetedIncome = 0;
         let budget = JSON.parse(data.budget.amounts);
         let head = '<div class="col-md-12">'+
-            '<h1 id="budgetName" style="display:inline-block;margin-right:10px;color:#fff;">'+
+            '<h1 id="budgetName" style="display:inline-block;margin-right:10px;">'+
             data.budget.name+
             '</h1>';
             // '<button class="btn btn-default btn-sm" id="favBudget" title="Default Budget" style="margin-right:5px;"';
@@ -336,14 +336,14 @@ function buildBudget() {
         }
         if (data.budget.owner) {
             head += '<button class="btn btn-primary btn-sm" id="budgetEditBtn" title="Edit Budget" style="margin-right:5px;">' +
-                '<i class="fa fa-pencil"></i>' +
+                '<i class="fas fa-pencil-alt"></i>' +
                 '</button>' +
                 '<button class="btn btn-danger btn-sm" id="budgetDeleteBtn" title="Delete Budget">' +
                 '<i class="fa fa-trash"></i>' +
                 '</button>';
         }
         head += '</div>';
-        let startTable = '<div class="col-md-12"><table class="table table-striped table-dark"><thead><th style="width:40%;"></th><th style="width:10%;"></th><th style="width:40%;"></th><th style="width:10%;"></th></thead><tbody>';
+        let startTable = '<div class="col-md-12"><table id="budTable" class="table table-striped table-dark"><thead><th style="width:40%;"></th><th style="width:10%;"></th><th style="width:40%;"></th><th style="width:10%;"></th></thead><tbody>';
         let expenses = '<tr><td colspan="4" style="font-size:1.2em;"><strong>Expenses</strong></td></tr>';
         let incomes = '<tr><td colspan="4" style="font-size:1.2em;"><strong>Incomes</strong></td></tr>';
 
@@ -480,6 +480,13 @@ function buildBudget() {
         $("#budgetDeleteBtn").click(function() {
             deleteBudget($("#budgetSelect").val());
         });
+        // Set table theme
+        if (theme === "light") {
+            $("#budTable").removeClass("table-dark");
+        } else {
+            $("#budgetName").addClass("text-white");
+            $("#budTable").addClass("table-dark");
+        }
     }).error(function(/*jqXHR, textStatus, errorThrown*/) {
         $("#infoModalBody").html("There was a problem.  Please try again.");
         $("#infoModal").modal("show");
@@ -745,7 +752,7 @@ function getCategories() {
             // console.log(categories);
             const $catBody = $("#categoryBody");
             $catBody.empty();
-            const tableHead = '<table class="table table-striped table-sm table-dark"><thead><th class="col-md-10"></th><th class="col-md-1"></th><th class="col-md-1"></th></thead>';
+            const tableHead = '<table id="catTable" class="table table-striped table-sm table-dark"><thead><th class="col-md-10"></th><th class="col-md-1"></th><th class="col-md-1"></th></thead>';
             let expenses = '<tr><td colspan="3" style="font-size:1.2em;"><strong>Expenses</strong></td></tr>';
             let incomes = '<tr><td colspan="3" style="font-size:1.2em;"><strong>Incomes</strong></td></tr>';
             categoryArray = categories;
@@ -767,7 +774,7 @@ function getCategories() {
                         '<td>'+categories[i].name+'</td>'+
                         '<td><span class="badge badge-dark"><i class="fa fa-balance-scale" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+appAcctTip.join("<br />")+'"></i></span></td>' +
                         '<td>'+
-                        '<button class="badge badge-primary" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="fa fa-pencil"></i></button>'+
+                        '<button class="badge badge-primary" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="fas fa-pencil-alt"></i></button>'+
                         // '<button class="btn btn-danger btn-sm" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="fa fa-trash"></i></button>'+
                         '</td>'+
                         '</tr>';
@@ -776,7 +783,7 @@ function getCategories() {
                         '<td>'+categories[i].name+'</td>'+
                         '<td><span class="badge badge-dark"><i class="fa fa-balance-scale" data-toggle="tooltip" data-placement="bottom" data-html="true" data-container="body" title="'+appAcctTip.join("<br />")+'"></i></span></td>' +
                         '<td>'+
-                        '<button class="badge badge-primary" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="fa fa-pencil"></i></button>'+
+                        '<button class="badge badge-primary" onclick="editCategory(\''+categories[i].id+'\');" style="margin-right:5px;"><i class="fas fa-pencil-alt"></i></button>'+
                         // '<button class="btn btn-danger btn-sm" onclick="deleteCategory(\''+categories[i].id+'\');"><i class="fa fa-trash"></i></button>'+
                         '</td>'+
                         '</tr>';
@@ -787,6 +794,12 @@ function getCategories() {
             const content = tableHead+expenses+incomes+tableEnd;
             $catBody.append(content);
             $('[data-toggle="tooltip"]').tooltip();
+            if (theme === "light") {
+                $("#catTable").removeClass("table-dark");
+            } else {
+                $("#catTable").addClass("table-dark");
+            }
+
             resolve();
         }).error(function(jqXHR/*, textStatus, errorThrown*/) {
             $("#categoryBody").empty();

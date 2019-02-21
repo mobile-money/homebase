@@ -204,7 +204,7 @@ function getLogs() {
                 '<td name="description">'+htmlDecode(log.description)+'</td>' +
                 '<td name="cost" class="d-none d-sm-table-cell">'+log.cost.toFixed(2)+'</td>' +
                 '<td name="servicer" class="d-none d-sm-table-cell">'+log.servicer+'</td>' +
-                '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="fa fa-pencil"></i></button>' +
+                '<td><button class="btn btn-sm btn-primary" title="Edit Log" onclick="editLog(\''+log.id+'\');"><i class="fas fa-pencil-alt"></i></button>' +
                 // '<button class="btn btn-sm btn-danger" title="Delete Log" onclick="deleteLog(\''+log.id+'\');"><i class="fa fa-trash"></i></button>' +
                 '</td>'+
                 '</tr>';

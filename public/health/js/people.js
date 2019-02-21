@@ -162,7 +162,7 @@ function getPeople() {
             }
             row += '<td name="visits"><a href="/health/visit?PersonId='+person.id+'">Visits</a></td>';
 			if (person.owner) {
-                row += '<td><button class="btn btn-sm btn-primary" title="Edit Person" onclick="editPerson(\''+person.id+'\');"><i class="fa fa-pencil"></i></button>' +
+                row += '<td><button class="btn btn-sm btn-primary" title="Edit Person" onclick="editPerson(\''+person.id+'\');"><i class="fas fa-pencil-alt"></i></button>' +
                     // '<button class="btn btn-danger" title="Delete Person" onclick="deletePerson(\''+person.id+'\');"><i class="fa fa-trash"></i></button>' +
                     '</td>';
             } else {

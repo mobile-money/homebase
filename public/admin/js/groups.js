@@ -159,7 +159,7 @@ function getGroups() {
 				'<td name="people" class="small-text"></td>' +
 				'<td>';
 			if (group.owner) {
-				row += '<button class="btn btn-sm btn-primary" title="Edit Group" onclick="editGroup(\''+group.id+'\');"><i class="fa fa-pencil"></i></button>';
+				row += '<button class="btn btn-sm btn-primary" title="Edit Group" onclick="editGroup(\''+group.id+'\');"><i class="fas fa-pencil-alt"></i></button>';
 			}
 			row += '</td></tr>';
 			$("#groupTable").find("tbody").append(row);

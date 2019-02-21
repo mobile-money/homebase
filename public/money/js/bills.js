@@ -180,7 +180,7 @@ $(document).ready(function() {
 						row += '<td name="startDate" class="d-none d-md-table-cell">'+moment.utc(bill.startDate).format("MM/DD/YYYY")+'</td>'+
 						'<td>'+
 							'<button class="btn btn-primary btn-sm" title="Edit Bill" onclick="editBill(\''+bill.id+'\');">'+
-								'<i class="fa fa-pencil"></i>'+
+								'<i class="fas fa-pencil-alt"></i>'+
 							'</button>'+
 							// '<button class="btn btn-danger btn-sm" title="Delete Bill" onclick="deleteBill(\''+bill.id+'\',\''+bill.payee+'\');">'+
 							// 	'<i class="fa fa-remove"></i>'+

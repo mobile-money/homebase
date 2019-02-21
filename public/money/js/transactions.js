@@ -7,6 +7,7 @@ let multiCategoriesObj = [];
 let transactionLimit = 50;
 
 $(document).ready(function() {
+    setTheme();
 	$("body").show();
 	$("#newTDate").val(moment().format("MM/DD/YYYY"));
 	$(".datepicker").datepicker({
@@ -302,7 +303,7 @@ $("#searchField").keypress(function(e) {
                 if (result.hasOwnProperty("future")) {
                     row += '<td>'+
                         '<button class="btn btn-primary btn-xs" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
-                        '<i class="fa fa-pencil"></i>'+
+                        '<i class="fas fa-pencil-alt"></i>'+
                         '</button>'+
                         '<button class="btn btn-danger btn-xs" title="Delete Transaction" onclick="deleteTransaction(\''+result.id+'\');">'+
                         '<i class="fa fa-remove"></i>'+
@@ -311,7 +312,7 @@ $("#searchField").keypress(function(e) {
                 } else {
                     row += '<td>' +
                         '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\'' + result.id + '\');">' +
-                        '<i class="fa fa-pencil"></i>' +
+                        '<i class="fas fa-pencil-alt"></i>' +
                         '</button>' +
                         '</td>';
                 }
@@ -1021,11 +1022,11 @@ function getTransactions(offset, limit, transId) {
             const tDateMoment = moment.utc(result.transactionDate);
             if (result.hasOwnProperty("future")) {
                 dp = true;
-                row = '<tr id="f_'+result.id+'"';
+                row = '<tr id="f_'+result.id+'" class="ft';
                 if (tDateMoment.isAfter(moment(),'days')) {
-                    row += ' class="bg-info"';
+                    row += ' bg-info';
                 }
-                row += '><td>' +
+                row += '"><td>' +
                     '<input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" />' +
                     '<img id="load_'+result.id+'" class="loader-center loader-small" src="../shared/img/loading.gif" style="display:none;" alt="loading" />' +
                     '</td>';
@@ -1043,12 +1044,12 @@ function getTransactions(offset, limit, transId) {
                 '</td>'+
                 '<td name="payee">';
             if (result.BillId !== null) {
-                row += '<span class="badge badge-pill badge-secondary"><i class="fa fa-repeat" title="Recurrent Transaction"></i></span>&nbsp;';
+                row += '<span class="badge badge-pill badge-secondary"><i class="fas fa-redo" title="Recurrent Transaction"></i></span>&nbsp;';
                 // row += '&nbsp;<i class="fa fa-repeat rounded trans-badge" title="Repeating Transaction"></i>';
             }
             if (result.Bill !== null) {
                 if (result.Bill.automatic) {
-                    row += '<span class="badge badge-pill badge-secondary"><i class="fa fa-flash" title="Automatic Payment"></i></span>&nbsp;';
+                    row += '<span class="badge badge-pill badge-secondary"><i class="fas fa-bolt" title="Automatic Payment"></i></span>&nbsp;';
                     // row += '&nbsp;<i class="fa fa-flash rounded trans-badge" title="Automatic Payment"></i>';
                 }
             }
@@ -1105,7 +1106,7 @@ function getTransactions(offset, limit, transId) {
             if (result.hasOwnProperty("future")) {
                 row += '<td>'+
                     '<button class="btn btn-primary btn-sm" title="Edit Transaction" onclick="editFTransaction(\''+result.id+'\');">'+
-                    '<i class="fa fa-pencil"></i>'+
+                    '<i class="fas fa-pencil-alt"></i>'+
                     '</button>'+
                     // '<button class="btn btn-success btn-xs" title="Commit Transaction" onclick="commitFTransaction(\''+result.id+'\');">'+
                     // 	'<i class="fa fa-plus"></i>'+
@@ -1117,7 +1118,7 @@ function getTransactions(offset, limit, transId) {
             } else {
                 row += '<td>' +
                     '<button class="btn btn-primary btn-sm" title="Edit Transaction" onclick="editTransaction(\'' + result.id + '\');">' +
-                    '<i class="fa fa-pencil"></i>' +
+                    '<i class="fas fa-pencil-alt"></i>' +
                     '</button>' +
                     '</td>';
             }
@@ -1255,7 +1256,7 @@ function getMoreTransactions(balance, offset, limit) {
                 row += '<td name="balance">'+balance.toFixed(2)+'</td>';
                 row += '<td>'+
                     '<button class="btn btn-primary btn-xs" title="Edit Account" onclick="editTransaction(\''+result.id+'\');">'+
-                    '<i class="fa fa-pencil"></i>'+
+                    '<i class="fas fa-pencil-alt"></i>'+
                     '</button>'+
                     '</td>'+
                     '</tr>';

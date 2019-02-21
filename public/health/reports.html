@@ -10,7 +10,9 @@
 
 		<!-- Optional theme -->
 		<link rel="stylesheet" href="../shared/css/bootstrap-theme.min.css">
-		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="../shared/css/bootstrap4-toggle.min.css">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+		<!--<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">-->
 
 		<link rel="stylesheet" href="../shared/css/bootstrap-datepicker3.standalone.min.css">
 		<link rel="stylesheet" href="../shared/css/style.css">
@@ -34,6 +36,10 @@
 					<li class="nav-item active"><a class="nav-link" href="/health/reports">Reports <span class="sr-only">(current)</span></a></li>
 				</ul>
 				<ul class="navbar-nav ml-auto">
+					<li style="margin-right:20px;">
+						<label for="theme_switch" hidden>Theme Switch</label>
+						<input id="theme_switch" type="checkbox" checked data-toggle="toggle" data-style="ios" data-size="sm" data-on="<i class='fas fa-sun'></i>" data-off="<i class='fas fa-moon'></i>" data-onstyle="warning" data-offstyle="secondary" />
+					</li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 							Hello, <span id="user_name"></span>
@@ -58,7 +64,7 @@
 				</div>
 			</div>
 			<br />
-			<div class="col-12 text-white">
+			<div class="col-12 base-text text-white">
 				<div class="row">
 					<div class="col-12">
 						<h4>Health Costs</h4>
@@ -81,6 +87,7 @@
 		<script type="text/javascript" src="../shared/js/moment.min.js"></script>
 		<script type="text/javascript" src="../shared/js/underscore-1.8.3.js"></script>
 		<script type="text/javascript" src="../shared/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="../shared/js/bootstrap4-toggle.min.js"></script>
 		<script type="text/javascript" src="../shared/js/highcharts-5.0.2.src.js"></script>
 		<script type="text/javascript" src="js/global.js"></script>
 		<script type="text/javascript" src="js/reports.js"></script>
