@@ -1022,9 +1022,14 @@ function getTransactions(offset, limit, transId) {
             const tDateMoment = moment.utc(result.transactionDate);
             if (result.hasOwnProperty("future")) {
                 dp = true;
-                row = '<tr id="f_'+result.id+'" class="ft';
+                row = '<tr id="f_'+result.id+'"';
                 if (tDateMoment.isAfter(moment(),'days')) {
-                    row += ' bg-info';
+                    row += ' class="ft';
+                    if (theme === "dark") {
+                        row += ' bg-info';
+                    } else {
+                        row += ' bg-warning';
+                    }
                 }
                 row += '"><td>' +
                     '<input size="10" class="datepicker form-control" data-tid="'+result.id+'" value="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-start-date="'+moment.utc(result.transactionDate).format("MM/DD/YYYY")+'" data-date-end-date="'+dateNow+'" id="post_'+result.id+'" style="color:#fff;" />' +
@@ -1032,8 +1037,13 @@ function getTransactions(offset, limit, transId) {
                     '</td>';
             } else {
                 if (flag) {
+                    if (theme === "dark") {
+                        row = '<tr class="hft" id="'+result.id+'" style="color:#ffffbb;">';
+                    } else {
+                        row = '<tr class="hft" id="'+result.id+'" style="background:#fffff0;">';
+                    }
                     // row = '<tr id="'+result.id+'" style="background:#fffff0">';
-                    row = '<tr id="'+result.id+'" style="color:#ffffbb">';
+                    // row = '<tr id="'+result.id+'" style="color:#ffffbb">';
                 } else {
                     row = '<tr id="'+result.id+'">';
                 }

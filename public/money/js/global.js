@@ -79,6 +79,7 @@ function setTheme() {
         $(".card").addClass("bg-dark").addClass("text-white");
         $("table").addClass("table-dark");
         $(".ft").removeClass("bg-warning").addClass("bg-info");
+        $(".hft").css("color", "#ffffbb").css("background", "");
         $("body").css("background-color", "#000");
         $("#budgetName").addClass("text-white");
     } else {
@@ -88,6 +89,7 @@ function setTheme() {
         $(".card").removeClass("bg-dark").removeClass("text-white");
         $("table").removeClass("table-dark");
         $(".ft").removeClass("bg-info").addClass("bg-warning");
+        $(".hft").css("background", "#fffff0").css("color", "");
         $("body").css("background-color", "#fcfcfc");
         $("#budgetName").removeClass("text-white");
     }
